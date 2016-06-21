@@ -456,6 +456,73 @@ _test_project(app_t *app)
 	return ret;
 }
 
+enum {
+	CLASS_NOT_FOUND,
+	CLASS_IS_BASE_CLASS,
+	CLASS_NOT_VALID,
+};
+
+static const ret_t ret_class [] = {
+	[CLASS_NOT_FOUND]           = {LINT_FAIL, "lv2:class not found", LV2_CORE__Plugin},
+		[CLASS_IS_BASE_CLASS]     = {LINT_WARN, "lv2:class is base class", LV2_CORE__Plugin},
+		[CLASS_NOT_VALID]         = {LINT_FAIL, "lv2:class not valid", LV2_CORE__Plugin},
+};
+
+static inline bool
+_test_class_equals(const LilvPluginClass *base, const LilvPluginClass *class)
+{
+	return lilv_node_equals(
+		lilv_plugin_class_get_uri(base),
+		lilv_plugin_class_get_uri(class) );
+}
+
+static inline bool
+_test_class_match(const LilvPluginClass *base, const LilvPluginClass *class)
+{
+	if(_test_class_equals(base, class))
+		return true;
+
+	LilvPluginClasses *children= lilv_plugin_class_get_children(base);
+	if(children)
+	{
+		LILV_FOREACH(plugin_classes, itr, children)
+		{
+			const LilvPluginClass *child = lilv_plugin_classes_get(children, itr);
+			if(_test_class_match(child, class))
+				return true;
+		}
+		lilv_plugin_classes_free(children);
+	}
+
+	return false;
+}
+
+static const ret_t *
+_test_class(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const LilvPluginClass *class = lilv_plugin_get_class(app->plugin);
+	if(class)
+	{
+		const LilvPluginClass *base = lilv_world_get_plugin_class(app->world);
+		if(_test_class_equals(base, class))
+		{
+			ret = &ret_class[CLASS_IS_BASE_CLASS];
+		}
+		else if(!_test_class_match(base, class))
+		{
+			ret = &ret_class[CLASS_NOT_VALID];
+		}
+	}
+	else // !class
+	{
+		ret = &ret_class[CLASS_NOT_FOUND];
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -466,6 +533,7 @@ static const test_t tests [] = {
 	{"Version Minor   ", _test_version_minor},
 	{"Version Micro   ", _test_version_micro},
 	{"Project         ", _test_project},
+	{"Class           ", _test_class},
 	//{"extension_data", _test_extension_data},
 	{NULL, NULL}
 };
