@@ -523,6 +523,48 @@ _test_class(app_t *app)
 	return ret;
 }
 
+enum {
+	FEATURES_NOT_VALID,
+};
+
+static const ret_t ret_feature[] = {
+	[FEATURES_NOT_VALID]         = {LINT_FAIL, "lv2:[optional|required]Feature not valid", LV2_CORE__Feature},
+};
+
+static const ret_t *
+_test_features(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *features = lilv_world_find_nodes(app->world,
+		NULL,
+		lilv_new_uri(app->world, LILV_NS_RDF"type"),
+		lilv_new_uri(app->world, LV2_CORE__Feature));
+	if(features)
+	{
+		LilvNodes *supported = lilv_plugin_get_supported_features(app->plugin);
+		if(supported)
+		{
+			LILV_FOREACH(nodes, itr, supported)
+			{
+				const LilvNode *node = lilv_nodes_get(supported, itr);
+
+				if(!lilv_nodes_contains(features, node))
+				{
+					ret = &ret_feature[FEATURES_NOT_VALID];
+					break;
+				}
+			}
+
+			lilv_nodes_free(supported);
+		}
+
+		lilv_nodes_free(features);
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -534,6 +576,7 @@ static const test_t tests [] = {
 	{"Version Micro   ", _test_version_micro},
 	{"Project         ", _test_project},
 	{"Class           ", _test_class},
+	{"Features        ", _test_features},
 	//{"extension_data", _test_extension_data},
 	{NULL, NULL}
 };
