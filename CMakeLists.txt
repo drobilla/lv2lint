@@ -18,13 +18,19 @@ add_definitions("-DLV2LINT_VERSION=\"${LV2LINT_VERSION}\"")
 
 find_package(PkgConfig) # ${PKG_CONFIG_FOUND}
 
+set(LIBS m)
+
 pkg_search_module(LV2 REQUIRED lv2>=1.10)
 include_directories(${LV2_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${LV2_LDFLAGS})
 
 pkg_search_module(LILV REQUIRED lilv-0>=0.20.0)
 include_directories(${LILV_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${LILV_LDFLAGS})
+if(DEFINED STATIC_LILV)
+	set(LIBS ${STATIC_LILV} ${STATIC_SRATOM} ${STATIC_SORD} ${STATIC_SERD} ${LIBS})
+else()
+	set(LIBS ${LIBS} ${LILV_LDFLAGS})
+endif()
 if((${LILV_VERSION} VERSION_EQUAL "0.22.0") OR (${LILV_VERSION} VERSION_GREATER "0.22.0"))
 	add_definitions("-DLILV_0_22")
 endif()
