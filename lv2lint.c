@@ -50,6 +50,7 @@ enum _lint_t {
 struct _ret_t {
 	lint_t lint;
 	const char *msg;
+	const char *url;
 };
 
 struct _app_t {
@@ -62,7 +63,7 @@ struct _test_t {
 	test_cb_t cb;
 };
 
-const ret_t ret_verification = {LINT_FAIL, "failed"};
+static const ret_t ret_verification = {LINT_FAIL, "failed", NULL};
 
 static const ret_t *
 _test_verification(app_t *app)
@@ -83,9 +84,9 @@ enum {
 };
 
 static const ret_t ret_name [] = {
-	[NAME_NOT_FOUND]      = {LINT_FAIL, "doap:name not found"},
-		[NAME_NOT_A_STRING] = {LINT_FAIL, "doap:name not a string"},
-		[NAME_EMPTY]        = {LINT_FAIL, "doap:name empty"}
+	[NAME_NOT_FOUND]      = {LINT_FAIL, "doap:name not found", LV2_CORE__Plugin},
+		[NAME_NOT_A_STRING] = {LINT_FAIL, "doap:name not a string", LILV_NS_DOAP"name"},
+		[NAME_EMPTY]        = {LINT_FAIL, "doap:name empty", LILV_NS_DOAP"name"}
 };
 
 static const ret_t *
@@ -125,9 +126,9 @@ enum {
 };
 
 static const ret_t ret_license [] = {
-	[LICENSE_NOT_FOUND]    = {LINT_WARN, "doap:license not found"},
-		[LICENSE_NOT_AN_URI] = {LINT_FAIL, "doap:license not an URI"},
-		[LICENSE_EMPTY]      = {LINT_FAIL, "doap:license empty"},
+	[LICENSE_NOT_FOUND]    = {LINT_WARN, "doap:license not found", LV2_CORE__Plugin},
+		[LICENSE_NOT_AN_URI] = {LINT_FAIL, "doap:license not an URI", LILV_NS_DOAP"license"},
+		[LICENSE_EMPTY]      = {LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
 };
 
 static const ret_t * 
@@ -176,15 +177,15 @@ enum {
 };
 
 static const ret_t ret_author [] = {
-	[AUTHOR_NAME_NOT_FOUND]        = {LINT_WARN, "foaf:name not found"},
-		[AUTHOR_NAME_NOT_A_STRING]   = {LINT_FAIL, "foaf:name not an string"},
-		[AUTHOR_NAME_EMPTY]          = {LINT_FAIL, "foaf:name empty"},
-	[AUTHOR_EMAIL_NOT_FOUND]       = {LINT_WARN, "foaf:email not found"},
-		[AUTHOR_EMAIL_NOT_AN_URI]    = {LINT_FAIL, "foaf:email not an URI"},
-		[AUTHOR_EMAIL_EMPTY]         = {LINT_FAIL, "foaf:email empty"},
-	[AUTHOR_HOMEPAGE_NOT_FOUND]    = {LINT_WARN, "foaf:homepage not found"},
-		[AUTHOR_HOMEPAGE_NOT_AN_URI] = {LINT_FAIL, "foaf:homepage not an URI"},
-		[AUTHOR_HOMEPAGE_EMPTY]      = {LINT_FAIL, "foaf:homepage empty"},
+	[AUTHOR_NAME_NOT_FOUND]        = {LINT_WARN, "foaf:name not found", LV2_CORE__project},
+		[AUTHOR_NAME_NOT_A_STRING]   = {LINT_FAIL, "foaf:name not an string", LILV_NS_FOAF"name"},
+		[AUTHOR_NAME_EMPTY]          = {LINT_FAIL, "foaf:name empty", LILV_NS_FOAF"name"},
+	[AUTHOR_EMAIL_NOT_FOUND]       = {LINT_WARN, "foaf:email not found", LV2_CORE__project},
+		[AUTHOR_EMAIL_NOT_AN_URI]    = {LINT_FAIL, "foaf:email not an URI", LILV_NS_FOAF"email"},
+		[AUTHOR_EMAIL_EMPTY]         = {LINT_FAIL, "foaf:email empty", LILV_NS_FOAF"email"},
+	[AUTHOR_HOMEPAGE_NOT_FOUND]    = {LINT_WARN, "foaf:homepage not found", LV2_CORE__project},
+		[AUTHOR_HOMEPAGE_NOT_AN_URI] = {LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage"},
+		[AUTHOR_HOMEPAGE_EMPTY]      = {LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage"},
 };
 
 static const ret_t * 
@@ -283,12 +284,12 @@ enum {
 };
 
 static const ret_t ret_version [] = {
-	[VERSION_MINOR_NOT_FOUND]      = {LINT_FAIL, "lv2:minorVersion not found"},
-		[VERSION_MINOR_NOT_AN_INT]   = {LINT_FAIL, "lv2:minorVersion not an integer"},
-		[VERSION_MINOR_UNSTABLE]     = {LINT_NOTE, "lv2:minorVersion denotes an unstable version"},
-	[VERSION_MICRO_NOT_FOUND]      = {LINT_FAIL, "lv2:microVersion not found"},
-		[VERSION_MICRO_NOT_AN_INT]   = {LINT_FAIL, "lv2:microVersion not an integer"},
-		[VERSION_MICRO_UNSTABLE]     = {LINT_NOTE, "lv2:microVersion denotes an unstable version"},
+	[VERSION_MINOR_NOT_FOUND]      = {LINT_FAIL, "lv2:minorVersion not found", LV2_CORE__minorVersion},
+		[VERSION_MINOR_NOT_AN_INT]   = {LINT_FAIL, "lv2:minorVersion not an integer", LV2_CORE__minorVersion},
+		[VERSION_MINOR_UNSTABLE]     = {LINT_NOTE, "lv2:minorVersion denotes an unstable version", LV2_CORE__minorVersion},
+	[VERSION_MICRO_NOT_FOUND]      = {LINT_FAIL, "lv2:microVersion not found", LV2_CORE__microVersion},
+		[VERSION_MICRO_NOT_AN_INT]   = {LINT_FAIL, "lv2:microVersion not an integer", LV2_CORE__microVersion},
+		[VERSION_MICRO_UNSTABLE]     = {LINT_NOTE, "lv2:microVersion denotes an unstable version", LV2_CORE__microVersion},
 };
 
 static const ret_t * 
@@ -407,10 +408,10 @@ enum {
 };
 
 static const ret_t ret_project [] = {
-	[PROJECT_NOT_FOUND]           = {LINT_NOTE, "lv2:project not found"},
-		[PROJECT_NAME_NOT_FOUND]    = {LINT_FAIL, "lv2:project doap:name not found"},
-		[PROJECT_NAME_NOT_A_STRING] = {LINT_FAIL, "lv2:project doap:name not a string"},
-		[PROJECT_NAME_EMPTY]        = {LINT_FAIL, "lv2:project doap:name empty"},
+	[PROJECT_NOT_FOUND]           = {LINT_NOTE, "lv2:project not found", LV2_CORE__project},
+		[PROJECT_NAME_NOT_FOUND]    = {LINT_WARN, "lv2:project doap:name not found", LV2_CORE__project},
+		[PROJECT_NAME_NOT_A_STRING] = {LINT_FAIL, "lv2:project doap:name not a string", LILV_NS_DOAP"name"},
+		[PROJECT_NAME_EMPTY]        = {LINT_FAIL, "lv2:project doap:name empty", LILV_NS_DOAP"name"},
 };
 
 static const ret_t *
@@ -483,14 +484,14 @@ _test(app_t *app)
 			switch(ret->lint)
 			{
 				case LINT_FAIL:
-					fprintf(stdout, "  ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s\n", test->id, ret->msg);
+					fprintf(stdout, "  ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 					flag = false;
 					break;
 				case LINT_WARN:
-					fprintf(stdout, "  ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s\n", test->id, ret->msg);
+					fprintf(stdout, "  ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 					break;
 				case LINT_NOTE:
-					fprintf(stdout, "  ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s\n", test->id, ret->msg);
+					fprintf(stdout, "  ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 					break;
 			}
 		}
@@ -594,6 +595,7 @@ main(int argc, char **argv)
 						fprintf(stdout, "<%s>\n", argv[i]);
 						if(!_test(&app))
 							ret = -1;
+						fprintf(stdout, "\n");
 					}
 				}
 			}
