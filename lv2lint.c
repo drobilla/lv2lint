@@ -527,7 +527,7 @@ enum {
 	FEATURES_NOT_VALID,
 };
 
-static const ret_t ret_feature[] = {
+static const ret_t ret_features [] = {
 	[FEATURES_NOT_VALID]         = {LINT_FAIL, "lv2:[optional|required]Feature not valid", LV2_CORE__Feature},
 };
 
@@ -536,10 +536,11 @@ _test_features(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *features = lilv_world_find_nodes(app->world,
-		NULL,
-		lilv_new_uri(app->world, LILV_NS_RDF"type"),
-		lilv_new_uri(app->world, LV2_CORE__Feature));
+	LilvNode *rdf_type = lilv_new_uri(app->world, LILV_NS_RDF"type");
+	LilvNode *lv2_Feature = lilv_new_uri(app->world, LV2_CORE__Feature);
+
+	LilvNodes *features = lilv_world_find_nodes(app->world,
+		NULL, rdf_type, lv2_Feature);
 	if(features)
 	{
 		LilvNodes *supported = lilv_plugin_get_supported_features(app->plugin);
@@ -551,7 +552,7 @@ _test_features(app_t *app)
 
 				if(!lilv_nodes_contains(features, node))
 				{
-					ret = &ret_feature[FEATURES_NOT_VALID];
+					ret = &ret_features[FEATURES_NOT_VALID];
 					break;
 				}
 			}
@@ -561,6 +562,55 @@ _test_features(app_t *app)
 
 		lilv_nodes_free(features);
 	}
+
+	lilv_node_free(rdf_type);
+	lilv_node_free(lv2_Feature);
+
+	return ret;
+}
+
+enum {
+	EXTENSIONS_NOT_VALID,
+};
+
+static const ret_t ret_extensions [] = {
+	[EXTENSIONS_NOT_VALID]         = {LINT_FAIL, "lv2:extensionData not valid", LV2_CORE__ExtensionData},
+};
+
+static const ret_t *
+_test_extensions(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *rdf_type = lilv_new_uri(app->world, LILV_NS_RDF"type");
+	LilvNode *lv2_ExtensionData = lilv_new_uri(app->world, LV2_CORE__ExtensionData);
+
+	LilvNodes *extensions = lilv_world_find_nodes(app->world,
+		NULL, rdf_type, lv2_ExtensionData);
+	if(extensions)
+	{
+		LilvNodes *data = lilv_plugin_get_extension_data(app->plugin);
+		if(data)
+		{
+			LILV_FOREACH(nodes, itr, data)
+			{
+				const LilvNode *node = lilv_nodes_get(data, itr);
+
+				if(!lilv_nodes_contains(extensions, node))
+				{
+					ret = &ret_extensions[EXTENSIONS_NOT_VALID];
+					break;
+				}
+			}
+
+			lilv_nodes_free(data);
+		}
+
+		lilv_nodes_free(extensions);
+	}
+
+	lilv_node_free(rdf_type);
+	lilv_node_free(lv2_ExtensionData);
 
 	return ret;
 }
@@ -577,6 +627,7 @@ static const test_t tests [] = {
 	{"Project         ", _test_project},
 	{"Class           ", _test_class},
 	{"Features        ", _test_features},
+	{"Extension Data  ", _test_extensions},
 	//{"extension_data", _test_extension_data},
 	{NULL, NULL}
 };
