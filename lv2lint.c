@@ -114,7 +114,10 @@ main(int argc, char **argv)
 						if(!test_plugin(&app))
 							ret = -1;
 						fprintf(stdout, "\n");
+						app.plugin = NULL;
 					}
+					else
+						ret = -1;
 				}
 			}
 			lilv_node_free(plugin_uri_node);

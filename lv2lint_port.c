@@ -16,3 +16,49 @@
  */
 
 #include <lv2lint.h>
+
+static const test_t tests [] = {
+	/*
+	{"Label", _test_label},
+	{"Range", _test_range},
+	{"Comment", _test_comment},
+	{"Minimum", _test_minimum},
+	{"Maximum", _test_maximum},
+	*/
+
+	{NULL, NULL}
+};
+
+bool
+test_port(app_t *app)
+{
+	bool flag = true;
+
+	for(const test_t *test = tests; test->id && test->cb; test++)
+	{
+		const ret_t *ret = test->cb(app);
+
+		if(ret)
+		{
+			switch(ret->lint)
+			{
+				case LINT_FAIL:
+					fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+					flag = false;
+					break;
+				case LINT_WARN:
+					fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+					break;
+				case LINT_NOTE:
+					fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+					break;
+			}
+		}
+		else
+		{
+			fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+		}
+	}
+
+	return flag;
+}

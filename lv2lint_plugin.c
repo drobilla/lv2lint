@@ -17,18 +17,7 @@
 
 #include <lv2lint.h>
 
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
-#define COLOR_PASS ANSI_COLOR_GREEN
-#define COLOR_NOTE ANSI_COLOR_BLUE
-#define COLOR_WARN ANSI_COLOR_YELLOW
-#define COLOR_FAIL ANSI_COLOR_RED
+#include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 
 static const ret_t ret_verification = {LINT_FAIL, "failed", NULL};
 
@@ -613,22 +602,83 @@ test_plugin(app_t *app)
 			switch(ret->lint)
 			{
 				case LINT_FAIL:
-					fprintf(stdout, "  ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+					fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 					flag = false;
 					break;
 				case LINT_WARN:
-					fprintf(stdout, "  ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+					fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 					break;
 				case LINT_NOTE:
-					fprintf(stdout, "  ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+					fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 					break;
 			}
 		}
 		else
 		{
-			fprintf(stdout, "  ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+			fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
 		}
 	}
+
+	const uint32_t num_ports = lilv_plugin_get_num_ports(app->plugin);
+	for(unsigned i=0; i<num_ports; i++)
+	{
+		app->port = lilv_plugin_get_port_by_index(app->plugin, i);
+		if(app->port)
+		{
+			fprintf(stdout, "  {%d}\n", i);
+			if(!test_port(app))
+				flag = false;
+			app->port = NULL;
+		}
+		else
+			flag = false;
+	}
+
+	LilvNode *patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
+	LilvNode *patch_readable = lilv_new_uri(app->world, LV2_PATCH__readable);
+
+	LilvNodes *writables = lilv_plugin_get_value(app->plugin, patch_writable);
+	if(writables)
+	{
+		LILV_FOREACH(nodes, itr, writables)
+		{
+			app->parameter = lilv_nodes_get(writables, itr);
+			if(app->parameter)
+			{
+				fprintf(stdout, "  <%s>\n", lilv_node_as_uri(app->parameter));
+				if(!test_parameter(app))
+					flag = false;
+				app->parameter = NULL;
+			}
+			else
+				flag = false;
+		}
+
+		lilv_nodes_free(writables);
+	}
+
+	LilvNodes *readables = lilv_plugin_get_value(app->plugin, patch_readable);
+	if(readables)
+	{
+		LILV_FOREACH(nodes, itr, readables)
+		{
+			app->parameter = lilv_nodes_get(readables, itr);
+			if(app->parameter)
+			{
+				fprintf(stdout, "  <%s>\n", lilv_node_as_uri(app->parameter));
+				if(!test_parameter(app))
+					flag = false;
+				app->parameter = NULL;
+			}
+			else
+				flag = false;
+		}
+
+		lilv_nodes_free(readables);
+	}
+
+	lilv_node_free(patch_writable);
+	lilv_node_free(patch_readable);
 
 	return flag;
 }

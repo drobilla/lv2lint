@@ -20,6 +20,14 @@
 
 #include <lilv/lilv.h>
 
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 typedef enum _lint_t lint_t;
 typedef struct _app_t app_t;
 typedef struct _test_t test_t;
@@ -41,6 +49,8 @@ struct _ret_t {
 struct _app_t {
 	LilvWorld *world;
 	const LilvPlugin *plugin;
+	const LilvPort *port;
+	const LilvNode *parameter;
 };
 
 struct _test_t {
@@ -50,5 +60,11 @@ struct _test_t {
 
 bool
 test_plugin(app_t *app);
+
+bool
+test_port(app_t *app);
+
+bool
+test_parameter(app_t *app);
 
 #endif
