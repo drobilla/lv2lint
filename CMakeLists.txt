@@ -36,7 +36,10 @@ if((${LILV_VERSION} VERSION_EQUAL "0.22.0") OR (${LILV_VERSION} VERSION_GREATER 
 endif()
 
 add_executable(lv2lint
-	lv2lint.c)
+	lv2lint.c
+	lv2lint_plugin.c
+	lv2lint_port.c
+	lv2lint_parameter.c)
 set_target_properties(lv2lint PROPERTIES INTERPROCEDURAL_OPTIMIZATION true) # -flto
 target_link_libraries(lv2lint ${LIBS})
 install(TARGETS lv2lint DESTINATION bin)
