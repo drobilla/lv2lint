@@ -195,13 +195,15 @@ _test_default(app_t *app)
 	const ret_t *ret = NULL;
 
 	LilvNode *lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
+	LilvNode *lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
 	LilvNode *lv2_default = lilv_new_uri(app->world, LV2_CORE__default);
 	LilvNode *lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
 	LilvNode *lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, lv2_integer);
 	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, lv2_toggled);
 
-	if(lilv_port_is_a(app->plugin, app->port, lv2_ControlPort))
+	if(  lilv_port_is_a(app->plugin, app->port, lv2_ControlPort)
+		&& lilv_port_is_a(app->plugin, app->port, lv2_InputPort) )
 	{
 		LilvNode *default_node = lilv_port_get(app->plugin, app->port, lv2_default);
 		if(default_node)
@@ -228,6 +230,7 @@ _test_default(app_t *app)
 	}
 
 	lilv_node_free(lv2_ControlPort);
+	lilv_node_free(lv2_InputPort);
 	lilv_node_free(lv2_default);
 	lilv_node_free(lv2_integer);
 	lilv_node_free(lv2_toggled);
@@ -255,13 +258,15 @@ _test_minimum(app_t *app)
 	const ret_t *ret = NULL;
 
 	LilvNode *lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
+	LilvNode *lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
 	LilvNode *lv2_minimum = lilv_new_uri(app->world, LV2_CORE__minimum);
 	LilvNode *lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
 	LilvNode *lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, lv2_integer);
 	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, lv2_toggled);
 
-	if(lilv_port_is_a(app->plugin, app->port, lv2_ControlPort))
+	if(  lilv_port_is_a(app->plugin, app->port, lv2_ControlPort)
+		&& lilv_port_is_a(app->plugin, app->port, lv2_InputPort) )
 	{
 		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, lv2_minimum);
 		if(minimum_node)
@@ -288,6 +293,7 @@ _test_minimum(app_t *app)
 	}
 
 	lilv_node_free(lv2_ControlPort);
+	lilv_node_free(lv2_InputPort);
 	lilv_node_free(lv2_minimum);
 	lilv_node_free(lv2_integer);
 	lilv_node_free(lv2_toggled);
@@ -315,13 +321,15 @@ _test_maximum(app_t *app)
 	const ret_t *ret = NULL;
 
 	LilvNode *lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
+	LilvNode *lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
 	LilvNode *lv2_maximum = lilv_new_uri(app->world, LV2_CORE__maximum);
 	LilvNode *lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
 	LilvNode *lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, lv2_integer);
 	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, lv2_toggled);
 
-	if(lilv_port_is_a(app->plugin, app->port, lv2_ControlPort))
+	if(  lilv_port_is_a(app->plugin, app->port, lv2_ControlPort)
+		&& lilv_port_is_a(app->plugin, app->port, lv2_InputPort) )
 	{
 		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, lv2_maximum);
 		if(maximum_node)
@@ -348,6 +356,7 @@ _test_maximum(app_t *app)
 	}
 
 	lilv_node_free(lv2_ControlPort);
+	lilv_node_free(lv2_InputPort);
 	lilv_node_free(lv2_maximum);
 	lilv_node_free(lv2_integer);
 	lilv_node_free(lv2_toggled);
