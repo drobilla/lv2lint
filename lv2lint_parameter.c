@@ -280,38 +280,54 @@ static const test_t tests [] = {
 	{"Comment         ", _test_comment},
 	{"Range           ", _test_range},
 	//TODO scalePoint
-
-	{NULL, NULL}
 };
+
+static const int tests_n = sizeof(tests) / sizeof(test_t);
 
 bool
 test_parameter(app_t *app)
 {
 	bool flag = true;
+	bool msg = false;
+	const ret_t *rets [tests_n];
 
-	for(const test_t *test = tests; test->id && test->cb; test++)
+	for(unsigned i=0; i<tests_n; i++)
 	{
-		const ret_t *ret = test->cb(app);
+		const test_t *test = &tests[i];
+		rets[i] = test->cb(app);
+		if(rets[i])
+			msg = true;
+	}
 
-		if(ret)
+	if(msg)
+	{
+		fprintf(stdout, "  <%s>\n", lilv_node_as_uri(app->parameter));
+
+		for(unsigned i=0; i<tests_n; i++)
 		{
-			switch(ret->lint)
+			const test_t *test = &tests[i];
+			const ret_t *ret = rets[i];
+
+			if(ret)
 			{
-				case LINT_FAIL:
-					fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-					flag = false;
-					break;
-				case LINT_WARN:
-					fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-					break;
-				case LINT_NOTE:
-					fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-					break;
+				switch(ret->lint)
+				{
+					case LINT_FAIL:
+						fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						flag = false;
+						break;
+					case LINT_WARN:
+						fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						break;
+					case LINT_NOTE:
+						fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						break;
+				}
 			}
-		}
-		else
-		{
-			fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+			else
+			{
+				//fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+			}
 		}
 	}
 

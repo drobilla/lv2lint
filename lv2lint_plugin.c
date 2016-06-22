@@ -632,38 +632,52 @@ static const test_t tests [] = {
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
 	{"Mixed DSP/UI    ", _test_mixed},
-
-	{NULL, NULL}
 };
+
+static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
 
 bool
 test_plugin(app_t *app)
 {
 	bool flag = true;
+	bool msg = false;
+	const ret_t *rets [tests_n];
 
-	for(const test_t *test = tests; test->id && test->cb; test++)
+	for(unsigned i=0; i<tests_n; i++)
 	{
-		const ret_t *ret = test->cb(app);
+		const test_t *test = &tests[i];
+		rets[i] = test->cb(app);
+		if(rets[i])
+			msg = true;
+	}
 
-		if(ret)
+	if(msg)
+	{
+		for(unsigned i=0; i<tests_n; i++)
 		{
-			switch(ret->lint)
+			const test_t *test = &tests[i];
+			const ret_t *ret = rets[i];
+
+			if(ret)
 			{
-				case LINT_FAIL:
-					fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-					flag = false;
-					break;
-				case LINT_WARN:
-					fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-					break;
-				case LINT_NOTE:
-					fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-					break;
+				switch(ret->lint)
+				{
+					case LINT_FAIL:
+						fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						flag = false;
+						break;
+					case LINT_WARN:
+						fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						break;
+					case LINT_NOTE:
+						fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						break;
+				}
 			}
-		}
-		else
-		{
-			fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+			else
+			{
+				//fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+			}
 		}
 	}
 
@@ -673,7 +687,6 @@ test_plugin(app_t *app)
 		app->port = lilv_plugin_get_port_by_index(app->plugin, i);
 		if(app->port)
 		{
-			fprintf(stdout, "  {%d}\n", i);
 			if(!test_port(app))
 				flag = false;
 			app->port = NULL;
@@ -693,7 +706,6 @@ test_plugin(app_t *app)
 			app->parameter = lilv_nodes_get(writables, itr);
 			if(app->parameter)
 			{
-				fprintf(stdout, "  <%s>\n", lilv_node_as_uri(app->parameter));
 				if(!test_parameter(app))
 					flag = false;
 				app->parameter = NULL;
@@ -713,7 +725,6 @@ test_plugin(app_t *app)
 			app->parameter = lilv_nodes_get(readables, itr);
 			if(app->parameter)
 			{
-				fprintf(stdout, "  <%s>\n", lilv_node_as_uri(app->parameter));
 				if(!test_parameter(app))
 					flag = false;
 				app->parameter = NULL;
