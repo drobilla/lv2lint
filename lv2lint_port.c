@@ -208,13 +208,19 @@ _test_default(app_t *app)
 		LilvNode *default_node = lilv_port_get(app->plugin, app->port, lv2_default);
 		if(default_node)
 		{
-			if(is_integer && !lilv_node_is_int(default_node))
+			if(is_integer)
 			{
-				ret = &ret_default[DEFAULT_NOT_AN_INT];
+				if(!lilv_node_is_int(default_node))
+				{
+					ret = &ret_default[DEFAULT_NOT_AN_INT];
+				}
 			}
-			else if(is_toggled && !lilv_node_is_bool(default_node))
+			else if(is_toggled)
 			{
-				ret = &ret_default[DEFAULT_NOT_A_BOOL];
+				if(!lilv_node_is_bool(default_node))
+				{
+					ret = &ret_default[DEFAULT_NOT_A_BOOL];
+				}
 			}
 			else if(!lilv_node_is_float(default_node))
 			{
@@ -271,13 +277,19 @@ _test_minimum(app_t *app)
 		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, lv2_minimum);
 		if(minimum_node)
 		{
-			if(is_integer && !lilv_node_is_int(minimum_node))
+			if(is_integer)
 			{
-				ret = &ret_minimum[MINIMUM_NOT_AN_INT];
+				if(!lilv_node_is_int(minimum_node))
+				{
+					ret = &ret_minimum[MINIMUM_NOT_AN_INT];
+				}
 			}
-			else if(is_toggled && !lilv_node_is_bool(minimum_node))
+			else if(is_toggled)
 			{
-				ret = &ret_minimum[MINIMUM_NOT_A_BOOL];
+				if(!lilv_node_is_bool(minimum_node))
+				{
+					ret = &ret_minimum[MINIMUM_NOT_A_BOOL];
+				}
 			}
 			else if(!lilv_node_is_float(minimum_node))
 			{
@@ -334,13 +346,19 @@ _test_maximum(app_t *app)
 		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, lv2_maximum);
 		if(maximum_node)
 		{
-			if(is_integer && !lilv_node_is_int(maximum_node))
+			if(is_integer)
 			{
-				ret = &ret_maximum[MAXIMUM_NOT_AN_INT];
+				if(!lilv_node_is_int(maximum_node))
+				{
+					ret = &ret_maximum[MAXIMUM_NOT_AN_INT];
+				}
 			}
-			else if(is_toggled && !lilv_node_is_bool(maximum_node))
+			else if(is_toggled)
 			{
-				ret = &ret_maximum[MAXIMUM_NOT_A_BOOL];
+				if(!lilv_node_is_bool(maximum_node))
+				{
+					ret = &ret_maximum[MAXIMUM_NOT_A_BOOL];
+				}
 			}
 			else if(!lilv_node_is_float(maximum_node))
 			{
