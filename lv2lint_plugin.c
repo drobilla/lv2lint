@@ -643,6 +643,8 @@ test_plugin(app_t *app)
 	bool msg = false;
 	const ret_t *rets [tests_n];
 
+	fprintf(stdout, ANSI_COLOR_BOLD"<%s>"ANSI_COLOR_RESET"\n", lilv_node_as_uri(lilv_plugin_get_uri(app->plugin)));
+
 	for(unsigned i=0; i<tests_n; i++)
 	{
 		const test_t *test = &tests[i];
@@ -738,6 +740,9 @@ test_plugin(app_t *app)
 
 	lilv_node_free(patch_writable);
 	lilv_node_free(patch_readable);
+
+
+	fprintf(stdout, "\n");
 
 	return flag;
 }

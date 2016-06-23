@@ -392,7 +392,7 @@ test_port(app_t *app)
 
 	if(msg)
 	{
-		fprintf(stdout, "  {%d : %s}\n",
+		fprintf(stdout, "  "ANSI_COLOR_BOLD"{%d : %s}"ANSI_COLOR_RESET"\n",
 			lilv_port_get_index(app->plugin, app->port),
 			lilv_node_as_string(lilv_port_get_symbol(app->plugin, app->port)));
 

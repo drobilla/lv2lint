@@ -110,10 +110,8 @@ main(int argc, char **argv)
 					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 					if(app.plugin)
 					{
-						fprintf(stdout, "<%s>\n", argv[i]);
 						if(!test_plugin(&app))
 							ret = -1;
-						fprintf(stdout, "\n");
 						app.plugin = NULL;
 					}
 					else

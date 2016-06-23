@@ -301,7 +301,7 @@ test_parameter(app_t *app)
 
 	if(msg)
 	{
-		fprintf(stdout, "  <%s>\n", lilv_node_as_uri(app->parameter));
+		fprintf(stdout, "  "ANSI_COLOR_BOLD"<%s>"ANSI_COLOR_RESET"\n", lilv_node_as_uri(app->parameter));
 
 		for(unsigned i=0; i<tests_n; i++)
 		{
