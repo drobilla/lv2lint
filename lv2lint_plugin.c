@@ -741,6 +741,30 @@ test_plugin(app_t *app)
 	lilv_node_free(patch_writable);
 	lilv_node_free(patch_readable);
 
+	LilvUIs *uis = lilv_plugin_get_uis(app->plugin);
+	if(uis)
+	{
+		LILV_FOREACH(uis, itr, uis)
+		{
+			app->ui = lilv_uis_get(uis, itr);
+			if(app->ui)
+			{
+				const LilvNode *ui_uri = lilv_ui_get_uri(app->ui);
+				lilv_world_load_resource(app->world, ui_uri);
+
+				if(!test_ui(app))
+					flag = false;
+				app->ui = NULL;
+
+				lilv_world_unload_resource(app->world, ui_uri);
+			}
+			else
+				flag = false;
+		}
+
+		lilv_uis_free(uis);
+	}
+
 
 	fprintf(stdout, "\n");
 

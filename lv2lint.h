@@ -52,6 +52,7 @@ struct _app_t {
 	const LilvPlugin *plugin;
 	const LilvPort *port;
 	const LilvNode *parameter;
+	const LilvUI *ui;
 };
 
 struct _test_t {
@@ -67,5 +68,8 @@ test_port(app_t *app);
 
 bool
 test_parameter(app_t *app);
+
+bool
+test_ui(app_t *app);
 
 #endif
