@@ -19,6 +19,7 @@
 
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
 static const ret_t ret_verification = {LINT_FAIL, "failed", NULL};
@@ -598,6 +599,69 @@ _test_uri_map(app_t *app)
 	return ret;
 }
 
+enum {
+	STATE_LOAD_DEFAULT_NOT_FOUND,
+	STATE_INTERFACE_NOT_FOUND,
+	STATE_DEFAULT_NOT_FOUND,
+};
+
+static const ret_t ret_state [] = {
+	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not found", LV2_STATE__loadDefaultState},
+	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not found", LV2_STATE__interface},
+	[STATE_DEFAULT_NOT_FOUND]           = {LINT_WARN, "state:state not found", LV2_STATE__state},
+};
+
+static const ret_t *
+_test_state(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *state_loadDefaultState = lilv_new_uri(app->world, LV2_STATE__loadDefaultState);
+	LilvNode *state_state = lilv_new_uri(app->world, LV2_STATE__state);
+	LilvNode *state_iface = lilv_new_uri(app->world, LV2_STATE__interface);
+
+	const bool has_load_default = lilv_plugin_has_feature(app->plugin, state_loadDefaultState);
+	const bool has_state = lilv_world_ask(app->world,
+		lilv_plugin_get_uri(app->plugin), state_state, NULL);
+	const bool has_iface = lilv_plugin_has_extension_data(app->plugin, state_iface);
+
+	if(has_load_default || has_state || has_iface)
+	{
+		if(has_state)
+		{
+			if(!has_load_default)
+			{
+				ret = &ret_state[STATE_LOAD_DEFAULT_NOT_FOUND];
+			}
+			else if(!has_iface)
+			{
+				ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
+			}
+		}
+		else if(has_load_default)
+		{
+			if(!has_state)
+			{
+				ret = &ret_state[STATE_DEFAULT_NOT_FOUND];
+			}
+			else if(!has_iface)
+			{
+				ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
+			}
+		}
+		else if(!has_iface)
+		{
+			ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
+		}
+	}
+
+	lilv_node_free(state_loadDefaultState);
+	lilv_node_free(state_state);
+	lilv_node_free(state_iface);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -612,6 +676,7 @@ static const test_t tests [] = {
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
 	{"URI-Map         ", _test_uri_map},
+	{"State           ", _test_state},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
