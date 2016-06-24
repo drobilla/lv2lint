@@ -85,9 +85,34 @@ _test_data_access(app_t *app)
 	return ret;
 }
 
+enum {
+	MIXED_NOT_VALID,
+};
+
+static const ret_t ret_mixed [] = {
+	[MIXED_NOT_VALID]         = {LINT_WARN, "mixing DSP and UI code in same binary is discouraged", LV2_UI_PREFIX},
+};
+
+static const ret_t *
+_test_mixed(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const LilvNode *library_uri = lilv_plugin_get_library_uri(app->plugin);
+
+	const LilvNode *ui_library_uri = lilv_ui_get_binary_uri(app->ui);
+	if(ui_library_uri && lilv_node_equals(library_uri, ui_library_uri))
+	{
+		ret = &ret_mixed[MIXED_NOT_VALID];
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
+	{"Mixed DSP/UI    ", _test_mixed},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);

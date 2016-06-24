@@ -572,52 +572,6 @@ _test_extensions(app_t *app)
 	return ret;
 }
 
-enum {
-	MIXED_NOT_VALID,
-};
-
-static const ret_t ret_mixed [] = {
-	[MIXED_NOT_VALID]         = {LINT_WARN, "plugin mixes DSP and UI code in same binary", LV2_UI_PREFIX},
-};
-
-static const ret_t *
-_test_mixed(app_t *app)
-{
-	const ret_t *ret = NULL;
-
-	const LilvNode *library_uri = lilv_plugin_get_library_uri(app->plugin);
-
-	LilvUIs *all_uis = lilv_plugin_get_uis(app->plugin);
-	if(all_uis)
-	{
-		LILV_FOREACH(uis, ptr, all_uis)
-		{
-			const LilvUI *ui = lilv_uis_get(all_uis, ptr);
-			if(!ui)
-				continue;
-
-			const LilvNode *ui_uri_node = lilv_ui_get_uri(ui);
-			if(!ui_uri_node)
-				continue;
-
-			// nedded if ui ttl referenced via rdfs#seeAlso
-			lilv_world_load_resource(app->world, ui_uri_node);
-
-			const LilvNode *ui_library_uri= lilv_ui_get_binary_uri(ui);
-			if(ui_library_uri && lilv_node_equals(library_uri, ui_library_uri))
-			{
-				ret = &ret_mixed[MIXED_NOT_VALID];
-			}
-
-			lilv_world_unload_resource(app->world, ui_uri_node);
-		}
-
-		lilv_uis_free(all_uis);
-	}
-
-	return ret;
-}
-
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -631,7 +585,6 @@ static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
-	{"Mixed DSP/UI    ", _test_mixed},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
