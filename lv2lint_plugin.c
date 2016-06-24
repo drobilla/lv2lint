@@ -18,6 +18,7 @@
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
+#include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
 static const ret_t ret_verification = {LINT_FAIL, "failed", NULL};
@@ -572,6 +573,31 @@ _test_extensions(app_t *app)
 	return ret;
 }
 
+enum {
+	URI_MAP_DEPRECATED,
+};
+
+static const ret_t ret_uri_map [] = {
+	[URI_MAP_DEPRECATED]         = {LINT_FAIL, "uri-map is deprecated, use urid:map instead", LV2_URI_MAP_URI},
+};
+
+static const ret_t *
+_test_uri_map(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *uri_map = lilv_new_uri(app->world, LV2_URI_MAP_URI);
+
+	if(lilv_plugin_has_feature(app->plugin, uri_map))
+	{
+		ret = &ret_uri_map[URI_MAP_DEPRECATED];
+	}
+
+	lilv_node_free(uri_map);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -585,6 +611,7 @@ static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
+	{"URI-Map         ", _test_uri_map},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);

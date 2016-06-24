@@ -19,6 +19,8 @@
 
 #include <lv2lint.h>
 
+#include <lv2/lv2plug.in/ns/ext/event/event.h>
+
 enum {
 	CLASS_NOT_VALID,
 };
@@ -358,6 +360,31 @@ _test_maximum(app_t *app)
 	return ret;
 }
 
+enum {
+	EVENT_PORT_DEPRECATED,
+};
+
+static const ret_t ret_event_port [] = {
+	[EVENT_PORT_DEPRECATED]         = {LINT_FAIL, "lv2:EventPort is deprecated, use atom:AtomPort instead", LV2_EVENT__EventPort},
+};
+
+static const ret_t *
+_test_event_port(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *event_port = lilv_new_uri(app->world, LV2_EVENT__EventPort);
+
+	if(lilv_port_is_a(app->plugin, app->port, event_port))
+	{
+		ret = &ret_event_port[EVENT_PORT_DEPRECATED];
+	}
+
+	lilv_node_free(event_port);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"Designation     ", _test_designation},
@@ -365,6 +392,7 @@ static const test_t tests [] = {
 	{"Default         ", _test_default},
 	{"Minimum         ", _test_minimum},
 	{"Maximum         ", _test_maximum},
+	{"Event Port      ", _test_event_port},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);

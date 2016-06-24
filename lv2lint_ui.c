@@ -109,10 +109,68 @@ _test_mixed(app_t *app)
 	return ret;
 }
 
+enum {
+	BINARY_DEPRECATED,
+};
+
+static const ret_t ret_binary [] = {
+	[BINARY_DEPRECATED]         = {LINT_FAIL, "ui:binary is deprecated, use lv2:binary instead", LV2_UI__binary},
+};
+
+static const ret_t *
+_test_binary(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *ui_binary = lilv_new_uri(app->world, LV2_UI__binary);
+
+	const bool has_ui_binary = lilv_world_ask(app->world,
+		lilv_ui_get_uri(app->ui), ui_binary, NULL);
+
+	if(has_ui_binary)
+	{
+		ret = &ret_binary[BINARY_DEPRECATED];
+	}
+
+	lilv_node_free(ui_binary);
+
+	return ret;
+}
+
+enum {
+	RESIDENT_DEPRECATED,
+};
+
+static const ret_t ret_resident [] = {
+	[RESIDENT_DEPRECATED]         = {LINT_FAIL, "ui:makeSONameResident is deprecated", LV2_UI_PREFIX"makeSONameResident"},
+};
+
+static const ret_t *
+_test_resident(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *ui_resident = lilv_new_uri(app->world, LV2_UI_PREFIX"makeSONameResident");
+
+	const bool has_ui_resident = lilv_world_ask(app->world,
+		lilv_ui_get_uri(app->ui), ui_resident, NULL);
+
+	if(has_ui_resident)
+	{
+		ret = &ret_resident[RESIDENT_DEPRECATED];
+	}
+
+	lilv_node_free(ui_resident);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
 	{"Mixed DSP/UI    ", _test_mixed},
+	//{"UI Binary       ", _test_binary}, FIXME lilv does not support lv2:binary for UIs, yet
+	{"UI SO Name      ", _test_resident},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);
