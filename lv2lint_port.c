@@ -387,10 +387,12 @@ _test_event_port(app_t *app)
 
 enum {
 	COMMENT_NOT_FOUND,
+	COMMENT_NOT_A_STRING,
 };
 
 static const ret_t ret_comment [] = {
 	[COMMENT_NOT_FOUND]         = {LINT_NOTE, "rdfs:comment not found", LILV_NS_RDFS"comment"},
+	[COMMENT_NOT_A_STRING]      = {LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"},
 };
 
 static const ret_t *
@@ -398,14 +400,24 @@ _test_comment(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
+	LilvNode *rdfs_comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
 
-	if(!lilv_port_get(app->plugin, app->port, comment))
+	LilvNode *comment = lilv_port_get(app->plugin, app->port, rdfs_comment);
+	if(comment)
+	{
+		if(!lilv_node_is_string(comment))
+		{
+			ret = &ret_comment[COMMENT_NOT_A_STRING];
+		}
+
+		lilv_node_free(comment);
+	}
+	else
 	{
 		ret = &ret_comment[COMMENT_NOT_FOUND];
 	}
 
-	lilv_node_free(comment);
+	lilv_node_free(rdfs_comment);
 
 	return ret;
 }

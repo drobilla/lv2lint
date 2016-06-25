@@ -662,6 +662,100 @@ _test_state(app_t *app)
 	return ret;
 }
 
+enum {
+	COMMENT_NOT_FOUND,
+	COMMENT_NOT_A_STRING,
+	DESCRIPTION_NOT_A_STRING,
+};
+
+static const ret_t ret_comment [] = {
+	[COMMENT_NOT_FOUND]         = {LINT_NOTE, "rdfs:comment or doap:description not found", LV2_CORE__Plugin},
+	[COMMENT_NOT_A_STRING]      = {LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"},
+	[DESCRIPTION_NOT_A_STRING]  = {LINT_FAIL, "doap:description not a string", LILV_NS_DOAP"description"},
+};
+
+static const ret_t *
+_test_comment(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *rdfs_comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
+	LilvNode *doap_description = lilv_new_uri(app->world, LILV_NS_DOAP"description");
+
+	LilvNode *comment = lilv_world_get(app->world,
+		lilv_plugin_get_uri(app->plugin), rdfs_comment, NULL);
+	LilvNode *description= lilv_world_get(app->world,
+		lilv_plugin_get_uri(app->plugin), doap_description, NULL);
+
+	if(comment)
+	{
+		if(!lilv_node_is_string(comment))
+		{
+			ret = &ret_comment[COMMENT_NOT_A_STRING];
+		}
+
+		lilv_node_free(comment);
+		if(description)
+			lilv_node_free(description);
+	}
+	else if(description)
+	{
+		if(!lilv_node_is_string(description))
+		{
+			ret = &ret_comment[DESCRIPTION_NOT_A_STRING];
+		}
+
+		lilv_node_free(comment);
+	}
+	else
+	{
+		ret = &ret_comment[COMMENT_NOT_FOUND];
+	}
+
+	lilv_node_free(rdfs_comment);
+	lilv_node_free(doap_description);
+
+	return ret;
+}
+
+enum {
+	SHORTDESC_NOT_FOUND,
+	SHORTDESC_NOT_A_STRING,
+};
+
+static const ret_t ret_shortdesc [] = {
+	[SHORTDESC_NOT_FOUND]         = {LINT_NOTE, "doap:shortdesc not found", LILV_NS_DOAP"shortdesc"},
+	[SHORTDESC_NOT_A_STRING]      = {LINT_FAIL, "doap:shortdesc not a string", LILV_NS_DOAP"shortdesc"},
+};
+
+static const ret_t *
+_test_shortdesc(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *doap_shortdesc = lilv_new_uri(app->world, LILV_NS_DOAP"shortdesc");
+
+	LilvNode *shortdesc = lilv_world_get(app->world,
+		lilv_plugin_get_uri(app->plugin), doap_shortdesc, NULL);
+	if(shortdesc)
+	{
+		if(!lilv_node_is_string(shortdesc))
+		{
+			ret = &ret_shortdesc[SHORTDESC_NOT_A_STRING];
+		}
+
+		lilv_node_free(shortdesc);
+	}
+	else
+	{
+		ret = &ret_shortdesc[SHORTDESC_NOT_FOUND];
+	}
+
+	lilv_node_free(doap_shortdesc);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -677,6 +771,8 @@ static const test_t tests [] = {
 	{"Extension Data  ", _test_extensions},
 	{"URI-Map         ", _test_uri_map},
 	{"State           ", _test_state},
+	{"Comment         ", _test_comment},
+	{"Shortdesc       ", _test_shortdesc},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
