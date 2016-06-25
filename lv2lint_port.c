@@ -385,6 +385,31 @@ _test_event_port(app_t *app)
 	return ret;
 }
 
+enum {
+	COMMENT_NOT_FOUND,
+};
+
+static const ret_t ret_comment [] = {
+	[COMMENT_NOT_FOUND]         = {LINT_NOTE, "rdfs:comment not found", LILV_NS_RDFS"comment"},
+};
+
+static const ret_t *
+_test_comment(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
+
+	if(!lilv_port_get(app->plugin, app->port, comment))
+	{
+		ret = &ret_comment[COMMENT_NOT_FOUND];
+	}
+
+	lilv_node_free(comment);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"Designation     ", _test_designation},
@@ -393,6 +418,7 @@ static const test_t tests [] = {
 	{"Minimum         ", _test_minimum},
 	{"Maximum         ", _test_maximum},
 	{"Event Port      ", _test_event_port},
+	{"Comment         ", _test_comment},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);
