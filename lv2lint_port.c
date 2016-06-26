@@ -20,6 +20,7 @@
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
+#include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 
 enum {
 	CLASS_NOT_VALID,
@@ -422,6 +423,43 @@ _test_comment(app_t *app)
 	return ret;
 }
 
+enum {
+	GROUP_NOT_FOUND,
+	GROUP_NOT_A_URI,
+};
+
+static const ret_t ret_group [] = {
+	[GROUP_NOT_FOUND]         = {LINT_NOTE, "pg:group not found", LV2_PORT_GROUPS__group},
+	[GROUP_NOT_A_URI]         = {LINT_FAIL, "pg:group not a URI", LV2_PORT_GROUPS__group},
+};
+
+static const ret_t *
+_test_group(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	LilvNode *pg_group = lilv_new_uri(app->world, LV2_PORT_GROUPS__group);
+
+	LilvNode *group = lilv_port_get(app->plugin, app->port, pg_group);
+	if(group)
+	{
+		if(!lilv_node_is_string(group))
+		{
+			ret = &ret_group[GROUP_NOT_A_URI];
+		}
+
+		lilv_node_free(group);
+	}
+	else
+	{
+		ret = &ret_group[GROUP_NOT_FOUND];
+	}
+
+	lilv_node_free(pg_group);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"Designation     ", _test_designation},
@@ -431,6 +469,7 @@ static const test_t tests [] = {
 	{"Maximum         ", _test_maximum},
 	{"Event Port      ", _test_event_port},
 	{"Comment         ", _test_comment},
+	{"Group           ", _test_group},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);
