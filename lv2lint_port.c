@@ -443,7 +443,7 @@ _test_group(app_t *app)
 	LilvNode *group = lilv_port_get(app->plugin, app->port, pg_group);
 	if(group)
 	{
-		if(!lilv_node_is_string(group))
+		if(!lilv_node_is_uri(group))
 		{
 			ret = &ret_group[GROUP_NOT_A_URI];
 		}
