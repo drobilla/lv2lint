@@ -67,75 +67,6 @@ _test_class(app_t *app)
 }
 
 enum {
-	DESIGNATION_NOT_VALID,
-};
-
-static const ret_t ret_designation [] = {
-	[DESIGNATION_NOT_VALID]         = {LINT_FAIL, "lv2:designation not valid", LV2_CORE__designation},
-};
-
-static const ret_t *
-_test_designation(app_t *app)
-{
-	const ret_t *ret = NULL;
-
-	LilvNode *rdf_type = lilv_new_uri(app->world, LILV_NS_RDF"type");
-	LilvNode *rdfs_subClassOf = lilv_new_uri(app->world, LILV_NS_RDFS"subClassOf");
-	LilvNode *lv2_Designation = lilv_new_uri(app->world, LV2_CORE_PREFIX"Designation");
-	LilvNode *lv2_designation = lilv_new_uri(app->world, LV2_CORE__designation);
-
-	LilvNodes *classes = lilv_world_find_nodes(app->world,
-		NULL, rdfs_subClassOf, lv2_Designation);
-	if(classes)
-	{
-		LilvNodes *designation = NULL;
-		LILV_FOREACH(nodes, itr, classes)
-		{
-			const LilvNode *class = lilv_nodes_get(classes, itr);
-			LilvNodes *foo = lilv_world_find_nodes(app->world, NULL, rdf_type, class);
-			if(foo)
-			{
-				LilvNodes *tmp = lilv_nodes_merge(designation, foo);
-				lilv_nodes_free(designation);
-				lilv_nodes_free(foo);
-				designation = tmp;
-			}
-		}
-
-		if(designation)
-		{
-			LilvNodes *supported= lilv_port_get_value(app->plugin, app->port, lv2_designation);
-			if(supported)
-			{
-				LILV_FOREACH(nodes, itr, supported)
-				{
-					const LilvNode *node = lilv_nodes_get(supported, itr);
-
-					if(!lilv_nodes_contains(designation, node))
-					{
-						ret = &ret_designation[DESIGNATION_NOT_VALID];
-						break;
-					}
-				}
-
-				lilv_nodes_free(supported);
-			}
-
-			lilv_nodes_free(designation);
-		}
-
-		lilv_nodes_free(classes);
-	}
-
-	lilv_node_free(rdf_type);
-	lilv_node_free(rdfs_subClassOf);
-	lilv_node_free(lv2_Designation);
-	lilv_node_free(lv2_designation);
-
-	return ret;
-}
-
-enum {
 	PROPERTIES_NOT_VALID,
 };
 
@@ -462,7 +393,6 @@ _test_group(app_t *app)
 
 static const test_t tests [] = {
 	{"Class           ", _test_class},
-	{"Designation     ", _test_designation},
 	{"PortProperties  ", _test_properties},
 	{"Default         ", _test_default},
 	{"Minimum         ", _test_minimum},
