@@ -30,7 +30,6 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 typedef enum _lint_t lint_t;
-typedef enum _mode_t mode_t;
 typedef struct _app_t app_t;
 typedef struct _test_t test_t;
 typedef struct _ret_t ret_t;
