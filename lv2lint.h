@@ -30,15 +30,16 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 typedef enum _lint_t lint_t;
+typedef enum _mode_t mode_t;
 typedef struct _app_t app_t;
 typedef struct _test_t test_t;
 typedef struct _ret_t ret_t;
 typedef const ret_t *(*test_cb_t)(app_t *app);
 
 enum _lint_t {
-	LINT_NOTE,
-	LINT_WARN,
-	LINT_FAIL
+	LINT_NOTE     = (1 << 1),
+	LINT_WARN     = (1 << 2),
+	LINT_FAIL     = (1 << 3)
 };
 
 struct _ret_t {
@@ -53,6 +54,8 @@ struct _app_t {
 	const LilvPort *port;
 	const LilvNode *parameter;
 	const LilvUI *ui;
+	lint_t show;
+	lint_t mask;
 };
 
 struct _test_t {

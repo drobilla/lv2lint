@@ -26,6 +26,8 @@ int
 main(int argc, char **argv)
 {
 	static app_t app;
+	app.show = LINT_FAIL; // always report failed tests
+	app.mask = LINT_FAIL; // always fail at failed tests
 
 	fprintf(stderr,
 		"%s "LV2LINT_VERSION"\n"
@@ -34,7 +36,7 @@ main(int argc, char **argv)
 		argv[0]);
 	
 	int c;
-	while( (c = getopt(argc, argv, "vhW:") ) != -1)
+	while( (c = getopt(argc, argv, "vhS:E:") ) != -1)
 	{
 		switch(c)
 		{
@@ -58,26 +60,54 @@ main(int argc, char **argv)
 				fprintf(stderr,
 					"--------------------------------------------------------------------\n"
 					"USAGE\n"
-					"   %s [OPTIONS] PLUGIN_URI\n"
+					"   %s [OPTIONS] {PLUGIN_URI}*\n"
 					"\n"
 					"OPTIONS\n"
 					"   [-v]                 print version information\n"
 					"   [-h]                 print usage information\n"
-					"   [-W all]             show warnings for all checks\n"
-					"   [-W err]             treat warnings as errors\n"
-					"   [-W pedantic]        treat notes and warnings as errors\n\n"
+
+					"   [-S warn]            show warnings\n"
+					"   [-S note]            show notes\n"
+					"   [-S all]             show warnings and notes\n"
+
+					"   [-E warn]            treat warnings as errors\n"
+					"   [-E note]            treat notes as errors\n"
+					"   [-E all]             treat warnings and notes as errors\n\n"
 					, argv[0]);
 				return 0;
-			case 'W':
-				if(!strcmp(optarg, "all"))
-					; //FIXME
-				else if(!strcmp(optarg, "err"))
-					; //FIXME
-				else if(!strcmp(optarg, "pedantic"))
-					; //FIXME
+			case 'S':
+				if(!strcmp(optarg, "warn"))
+				{
+					app.show|= LINT_WARN;
+				}
+				else if(!strcmp(optarg, "note"))
+				{
+					app.show|= LINT_NOTE;
+				}
+				else if(!strcmp(optarg, "all"))
+				{
+					app.show|= LINT_WARN | LINT_NOTE;
+				}
+				break;
+			case 'E':
+				if(!strcmp(optarg, "warn"))
+				{
+					app.show |= LINT_WARN;
+					app.mask |= LINT_WARN;
+				}
+				else if(!strcmp(optarg, "note"))
+				{
+					app.show |= LINT_NOTE;
+					app.mask |= LINT_NOTE;
+				}
+				else if(!strcmp(optarg, "all"))
+				{
+					app.show |= LINT_WARN | LINT_NOTE;
+					app.mask |= LINT_WARN | LINT_NOTE;
+				}
 				break;
 			case '?':
-				if(optopt == 'W')
+				if( (optopt == 'S') || (optopt == 'E') )
 					fprintf(stderr, "Option `-%c' requires an argument.\n", optopt);
 				else if(isprint(optopt))
 					fprintf(stderr, "Unknown option `-%c'.\n", optopt);

@@ -295,7 +295,7 @@ test_parameter(app_t *app)
 	{
 		const test_t *test = &tests[i];
 		rets[i] = test->cb(app);
-		if(rets[i])
+		if(rets[i] && (rets[i]->lint & app->show) )
 			msg = true;
 	}
 
@@ -310,11 +310,10 @@ test_parameter(app_t *app)
 
 			if(ret)
 			{
-				switch(ret->lint)
+				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
 						fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-						flag = false;
 						break;
 					case LINT_WARN:
 						fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
@@ -323,6 +322,9 @@ test_parameter(app_t *app)
 						fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 						break;
 				}
+
+				if(flag)
+					flag = (ret->lint & app->mask) ? false : true;
 			}
 			else
 			{

@@ -790,7 +790,7 @@ test_plugin(app_t *app)
 	{
 		const test_t *test = &tests[i];
 		rets[i] = test->cb(app);
-		if(rets[i])
+		if(rets[i] && (rets[i]->lint & app->show) )
 			msg = true;
 	}
 
@@ -803,11 +803,10 @@ test_plugin(app_t *app)
 
 			if(ret)
 			{
-				switch(ret->lint)
+				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
 						fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
-						flag = false;
 						break;
 					case LINT_WARN:
 						fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
@@ -816,6 +815,9 @@ test_plugin(app_t *app)
 						fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
 						break;
 				}
+
+				if(flag)
+					flag = (ret->lint & app->mask) ? false : true;
 			}
 			else
 			{
@@ -827,15 +829,20 @@ test_plugin(app_t *app)
 	const uint32_t num_ports = lilv_plugin_get_num_ports(app->plugin);
 	for(unsigned i=0; i<num_ports; i++)
 	{
+		bool port_flag = true;
+
 		app->port = lilv_plugin_get_port_by_index(app->plugin, i);
 		if(app->port)
 		{
 			if(!test_port(app))
-				flag = false;
+				port_flag = false;
 			app->port = NULL;
 		}
 		else
-			flag = false;
+			port_flag = false;
+
+		if(flag && !port_flag)
+			flag = port_flag;
 	}
 
 	LilvNode *patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
@@ -846,15 +853,20 @@ test_plugin(app_t *app)
 	{
 		LILV_FOREACH(nodes, itr, writables)
 		{
+			bool param_flag = true;
+
 			app->parameter = lilv_nodes_get(writables, itr);
 			if(app->parameter)
 			{
 				if(!test_parameter(app))
-					flag = false;
+					param_flag = false;
 				app->parameter = NULL;
 			}
 			else
-				flag = false;
+				param_flag = false;
+
+			if(flag && !param_flag)
+				flag = param_flag;
 		}
 
 		lilv_nodes_free(writables);
@@ -865,15 +877,20 @@ test_plugin(app_t *app)
 	{
 		LILV_FOREACH(nodes, itr, readables)
 		{
+			bool param_flag = true;
+
 			app->parameter = lilv_nodes_get(readables, itr);
 			if(app->parameter)
 			{
 				if(!test_parameter(app))
-					flag = false;
+					param_flag = false;
 				app->parameter = NULL;
 			}
 			else
-				flag = false;
+				param_flag = false;
+
+			if(flag && !param_flag)
+				flag = param_flag;
 		}
 
 		lilv_nodes_free(readables);
@@ -887,6 +904,8 @@ test_plugin(app_t *app)
 	{
 		LILV_FOREACH(uis, itr, uis)
 		{
+			bool ui_flag = true;
+
 			app->ui = lilv_uis_get(uis, itr);
 			if(app->ui)
 			{
@@ -894,13 +913,16 @@ test_plugin(app_t *app)
 				lilv_world_load_resource(app->world, ui_uri);
 
 				if(!test_ui(app))
-					flag = false;
+					ui_flag = false;
 				app->ui = NULL;
 
 				lilv_world_unload_resource(app->world, ui_uri);
 			}
 			else
-				flag = false;
+				ui_flag = false;
+
+			if(flag && !ui_flag)
+				flag = ui_flag;
 		}
 
 		lilv_uis_free(uis);
