@@ -260,16 +260,16 @@ main(int argc, char **argv)
 	lilv_world_load_all(app.world);
 
 	int ret = 0;
-	for(int i=optind; i<argc; i++)
+	const LilvPlugin *plugins = lilv_world_get_all_plugins(app.world);
+	if(plugins)
 	{
-		const char *plugin_uri = argv[i];
-		if(plugin_uri)
+		for(int i=optind; i<argc; i++)
 		{
-			LilvNode *plugin_uri_node = lilv_new_uri(app.world, plugin_uri);
-			if(plugin_uri_node)
+			const char *plugin_uri = argv[i];
+			if(plugin_uri)
 			{
-				const LilvPlugin *plugins = lilv_world_get_all_plugins(app.world);
-				if(plugins)
+				LilvNode *plugin_uri_node = lilv_new_uri(app.world, plugin_uri);
+				if(plugin_uri_node)
 				{
 					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 					if(app.plugin)
@@ -281,8 +281,8 @@ main(int argc, char **argv)
 					else
 						ret = -1;
 				}
+				lilv_node_free(plugin_uri_node);
 			}
-			lilv_node_free(plugin_uri_node);
 		}
 	}
 
