@@ -36,9 +36,7 @@ _test_label(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdfs_label = lilv_new_uri(app->world, LILV_NS_RDFS"label");
-
-	LilvNode *label_node = lilv_world_get(app->world, app->parameter, rdfs_label, NULL);
+	LilvNode *label_node = lilv_world_get(app->world, app->parameter, app->uris.rdfs_label, NULL);
 	if(label_node)
 	{
 		if(lilv_node_is_string(label_node))
@@ -60,8 +58,6 @@ _test_label(app_t *app)
 		ret = &ret_label[LABEL_NOT_FOUND];
 	}
 
-	lilv_node_free(rdfs_label);
-
 	return ret;
 }
 
@@ -82,9 +78,7 @@ _test_comment(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdfs_comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
-
-	LilvNode *comment_node = lilv_world_get(app->world, app->parameter, rdfs_comment, NULL);
+	LilvNode *comment_node = lilv_world_get(app->world, app->parameter, app->uris.rdfs_comment, NULL);
 	if(comment_node)
 	{
 		if(lilv_node_is_string(comment_node))
@@ -105,8 +99,6 @@ _test_comment(app_t *app)
 	{
 		ret = &ret_comment[COMMENT_NOT_FOUND];
 	}
-
-	lilv_node_free(rdfs_comment);
 
 	return ret;
 }
@@ -142,11 +134,7 @@ _test_range(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdfs_range = lilv_new_uri(app->world, LILV_NS_RDFS"range");
-	LilvNode *lv2_minimum = lilv_new_uri(app->world, LV2_CORE__minimum);
-	LilvNode *lv2_maximum = lilv_new_uri(app->world, LV2_CORE__maximum);
-
-	LilvNode *range_node = lilv_world_get(app->world, app->parameter, rdfs_range, NULL);
+	LilvNode *range_node = lilv_world_get(app->world, app->parameter, app->uris.rdfs_range, NULL);
 	if(range_node)
 	{
 		if(lilv_node_is_uri(range_node))
@@ -158,36 +146,24 @@ _test_range(app_t *app)
 			}
 			else
 			{
-				LilvNode *atom_Bool = lilv_new_uri(app->world, LV2_ATOM__Bool);
-				LilvNode *atom_Int = lilv_new_uri(app->world, LV2_ATOM__Int);
-				LilvNode *atom_Long = lilv_new_uri(app->world, LV2_ATOM__Long);
-				LilvNode *atom_Float = lilv_new_uri(app->world, LV2_ATOM__Float);
-				LilvNode *atom_Double = lilv_new_uri(app->world, LV2_ATOM__Double);
-				LilvNode *atom_String = lilv_new_uri(app->world, LV2_ATOM__String);
-				LilvNode *atom_Literal = lilv_new_uri(app->world, LV2_ATOM__Literal);
-				LilvNode *atom_Path = lilv_new_uri(app->world, LV2_ATOM__Path);
-				LilvNode *atom_Chunk = lilv_new_uri(app->world, LV2_ATOM__Chunk);
-				LilvNode *atom_URI = lilv_new_uri(app->world, LV2_ATOM__URI);
-				LilvNode *atom_URID = lilv_new_uri(app->world, LV2_ATOM__URID);
-
-				if(  lilv_node_equals(range_node, atom_Int)
-					|| lilv_node_equals(range_node, atom_Long)
-					|| lilv_node_equals(range_node, atom_Float)
-					|| lilv_node_equals(range_node, atom_Double) )
+				if(  lilv_node_equals(range_node, app->uris.atom_Int)
+					|| lilv_node_equals(range_node, app->uris.atom_Long)
+					|| lilv_node_equals(range_node, app->uris.atom_Float)
+					|| lilv_node_equals(range_node, app->uris.atom_Double) )
 				{
-					LilvNode *minimum = lilv_world_get(app->world, app->parameter, lv2_minimum, NULL);
+					LilvNode *minimum = lilv_world_get(app->world, app->parameter, app->uris.lv2_minimum, NULL);
 					if(minimum)
 					{
-						if(  lilv_node_equals(range_node, atom_Int)
-							|| lilv_node_equals(range_node, atom_Long) )
+						if(  lilv_node_equals(range_node, app->uris.atom_Int)
+							|| lilv_node_equals(range_node, app->uris.atom_Long) )
 						{
 							if(!lilv_node_is_int(minimum))
 							{
 								ret = &ret_range[RANGE_MINIMUM_NOT_AN_INT];
 							}
 						}
-						else if(lilv_node_equals(range_node, atom_Float)
-							|| lilv_node_equals(range_node, atom_Double) )
+						else if(lilv_node_equals(range_node, app->uris.atom_Float)
+							|| lilv_node_equals(range_node, app->uris.atom_Double) )
 						{
 							if(!lilv_node_is_float(minimum))
 							{
@@ -202,19 +178,19 @@ _test_range(app_t *app)
 						ret = &ret_range[RANGE_MINIMUM_NOT_FOUND];
 					}
 
-					LilvNode *maximum = lilv_world_get(app->world, app->parameter, lv2_maximum, NULL);
+					LilvNode *maximum = lilv_world_get(app->world, app->parameter, app->uris.lv2_maximum, NULL);
 					if(maximum)
 					{
-						if(  lilv_node_equals(range_node, atom_Int)
-							|| lilv_node_equals(range_node, atom_Long) )
+						if(  lilv_node_equals(range_node, app->uris.atom_Int)
+							|| lilv_node_equals(range_node, app->uris.atom_Long) )
 						{
 							if(!lilv_node_is_int(maximum))
 							{
 								ret = &ret_range[RANGE_MAXIMUM_NOT_AN_INT];
 							}
 						}
-						else if(lilv_node_equals(range_node, atom_Float)
-							|| lilv_node_equals(range_node, atom_Double) )
+						else if(lilv_node_equals(range_node, app->uris.atom_Float)
+							|| lilv_node_equals(range_node, app->uris.atom_Double) )
 						{
 							if(!lilv_node_is_float(maximum))
 							{
@@ -229,13 +205,13 @@ _test_range(app_t *app)
 						ret = &ret_range[RANGE_MAXIMUM_NOT_FOUND];
 					}
 				}
-				else if(lilv_node_equals(range_node, atom_Bool)
-					|| lilv_node_equals(range_node, atom_String)
-					|| lilv_node_equals(range_node, atom_Literal)
-					|| lilv_node_equals(range_node, atom_Path)
-					|| lilv_node_equals(range_node, atom_Chunk)
-					|| lilv_node_equals(range_node, atom_URI)
-					|| lilv_node_equals(range_node, atom_URID) )
+				else if(lilv_node_equals(range_node, app->uris.atom_Bool)
+					|| lilv_node_equals(range_node, app->uris.atom_String)
+					|| lilv_node_equals(range_node, app->uris.atom_Literal)
+					|| lilv_node_equals(range_node, app->uris.atom_Path)
+					|| lilv_node_equals(range_node, app->uris.atom_Chunk)
+					|| lilv_node_equals(range_node, app->uris.atom_URI)
+					|| lilv_node_equals(range_node, app->uris.atom_URID) )
 				{
 					// OK
 				}
@@ -243,18 +219,6 @@ _test_range(app_t *app)
 				{
 					ret = &ret_range[RANGE_NOT_AN_ATOM];
 				}
-
-				lilv_node_free(atom_Bool);
-				lilv_node_free(atom_Int);
-				lilv_node_free(atom_Long);
-				lilv_node_free(atom_Float);
-				lilv_node_free(atom_Double);
-				lilv_node_free(atom_String);
-				lilv_node_free(atom_Literal);
-				lilv_node_free(atom_Path);
-				lilv_node_free(atom_Chunk);
-				lilv_node_free(atom_URI);
-				lilv_node_free(atom_URID);
 			}
 		}
 		else // !is_string
@@ -267,10 +231,6 @@ _test_range(app_t *app)
 	{
 		ret = &ret_range[RANGE_NOT_FOUND];
 	}
-
-	lilv_node_free(rdfs_range);
-	lilv_node_free(lv2_minimum);
-	lilv_node_free(lv2_maximum);
 
 	return ret;
 }

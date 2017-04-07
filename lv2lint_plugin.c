@@ -95,9 +95,7 @@ _test_license(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *doap_license_node = lilv_new_uri(app->world, LILV_NS_DOAP"license");
-
-	LilvNode *license_node = lilv_world_get(app->world, lilv_plugin_get_uri(app->plugin), doap_license_node, NULL);
+	LilvNode *license_node = lilv_world_get(app->world, lilv_plugin_get_uri(app->plugin), app->uris.doap_license, NULL);
 	if(license_node)
 	{
 		if(lilv_node_is_uri(license_node))
@@ -117,8 +115,6 @@ _test_license(app_t *app)
 	{
 		ret = &ret_license[LICENSE_NOT_FOUND];
 	}
-
-	lilv_node_free(doap_license_node);
 
 	return ret;
 }
@@ -256,9 +252,7 @@ _test_version_minor(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *minor_version_uri = lilv_new_uri(app->world, LV2_CORE__minorVersion);
-
-	LilvNode *minor_version_nodes = lilv_plugin_get_value(app->plugin , minor_version_uri);
+	LilvNode *minor_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_minorVersion);
 	if(minor_version_nodes)
 	{
 		const LilvNode *minor_version_node = lilv_nodes_get_first(minor_version_nodes);
@@ -288,8 +282,6 @@ _test_version_minor(app_t *app)
 		ret = &ret_version[VERSION_MINOR_NOT_FOUND];
 	}
 
-	lilv_node_free(minor_version_uri);
-
 	return ret;
 }
 
@@ -298,9 +290,7 @@ _test_version_micro(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *micro_version_uri = lilv_new_uri(app->world, LV2_CORE__microVersion);
-
-	LilvNode *micro_version_nodes = lilv_plugin_get_value(app->plugin , micro_version_uri);
+	LilvNode *micro_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_microVersion);
 	if(micro_version_nodes)
 	{
 		const LilvNode *micro_version_node = lilv_nodes_get_first(micro_version_nodes);
@@ -329,8 +319,6 @@ _test_version_micro(app_t *app)
 	{
 		ret = &ret_version[VERSION_MICRO_NOT_FOUND];
 	}
-
-	lilv_node_free(micro_version_uri);
 
 	return ret;
 }
@@ -378,12 +366,10 @@ _test_project(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *doap_name_node = lilv_new_uri(app->world, LILV_NS_DOAP"name");
-
 	LilvNode *project_node = lilv_plugin_get_project(app->plugin);
 	if(project_node)
 	{
-		LilvNode *project_name_node = lilv_world_get(app->world, project_node, doap_name_node, NULL);
+		LilvNode *project_name_node = lilv_world_get(app->world, project_node, app->uris.doap_name, NULL);
 		if(project_name_node)
 		{
 			if(lilv_node_is_string(project_name_node))
@@ -409,8 +395,6 @@ _test_project(app_t *app)
 	{
 		ret = &ret_project[PROJECT_NOT_FOUND];
 	}
-
-	lilv_free(doap_name_node);
 
 	return ret;
 }
@@ -495,11 +479,8 @@ _test_features(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdf_type = lilv_new_uri(app->world, LILV_NS_RDF"type");
-	LilvNode *lv2_Feature = lilv_new_uri(app->world, LV2_CORE__Feature);
-
 	LilvNodes *features = lilv_world_find_nodes(app->world,
-		NULL, rdf_type, lv2_Feature);
+		NULL, app->uris.rdf_type, app->uris.lv2_Feature);
 	if(features)
 	{
 		LilvNodes *supported = lilv_plugin_get_supported_features(app->plugin);
@@ -522,9 +503,6 @@ _test_features(app_t *app)
 		lilv_nodes_free(features);
 	}
 
-	lilv_node_free(rdf_type);
-	lilv_node_free(lv2_Feature);
-
 	return ret;
 }
 
@@ -541,11 +519,8 @@ _test_extensions(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdf_type = lilv_new_uri(app->world, LILV_NS_RDF"type");
-	LilvNode *lv2_ExtensionData = lilv_new_uri(app->world, LV2_CORE__ExtensionData);
-
 	LilvNodes *extensions = lilv_world_find_nodes(app->world,
-		NULL, rdf_type, lv2_ExtensionData);
+		NULL, app->uris.rdf_type, app->uris.lv2_ExtensionData);
 	if(extensions)
 	{
 		LilvNodes *data = lilv_plugin_get_extension_data(app->plugin);
@@ -568,9 +543,6 @@ _test_extensions(app_t *app)
 		lilv_nodes_free(extensions);
 	}
 
-	lilv_node_free(rdf_type);
-	lilv_node_free(lv2_ExtensionData);
-
 	return ret;
 }
 
@@ -587,14 +559,10 @@ _test_uri_map(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *uri_map = lilv_new_uri(app->world, LV2_URI_MAP_URI);
-
-	if(lilv_plugin_has_feature(app->plugin, uri_map))
+	if(lilv_plugin_has_feature(app->plugin, app->uris.uri_map))
 	{
 		ret = &ret_uri_map[URI_MAP_DEPRECATED];
 	}
-
-	lilv_node_free(uri_map);
 
 	return ret;
 }
@@ -616,14 +584,10 @@ _test_state(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *state_loadDefaultState = lilv_new_uri(app->world, LV2_STATE__loadDefaultState);
-	LilvNode *state_state = lilv_new_uri(app->world, LV2_STATE__state);
-	LilvNode *state_iface = lilv_new_uri(app->world, LV2_STATE__interface);
-
-	const bool has_load_default = lilv_plugin_has_feature(app->plugin, state_loadDefaultState);
+	const bool has_load_default = lilv_plugin_has_feature(app->plugin, app->uris.state_loadDefaultState);
 	const bool has_state = lilv_world_ask(app->world,
-		lilv_plugin_get_uri(app->plugin), state_state, NULL);
-	const bool has_iface = lilv_plugin_has_extension_data(app->plugin, state_iface);
+		lilv_plugin_get_uri(app->plugin), app->uris.state_state, NULL);
+	const bool has_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.state_interface);
 
 	if(has_load_default || has_state || has_iface)
 	{
@@ -655,10 +619,6 @@ _test_state(app_t *app)
 		}
 	}
 
-	lilv_node_free(state_loadDefaultState);
-	lilv_node_free(state_state);
-	lilv_node_free(state_iface);
-
 	return ret;
 }
 
@@ -679,13 +639,10 @@ _test_comment(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdfs_comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
-	LilvNode *doap_description = lilv_new_uri(app->world, LILV_NS_DOAP"description");
-
 	LilvNode *comment = lilv_world_get(app->world,
-		lilv_plugin_get_uri(app->plugin), rdfs_comment, NULL);
+		lilv_plugin_get_uri(app->plugin), app->uris.rdfs_comment, NULL);
 	LilvNode *description= lilv_world_get(app->world,
-		lilv_plugin_get_uri(app->plugin), doap_description, NULL);
+		lilv_plugin_get_uri(app->plugin), app->uris.doap_description, NULL);
 
 	if(comment)
 	{
@@ -705,15 +662,12 @@ _test_comment(app_t *app)
 			ret = &ret_comment[DESCRIPTION_NOT_A_STRING];
 		}
 
-		lilv_node_free(comment);
+		lilv_node_free(description);
 	}
 	else
 	{
 		ret = &ret_comment[COMMENT_NOT_FOUND];
 	}
-
-	lilv_node_free(rdfs_comment);
-	lilv_node_free(doap_description);
 
 	return ret;
 }
@@ -733,10 +687,8 @@ _test_shortdesc(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *doap_shortdesc = lilv_new_uri(app->world, LILV_NS_DOAP"shortdesc");
-
 	LilvNode *shortdesc = lilv_world_get(app->world,
-		lilv_plugin_get_uri(app->plugin), doap_shortdesc, NULL);
+		lilv_plugin_get_uri(app->plugin), app->uris.doap_shortdesc, NULL);
 	if(shortdesc)
 	{
 		if(!lilv_node_is_string(shortdesc))
@@ -750,8 +702,6 @@ _test_shortdesc(app_t *app)
 	{
 		ret = &ret_shortdesc[SHORTDESC_NOT_FOUND];
 	}
-
-	lilv_node_free(doap_shortdesc);
 
 	return ret;
 }
@@ -845,10 +795,7 @@ test_plugin(app_t *app)
 			flag = port_flag;
 	}
 
-	LilvNode *patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
-	LilvNode *patch_readable = lilv_new_uri(app->world, LV2_PATCH__readable);
-
-	LilvNodes *writables = lilv_plugin_get_value(app->plugin, patch_writable);
+	LilvNodes *writables = lilv_plugin_get_value(app->plugin, app->uris.patch_writable);
 	if(writables)
 	{
 		LILV_FOREACH(nodes, itr, writables)
@@ -872,7 +819,7 @@ test_plugin(app_t *app)
 		lilv_nodes_free(writables);
 	}
 
-	LilvNodes *readables = lilv_plugin_get_value(app->plugin, patch_readable);
+	LilvNodes *readables = lilv_plugin_get_value(app->plugin, app->uris.patch_readable);
 	if(readables)
 	{
 		LILV_FOREACH(nodes, itr, readables)
@@ -895,9 +842,6 @@ test_plugin(app_t *app)
 
 		lilv_nodes_free(readables);
 	}
-
-	lilv_node_free(patch_writable);
-	lilv_node_free(patch_readable);
 
 	LilvUIs *uis = lilv_plugin_get_uis(app->plugin);
 	if(uis)

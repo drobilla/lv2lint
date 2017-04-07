@@ -55,6 +55,64 @@ struct _app_t {
 	const LilvUI *ui;
 	lint_t show;
 	lint_t mask;
+	struct {
+		LilvNode *rdfs_label;
+		LilvNode *rdfs_comment;
+		LilvNode *rdfs_range;
+		LilvNode *rdfs_subClassOf;
+
+		LilvNode *rdf_type;
+
+		LilvNode *doap_description;
+		LilvNode *doap_license;
+		LilvNode *doap_name;
+		LilvNode *doap_shortdesc;
+
+		LilvNode *lv2_minimum;
+		LilvNode *lv2_maximum;
+		LilvNode *lv2_Port;
+		LilvNode *lv2_PortProperty;
+		LilvNode *lv2_default;
+		LilvNode *lv2_ControlPort;
+		LilvNode *lv2_CVPort;
+		LilvNode *lv2_InputPort;
+		LilvNode *lv2_integer;
+		LilvNode *lv2_toggled;
+		LilvNode *lv2_Feature;
+		LilvNode *lv2_minorVersion;
+		LilvNode *lv2_microVersion;
+		LilvNode *lv2_ExtensionData;
+		LilvNode *lv2_requiredFeature;
+
+		LilvNode *atom_Bool;
+		LilvNode *atom_Int;
+		LilvNode *atom_Long;
+		LilvNode *atom_Float;
+		LilvNode *atom_Double;
+		LilvNode *atom_String;
+		LilvNode *atom_Literal;
+		LilvNode *atom_Path;
+		LilvNode *atom_Chunk;
+		LilvNode *atom_URI;
+		LilvNode *atom_URID;
+
+		LilvNode *state_loadDefaultState;
+		LilvNode *state_state;
+		LilvNode *state_interface;
+
+		LilvNode *patch_writable;
+		LilvNode *patch_readable;
+
+		LilvNode *pg_group;
+
+		LilvNode *ui_binary;
+		LilvNode *ui_makeSONameResident;
+
+		LilvNode *event_EventPort;
+		LilvNode *uri_map;
+		LilvNode *instance_access;
+		LilvNode *data_access;
+	} uris;
 };
 
 struct _test_t {

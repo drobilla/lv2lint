@@ -37,19 +37,14 @@ _test_instance_access(app_t *app)
 	const ret_t *ret = NULL;
 
 	const LilvNode *uri = lilv_ui_get_uri(app->ui);
-	LilvNode *instance_access = lilv_new_uri(app->world, LV2_INSTANCE_ACCESS_URI);
-	LilvNode *lv2_requiredFeature = lilv_new_uri(app->world, LV2_CORE__requiredFeature);
 
 	const bool needs_instance_access = lilv_world_ask(app->world, uri,
-		lv2_requiredFeature, instance_access);
+		app->uris.lv2_requiredFeature, app->uris.instance_access);
 
 	if(needs_instance_access)
 	{
 		ret = &ret_instance_access[INSTANCE_ACCESS_DISCOURAGED];
 	}
-
-	lilv_node_free(instance_access);
-	lilv_node_free(lv2_requiredFeature);
 
 	return ret;
 }
@@ -68,19 +63,14 @@ _test_data_access(app_t *app)
 	const ret_t *ret = NULL;
 
 	const LilvNode *uri = lilv_ui_get_uri(app->ui);
-	LilvNode *data_access = lilv_new_uri(app->world, LV2_DATA_ACCESS_URI);
-	LilvNode *lv2_requiredFeature = lilv_new_uri(app->world, LV2_CORE__requiredFeature);
 
 	const bool needs_data_access = lilv_world_ask(app->world, uri,
-		lv2_requiredFeature, data_access);
+		app->uris.lv2_requiredFeature, app->uris.data_access);
 
 	if(needs_data_access)
 	{
 		ret = &ret_data_access[DATA_ACCESS_DISCOURAGED];
 	}
-
-	lilv_node_free(data_access);
-	lilv_node_free(lv2_requiredFeature);
 
 	return ret;
 }
@@ -122,17 +112,13 @@ _test_binary(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *ui_binary = lilv_new_uri(app->world, LV2_UI__binary);
-
 	const bool has_ui_binary = lilv_world_ask(app->world,
-		lilv_ui_get_uri(app->ui), ui_binary, NULL);
+		lilv_ui_get_uri(app->ui), app->uris.ui_binary, NULL);
 
 	if(has_ui_binary)
 	{
 		ret = &ret_binary[BINARY_DEPRECATED];
 	}
-
-	lilv_node_free(ui_binary);
 
 	return ret;
 }
@@ -150,17 +136,13 @@ _test_resident(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *ui_resident = lilv_new_uri(app->world, LV2_UI_PREFIX"makeSONameResident");
-
 	const bool has_ui_resident = lilv_world_ask(app->world,
-		lilv_ui_get_uri(app->ui), ui_resident, NULL);
+		lilv_ui_get_uri(app->ui), app->uris.ui_makeSONameResident, NULL);
 
 	if(has_ui_resident)
 	{
 		ret = &ret_resident[RESIDENT_DEPRECATED];
 	}
-
-	lilv_node_free(ui_resident);
 
 	return ret;
 }

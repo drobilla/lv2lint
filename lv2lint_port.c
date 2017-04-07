@@ -35,11 +35,9 @@ _test_class(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdfs_subClassOf = lilv_new_uri(app->world, LILV_NS_RDFS"subClassOf");
-	LilvNode *lv2_Port = lilv_new_uri(app->world, LV2_CORE__Port);
 
 	LilvNodes *class = lilv_world_find_nodes(app->world,
-		NULL, rdfs_subClassOf, lv2_Port);
+		NULL, app->uris.rdfs_subClassOf, app->uris.lv2_Port);
 	if(class)
 	{
 		const LilvNodes *supported= lilv_port_get_classes(app->plugin, app->port);
@@ -60,9 +58,6 @@ _test_class(app_t *app)
 		lilv_nodes_free(class);
 	}
 
-	lilv_node_free(rdfs_subClassOf);
-	lilv_node_free(lv2_Port);
-
 	return ret;
 }
 
@@ -79,11 +74,8 @@ _test_properties(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdf_type = lilv_new_uri(app->world, LILV_NS_RDF"type");
-	LilvNode *lv2_PortProperty = lilv_new_uri(app->world, LV2_CORE__PortProperty);
-
 	LilvNodes *properties = lilv_world_find_nodes(app->world,
-		NULL, rdf_type, lv2_PortProperty);
+		NULL, app->uris.rdf_type, app->uris.lv2_PortProperty);
 	if(properties)
 	{
 		LilvNodes *supported = lilv_port_get_properties(app->plugin, app->port);
@@ -106,8 +98,6 @@ _test_properties(app_t *app)
 		lilv_nodes_free(properties);
 	}
 
-	lilv_node_free(rdf_type);
-	lilv_node_free(lv2_PortProperty);
 	return ret;
 }
 
@@ -185,29 +175,16 @@ _test_default(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
-	LilvNode *lv2_CVPort = lilv_new_uri(app->world, LV2_CORE__CVPort);
-	LilvNode *lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
-	LilvNode *lv2_default = lilv_new_uri(app->world, LV2_CORE__default);
-	LilvNode *lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
-	LilvNode *lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
-	const bool is_integer = lilv_port_has_property(app->plugin, app->port, lv2_integer);
-	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, lv2_toggled);
+	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
+	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
 
-	if(  (lilv_port_is_a(app->plugin, app->port, lv2_ControlPort)
-			|| lilv_port_is_a(app->plugin, app->port, lv2_CVPort))
-		&& lilv_port_is_a(app->plugin, app->port, lv2_InputPort) )
+	if(  (lilv_port_is_a(app->plugin, app->port, app->uris.lv2_ControlPort)
+			|| lilv_port_is_a(app->plugin, app->port, app->uris.lv2_CVPort))
+		&& lilv_port_is_a(app->plugin, app->port, app->uris.lv2_InputPort) )
 	{
-		LilvNode *default_node = lilv_port_get(app->plugin, app->port, lv2_default);
+		LilvNode *default_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_default);
 		ret = _test_range(default_node, ret_default, is_integer, is_toggled);
 	}
-
-	lilv_node_free(lv2_ControlPort);
-	lilv_node_free(lv2_CVPort);
-	lilv_node_free(lv2_InputPort);
-	lilv_node_free(lv2_default);
-	lilv_node_free(lv2_integer);
-	lilv_node_free(lv2_toggled);
 
 	return ret;
 }
@@ -224,30 +201,17 @@ _test_minimum(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
-	LilvNode *lv2_CVPort = lilv_new_uri(app->world, LV2_CORE__CVPort);
-	LilvNode *lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
-	LilvNode *lv2_minimum = lilv_new_uri(app->world, LV2_CORE__minimum);
-	LilvNode *lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
-	LilvNode *lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
-	const bool is_integer = lilv_port_has_property(app->plugin, app->port, lv2_integer);
-	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, lv2_toggled);
+	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
+	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
 
-	if(  (lilv_port_is_a(app->plugin, app->port, lv2_ControlPort)
-			|| lilv_port_is_a(app->plugin, app->port, lv2_CVPort))
-		&& lilv_port_is_a(app->plugin, app->port, lv2_InputPort)
+	if(  (lilv_port_is_a(app->plugin, app->port, app->uris.lv2_ControlPort)
+			|| lilv_port_is_a(app->plugin, app->port, app->uris.lv2_CVPort))
+		&& lilv_port_is_a(app->plugin, app->port, app->uris.lv2_InputPort)
 		&& !is_toggled )
 	{
-		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, lv2_minimum);
+		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_minimum);
 		ret = _test_range(minimum_node, ret_minimum, is_integer, is_toggled);
 	}
-
-	lilv_node_free(lv2_ControlPort);
-	lilv_node_free(lv2_CVPort);
-	lilv_node_free(lv2_InputPort);
-	lilv_node_free(lv2_minimum);
-	lilv_node_free(lv2_integer);
-	lilv_node_free(lv2_toggled);
 
 	return ret;
 }
@@ -264,30 +228,17 @@ _test_maximum(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
-	LilvNode *lv2_CVPort = lilv_new_uri(app->world, LV2_CORE__CVPort);
-	LilvNode *lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
-	LilvNode *lv2_maximum = lilv_new_uri(app->world, LV2_CORE__maximum);
-	LilvNode *lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
-	LilvNode *lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
-	const bool is_integer = lilv_port_has_property(app->plugin, app->port, lv2_integer);
-	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, lv2_toggled);
+	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
+	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
 
-	if(  (lilv_port_is_a(app->plugin, app->port, lv2_ControlPort)
-			|| lilv_port_is_a(app->plugin, app->port, lv2_CVPort))
-		&& lilv_port_is_a(app->plugin, app->port, lv2_InputPort)
+	if(  (lilv_port_is_a(app->plugin, app->port, app->uris.lv2_ControlPort)
+			|| lilv_port_is_a(app->plugin, app->port, app->uris.lv2_CVPort))
+		&& lilv_port_is_a(app->plugin, app->port, app->uris.lv2_InputPort)
 		&& !is_toggled )
 	{
-		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, lv2_maximum);
+		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_maximum);
 		ret = _test_range(maximum_node, ret_maximum, is_integer, is_toggled);
 	}
-
-	lilv_node_free(lv2_ControlPort);
-	lilv_node_free(lv2_CVPort);
-	lilv_node_free(lv2_InputPort);
-	lilv_node_free(lv2_maximum);
-	lilv_node_free(lv2_integer);
-	lilv_node_free(lv2_toggled);
 
 	return ret;
 }
@@ -305,14 +256,10 @@ _test_event_port(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *event_port = lilv_new_uri(app->world, LV2_EVENT__EventPort);
-
-	if(lilv_port_is_a(app->plugin, app->port, event_port))
+	if(lilv_port_is_a(app->plugin, app->port, app->uris.event_EventPort))
 	{
 		ret = &ret_event_port[EVENT_PORT_DEPRECATED];
 	}
-
-	lilv_node_free(event_port);
 
 	return ret;
 }
@@ -332,9 +279,7 @@ _test_comment(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *rdfs_comment = lilv_new_uri(app->world, LILV_NS_RDFS"comment");
-
-	LilvNode *comment = lilv_port_get(app->plugin, app->port, rdfs_comment);
+	LilvNode *comment = lilv_port_get(app->plugin, app->port, app->uris.rdfs_comment);
 	if(comment)
 	{
 		if(!lilv_node_is_string(comment))
@@ -348,8 +293,6 @@ _test_comment(app_t *app)
 	{
 		ret = &ret_comment[COMMENT_NOT_FOUND];
 	}
-
-	lilv_node_free(rdfs_comment);
 
 	return ret;
 }
@@ -369,9 +312,7 @@ _test_group(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	LilvNode *pg_group = lilv_new_uri(app->world, LV2_PORT_GROUPS__group);
-
-	LilvNode *group = lilv_port_get(app->plugin, app->port, pg_group);
+	LilvNode *group = lilv_port_get(app->plugin, app->port, app->uris.pg_group);
 	if(group)
 	{
 		if(!lilv_node_is_uri(group))
@@ -385,8 +326,6 @@ _test_group(app_t *app)
 	{
 		ret = &ret_group[GROUP_NOT_FOUND];
 	}
-
-	lilv_node_free(pg_group);
 
 	return ret;
 }
