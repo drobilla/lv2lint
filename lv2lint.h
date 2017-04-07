@@ -129,6 +129,7 @@ struct _app_t {
 		LilvNode *state_state;
 		LilvNode *state_interface;
 		LilvNode *state_threadSafeRestore;
+		LilvNode *state_makePath;
 
 		LilvNode *work_schedule;
 		LilvNode *work_interface;
@@ -148,6 +149,13 @@ struct _app_t {
 		LilvNode *uri_map;
 		LilvNode *instance_access;
 		LilvNode *data_access;
+
+		LilvNode *log_log;
+
+		LilvNode *urid_map;
+		LilvNode *urid_unmap;
+
+		LilvNode *rsz_resize;
 	} uris;
 };
 

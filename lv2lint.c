@@ -114,6 +114,7 @@ _map_uris(app_t *app)
 	app->uris.state_state = lilv_new_uri(app->world, LV2_STATE__state);
 	app->uris.state_interface = lilv_new_uri(app->world, LV2_STATE__interface);
 	app->uris.state_threadSafeRestore = lilv_new_uri(app->world, LV2_STATE_PREFIX"threadSafeRestore");
+	app->uris.state_makePath = lilv_new_uri(app->world, LV2_STATE__makePath);
 
 	app->uris.work_schedule = lilv_new_uri(app->world, LV2_WORKER__schedule);
 	app->uris.work_interface = lilv_new_uri(app->world, LV2_WORKER__interface);
@@ -133,6 +134,13 @@ _map_uris(app_t *app)
 	app->uris.uri_map = lilv_new_uri(app->world, LV2_URI_MAP_URI);
 	app->uris.instance_access = lilv_new_uri(app->world, LV2_INSTANCE_ACCESS_URI);
 	app->uris.data_access = lilv_new_uri(app->world, LV2_DATA_ACCESS_URI);
+
+	app->uris.log_log = lilv_new_uri(app->world, LV2_LOG__log);
+
+	app->uris.urid_map = lilv_new_uri(app->world, LV2_URID__map);
+	app->uris.urid_unmap = lilv_new_uri(app->world, LV2_URID__unmap);
+
+	app->uris.rsz_resize = lilv_new_uri(app->world, LV2_RESIZE_PORT__resize);
 }
 
 static void
@@ -186,6 +194,7 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.state_state);
 	lilv_node_free(app->uris.state_interface);
 	lilv_node_free(app->uris.state_threadSafeRestore);
+	lilv_node_free(app->uris.state_makePath);
 
 	lilv_node_free(app->uris.work_schedule);
 	lilv_node_free(app->uris.work_interface);
@@ -205,6 +214,13 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.uri_map);
 	lilv_node_free(app->uris.instance_access);
 	lilv_node_free(app->uris.data_access);
+
+	lilv_node_free(app->uris.log_log);
+
+	lilv_node_free(app->uris.urid_map);
+	lilv_node_free(app->uris.urid_unmap);
+
+	lilv_node_free(app->uris.rsz_resize);
 }
 
 static LV2_URID
@@ -539,17 +555,6 @@ main(int argc, char **argv)
 		.data = opts
 	};
 
-	const LV2_Feature *const features [] = {
-		&feat_map,
-		&feat_unmap,
-		&feat_sched,
-		&feat_log,
-		&feat_mkpath,
-		&feat_rsz,
-		&feat_opts,
-		NULL
-	};
-
 	int ret = 0;
 	const LilvPlugin *plugins = lilv_world_get_all_plugins(app.world);
 	if(plugins)
@@ -565,6 +570,40 @@ main(int argc, char **argv)
 					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 					if(app.plugin)
 					{
+						const int MAX_FEATURES = 8;
+						const LV2_Feature *features [MAX_FEATURES];
+						int f = 0;
+
+						LilvNodes *required_features = lilv_plugin_get_required_features(app.plugin);
+						if(required_features)
+						{
+							LILV_FOREACH(nodes, itr, required_features)
+							{
+								const LilvNode *feature = lilv_nodes_get(required_features, itr);
+
+								if(lilv_node_equals(feature, app.uris.urid_map))
+									features[f++] = &feat_map;
+								else if(lilv_node_equals(feature, app.uris.urid_unmap))
+									features[f++] = &feat_unmap;
+								else if(lilv_node_equals(feature, app.uris.work_schedule))
+									features[f++] = &feat_sched;
+								else if(lilv_node_equals(feature, app.uris.log_log))
+									features[f++] = &feat_log;
+								else if(lilv_node_equals(feature, app.uris.state_makePath))
+									features[f++] = &feat_mkpath;
+								else if(lilv_node_equals(feature, app.uris.rsz_resize))
+									features[f++] = &feat_rsz;
+								else if(lilv_node_equals(feature, app.uris.opts_options))
+									features[f++] = &feat_opts;
+
+								//FIXME
+							}
+							lilv_nodes_free(required_features);
+						}
+
+						features[f++] = NULL; // sentinel
+						assert(f <= MAX_FEATURES);
+
 						app.instance = lilv_plugin_instantiate(app.plugin, param_sample_rate, features);
 						if(app.instance)
 						{
