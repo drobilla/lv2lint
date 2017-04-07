@@ -18,6 +18,7 @@
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
+#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
@@ -547,6 +548,39 @@ _test_extensions(app_t *app)
 }
 
 enum {
+	WORKER_SCHEDULE_NOT_FOUND,
+	WORKER_INTERFACE_NOT_FOUND
+};
+
+static const ret_t ret_worker [] = {
+	[WORKER_SCHEDULE_NOT_FOUND]         = {LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule},
+	[WORKER_INTERFACE_NOT_FOUND]        = {LINT_FAIL, "work:interface not defined", LV2_WORKER__interface},
+};
+
+static const ret_t *
+_test_worker(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_work_schedule= lilv_plugin_has_feature(app->plugin, app->uris.work_schedule);
+	const bool has_work_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.work_interface);
+
+	if(has_work_schedule || has_work_iface)
+	{
+		if(!has_work_schedule)
+		{
+			ret = &ret_worker[WORKER_SCHEDULE_NOT_FOUND];
+		}
+		else if(!has_work_iface)
+		{
+			ret = &ret_worker[WORKER_INTERFACE_NOT_FOUND];
+		}
+	}
+
+	return ret;
+}
+
+enum {
 	URI_MAP_DEPRECATED,
 };
 
@@ -719,6 +753,7 @@ static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
+	{"Worker          ", _test_worker},
 	{"URI-Map         ", _test_uri_map},
 	{"State           ", _test_state},
 	{"Comment         ", _test_comment},

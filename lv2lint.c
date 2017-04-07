@@ -24,6 +24,7 @@
 
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
@@ -78,6 +79,9 @@ _map_uris(app_t *app)
 	app->uris.state_loadDefaultState = lilv_new_uri(app->world, LV2_STATE__loadDefaultState);
 	app->uris.state_state = lilv_new_uri(app->world, LV2_STATE__state);
 	app->uris.state_interface = lilv_new_uri(app->world, LV2_STATE__interface);
+
+	app->uris.work_schedule = lilv_new_uri(app->world, LV2_WORKER__schedule);
+	app->uris.work_interface = lilv_new_uri(app->world, LV2_WORKER__interface);
 
 	app->uris.patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
 	app->uris.patch_readable = lilv_new_uri(app->world, LV2_PATCH__readable);
@@ -139,6 +143,9 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.state_loadDefaultState);
 	lilv_node_free(app->uris.state_state);
 	lilv_node_free(app->uris.state_interface);
+
+	lilv_node_free(app->uris.work_schedule);
+	lilv_node_free(app->uris.work_interface);
 
 	lilv_node_free(app->uris.patch_writable);
 	lilv_node_free(app->uris.patch_readable);

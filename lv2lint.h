@@ -100,6 +100,9 @@ struct _app_t {
 		LilvNode *state_state;
 		LilvNode *state_interface;
 
+		LilvNode *work_schedule;
+		LilvNode *work_interface;
+
 		LilvNode *patch_writable;
 		LilvNode *patch_readable;
 
