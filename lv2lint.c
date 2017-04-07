@@ -34,6 +34,7 @@
 #include <lv2/lv2plug.in/ns/ext/instance-access/instance-access.h>
 #include <lv2/lv2plug.in/ns/ext/parameters/parameters.h>
 #include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
+#include <lv2/lv2plug.in/ns/ext/resize-port/resize-port.h>
 #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/lv2plug.in/ns/ext/data-access/data-access.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
@@ -305,13 +306,18 @@ _printf(void *data, LV2_URID type, const char *fmt, ...)
 static char *
 _mkpath(LV2_State_Make_Path_Handle instance, const char *abstract_path)
 {
-	app_t *app = instance;
 	char *absolute_path = NULL;
 
 	if(asprintf(&absolute_path, "/tmp/%s", abstract_path) == -1)
 		absolute_path = NULL;
 
 	return absolute_path;
+}
+
+static LV2_Resize_Port_Status
+_resize(LV2_Resize_Port_Feature_Data instance, uint32_t index, size_t size)
+{
+	return LV2_RESIZE_PORT_SUCCESS;
 }
 
 int
@@ -440,6 +446,10 @@ main(int argc, char **argv)
 		.handle = &app,
 		.path = _mkpath
 	};
+	LV2_Resize_Port_Resize rsz = {
+		.data = &app,
+		.resize = _resize
+	};
 
 	const LV2_URID atom_Float = map.map(map.handle, LV2_ATOM__Float);
 	const LV2_URID atom_Int = map.map(map.handle, LV2_ATOM__Int);
@@ -520,6 +530,10 @@ main(int argc, char **argv)
 		.URI = LV2_STATE__makePath,
 		.data = &mkpath
 	};
+	const LV2_Feature feat_rsz = {
+		.URI = LV2_RESIZE_PORT__resize,
+		.data = &rsz
+	};
 	const LV2_Feature feat_opts = {
 		.URI = LV2_OPTIONS__options,
 		.data = opts
@@ -531,6 +545,7 @@ main(int argc, char **argv)
 		&feat_sched,
 		&feat_log,
 		&feat_mkpath,
+		&feat_rsz,
 		&feat_opts,
 		NULL
 	};
