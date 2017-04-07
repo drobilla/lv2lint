@@ -20,6 +20,11 @@ find_package(PkgConfig) # ${PKG_CONFIG_FOUND}
 
 set(LIBS m)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set(LIBS ${LIBS} dl)
+endif()
+
+
 pkg_search_module(LV2 REQUIRED lv2>=1.10)
 include_directories(${LV2_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${LV2_LDFLAGS})
