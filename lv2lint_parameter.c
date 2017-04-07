@@ -251,6 +251,7 @@ static const int tests_n = sizeof(tests) / sizeof(test_t);
 bool
 test_parameter(app_t *app)
 {
+	const bool atty = isatty(1);
 	bool flag = true;
 	bool msg = false;
 	const ret_t *rets [tests_n];
@@ -265,7 +266,10 @@ test_parameter(app_t *app)
 
 	if(msg)
 	{
-		fprintf(stdout, "  "ANSI_COLOR_BOLD"<%s>"ANSI_COLOR_RESET"\n", lilv_node_as_uri(app->parameter));
+		fprintf(stdout, "  %s<%s>%s\n",
+			colors[atty][ANSI_COLOR_BOLD],
+			lilv_node_as_uri(app->parameter),
+			colors[atty][ANSI_COLOR_RESET]);
 
 		for(unsigned i=0; i<tests_n; i++)
 		{
@@ -277,13 +281,19 @@ test_parameter(app_t *app)
 				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
-						fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						fprintf(stdout, "    [%sFAIL%s]  %s=> %s <%s>\n",
+							colors[atty][ANSI_COLOR_RED], colors[atty][ANSI_COLOR_RESET],
+							test->id, ret->msg, ret->url);
 						break;
 					case LINT_WARN:
-						fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						fprintf(stdout, "    [%sWARN%s]  %s=> %s <%s>\n",
+							colors[atty][ANSI_COLOR_YELLOW], colors[atty][ANSI_COLOR_RESET],
+							test->id, ret->msg, ret->url);
 						break;
 					case LINT_NOTE:
-						fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						fprintf(stdout, "    [%sNOTE%s]  %s=> %s <%s>\n",
+							colors[atty][ANSI_COLOR_CYAN], colors[atty][ANSI_COLOR_RESET],
+							test->id, ret->msg, ret->url);
 						break;
 				}
 
@@ -292,7 +302,11 @@ test_parameter(app_t *app)
 			}
 			else
 			{
-				//fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+				/*
+				fprintf(stdout, "    [%sPASS%s]  %s\n",
+					colors[atty][ANSI_COLOR_GREEN], colors[atty][ANSI_COLOR_RESET],
+					test->id);
+				*/
 			}
 		}
 	}

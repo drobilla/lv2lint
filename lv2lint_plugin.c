@@ -636,7 +636,7 @@ enum {
 
 static const ret_t ret_state [] = {
 	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState},
-	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not define", LV2_STATE__interface},
+	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not defined", LV2_STATE__interface},
 	[STATE_DEFAULT_NOT_FOUND]           = {LINT_WARN, "state:state not defined", LV2_STATE__state},
 	[STATE_INTERFACE_NOT_RETURNED]      = {LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
 	[STATE_SAVE_NOT_FOUND]              = {LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
@@ -807,11 +807,15 @@ static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
 bool
 test_plugin(app_t *app)
 {
+	const bool atty = isatty(1);
 	bool flag = true;
 	bool msg = false;
 	const ret_t *rets [tests_n];
 
-	fprintf(stdout, ANSI_COLOR_BOLD"<%s>"ANSI_COLOR_RESET"\n", lilv_node_as_uri(lilv_plugin_get_uri(app->plugin)));
+	fprintf(stdout, "%s<%s>%s\n",
+		colors[atty][ANSI_COLOR_BOLD],
+		lilv_node_as_uri(lilv_plugin_get_uri(app->plugin)),
+		colors[atty][ANSI_COLOR_RESET]);
 
 	for(unsigned i=0; i<tests_n; i++)
 	{
@@ -833,13 +837,19 @@ test_plugin(app_t *app)
 				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
-						fprintf(stdout, "    ["ANSI_COLOR_RED"FAIL"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						fprintf(stdout, "    [%sFAIL%s]  %s=> %s <%s>\n",
+							colors[atty][ANSI_COLOR_RED], colors[atty][ANSI_COLOR_RESET],
+							test->id, ret->msg, ret->url);
 						break;
 					case LINT_WARN:
-						fprintf(stdout, "    ["ANSI_COLOR_YELLOW"WARN"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						fprintf(stdout, "    [%sWARN%s]  %s=> %s <%s>\n",
+							colors[atty][ANSI_COLOR_YELLOW], colors[atty][ANSI_COLOR_RESET],
+							test->id, ret->msg, ret->url);
 						break;
 					case LINT_NOTE:
-						fprintf(stdout, "    ["ANSI_COLOR_CYAN"NOTE"ANSI_COLOR_RESET"]  %s=> %s <%s>\n", test->id, ret->msg, ret->url);
+						fprintf(stdout, "    [%sNOTE%s]  %s=> %s <%s>\n",
+							colors[atty][ANSI_COLOR_CYAN], colors[atty][ANSI_COLOR_RESET],
+							test->id, ret->msg, ret->url);
 						break;
 				}
 
@@ -848,7 +858,11 @@ test_plugin(app_t *app)
 			}
 			else
 			{
-				//fprintf(stdout, "    ["ANSI_COLOR_GREEN"PASS"ANSI_COLOR_RESET"]  %s\n", test->id);
+				/*
+				fprintf(stdout, "    [%sPASS%s]  %s\n",
+					colors[atty][ANSI_COLOR_GREEN], colors[atty][ANSI_COLOR_RESET],
+					test->id);
+				*/
 			}
 		}
 	}

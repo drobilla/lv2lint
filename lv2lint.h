@@ -18,19 +18,29 @@
 #ifndef _LV2LINT_H
 #define _LV2LINT_H
 
+#include <unistd.h> // isatty
+
 #include <lilv/lilv.h>
 
 #include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 
-#define ANSI_COLOR_BOLD    "\x1b[1m"
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+typedef enum _ansi_color_t ansi_color_t;
+
+enum _ansi_color_t {
+	ANSI_COLOR_BOLD,
+	ANSI_COLOR_RED,
+	ANSI_COLOR_GREEN,
+	ANSI_COLOR_YELLOW,
+	ANSI_COLOR_BLUE,
+	ANSI_COLOR_MAGENTA,
+	ANSI_COLOR_CYAN,
+	ANSI_COLOR_RESET,
+
+	ANSI_COLOR_MAX
+};
+
+const char *colors [2][ANSI_COLOR_MAX];
 
 typedef enum _lint_t lint_t;
 typedef struct _urid_t urid_t;
