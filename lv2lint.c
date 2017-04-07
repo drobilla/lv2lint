@@ -305,7 +305,10 @@ _respond(LV2_Worker_Respond_Handle instance, uint32_t size, const void *data)
 {
 	app_t *app = instance;
 
-	return app->work_iface->work_response(&app->instance, size, data);
+	if(app->work_iface && app->work_iface->work_response)
+		return app->work_iface->work_response(&app->instance, size, data);
+
+	else return LV2_WORKER_ERR_UNKNOWN;
 }
 
 static LV2_Worker_Status
@@ -314,8 +317,10 @@ _sched(LV2_Worker_Schedule_Handle instance, uint32_t size, const void *data)
 	app_t *app = instance;
 
 	LV2_Worker_Status status = LV2_WORKER_SUCCESS;
-	status |= app->work_iface->work(&app->instance, _respond, app, size, data);
-	status |= app->work_iface->end_run(&app->instance);
+	if(app->work_iface && app->work_iface->work)
+		status |= app->work_iface->work(&app->instance, _respond, app, size, data);
+	if(app->work_iface && app->work_iface->end_run)
+		status |= app->work_iface->end_run(&app->instance);
 
 	return status;
 }
