@@ -677,7 +677,7 @@ _test_uri_map(app_t *app)
 enum {
 	STATE_LOAD_DEFAULT_NOT_FOUND,
 	STATE_INTERFACE_NOT_FOUND,
-	STATE_DEFAULT_NOT_FOUND,
+	STATE_STATE_NOT_FOUND,
 	STATE_INTERFACE_NOT_RETURNED,
 	STATE_SAVE_NOT_FOUND,
 	STATE_RESTORE_NOT_FOUND,
@@ -686,7 +686,7 @@ enum {
 static const ret_t ret_state [] = {
 	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState},
 	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not defined", LV2_STATE__interface},
-	[STATE_DEFAULT_NOT_FOUND]           = {LINT_WARN, "state:state not defined", LV2_STATE__state},
+	[STATE_STATE_NOT_FOUND]             = {LINT_WARN, "state:state not defined", LV2_STATE__state},
 	[STATE_INTERFACE_NOT_RETURNED]      = {LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
 	[STATE_SAVE_NOT_FOUND]              = {LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
 	[STATE_RESTORE_NOT_FOUND]           = {LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface},
@@ -698,11 +698,12 @@ _test_state(app_t *app)
 	const ret_t *ret = NULL;
 
 	const bool has_load_default = lilv_plugin_has_feature(app->plugin, app->uris.state_loadDefaultState);
+	const bool has_thread_safe_restore = lilv_plugin_has_feature(app->plugin, app->uris.state_threadSafeRestore);
 	const bool has_state = lilv_world_ask(app->world,
 		lilv_plugin_get_uri(app->plugin), app->uris.state_state, NULL);
 	const bool has_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.state_interface);
 
-	if(has_load_default || has_state || has_iface || app->state_iface)
+	if(has_load_default || has_thread_safe_restore || has_state || has_iface || app->state_iface)
 	{
 		if(!app->state_iface)
 		{
@@ -716,31 +717,20 @@ _test_state(app_t *app)
 		{
 			ret = &ret_state[STATE_RESTORE_NOT_FOUND];
 		}
-		else if(has_state)
+		else if(!has_iface)
+		{
+			ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
+		}
+		else if(has_load_default || has_state)
 		{
 			if(!has_load_default)
 			{
 				ret = &ret_state[STATE_LOAD_DEFAULT_NOT_FOUND];
 			}
-			else if(!has_iface)
+			else if(!has_state)
 			{
-				ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
+				ret = &ret_state[STATE_STATE_NOT_FOUND];
 			}
-		}
-		else if(has_load_default)
-		{
-			if(!has_state)
-			{
-				ret = &ret_state[STATE_DEFAULT_NOT_FOUND];
-			}
-			else if(!has_iface)
-			{
-				ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
-			}
-		}
-		else if(!has_iface)
-		{
-			ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
 		}
 	}
 
