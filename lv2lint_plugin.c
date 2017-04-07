@@ -221,6 +221,7 @@ _test_author_homepage(app_t *app)
 		{
 			ret = &ret_author[AUTHOR_HOMEPAGE_NOT_AN_URI];
 		}
+		lilv_node_free(author_homepage);
 	}
 	else
 	{
@@ -426,6 +427,7 @@ _test_class_match(const LilvPluginClass *base, const LilvPluginClass *class)
 	if(_test_class_equals(base, class))
 		return true;
 
+	bool ret = false;
 	LilvPluginClasses *children= lilv_plugin_class_get_children(base);
 	if(children)
 	{
@@ -433,12 +435,15 @@ _test_class_match(const LilvPluginClass *base, const LilvPluginClass *class)
 		{
 			const LilvPluginClass *child = lilv_plugin_classes_get(children, itr);
 			if(_test_class_match(child, class))
-				return true;
+			{
+				ret = true;
+				break;
+			}
 		}
 		lilv_plugin_classes_free(children);
 	}
 
-	return false;
+	return ret;
 }
 
 static const ret_t *
