@@ -31,8 +31,10 @@
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
+#include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/instance-access/instance-access.h>
 #include <lv2/lv2plug.in/ns/ext/parameters/parameters.h>
+#include <lv2/lv2plug.in/ns/ext/port-props/port-props.h>
 #include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
 #include <lv2/lv2plug.in/ns/ext/resize-port/resize-port.h>
 #include <lv2/lv2plug.in/ns/ext/options/options.h>
@@ -93,6 +95,9 @@ _map_uris(app_t *app)
 	app->uris.lv2_microVersion = lilv_new_uri(app->world, LV2_CORE__microVersion);
 	app->uris.lv2_ExtensionData = lilv_new_uri(app->world, LV2_CORE__ExtensionData);
 	app->uris.lv2_requiredFeature = lilv_new_uri(app->world, LV2_CORE__requiredFeature);
+	app->uris.lv2_isLive = lilv_new_uri(app->world, LV2_CORE__isLive);
+	app->uris.lv2_inPlaceBroken = lilv_new_uri(app->world, LV2_CORE__inPlaceBroken);
+	app->uris.lv2_hardRTCapable = lilv_new_uri(app->world, LV2_CORE__hardRTCapable);
 
 	app->uris.atom_Bool = lilv_new_uri(app->world, LV2_ATOM__Bool);
 	app->uris.atom_Int = lilv_new_uri(app->world, LV2_ATOM__Int);
@@ -141,6 +146,13 @@ _map_uris(app_t *app)
 	app->uris.urid_unmap = lilv_new_uri(app->world, LV2_URID__unmap);
 
 	app->uris.rsz_resize = lilv_new_uri(app->world, LV2_RESIZE_PORT__resize);
+
+	app->uris.bufsz_boundedBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE__boundedBlockLength);
+	app->uris.bufsz_fixedBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE__fixedBlockLength);
+	app->uris.bufsz_powerOf2BlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE__boundedBlockLength);
+	app->uris.bufsz_coarseBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE_PREFIX"coarseBlockLength");
+
+	app->uris.pprops_supportsStrictBounds = lilv_new_uri(app->world, LV2_PORT_PROPS__supportsStrictBounds);
 }
 
 static void
@@ -173,6 +185,9 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.lv2_microVersion);
 	lilv_node_free(app->uris.lv2_ExtensionData);
 	lilv_node_free(app->uris.lv2_requiredFeature);
+	lilv_node_free(app->uris.lv2_isLive);
+	lilv_node_free(app->uris.lv2_inPlaceBroken);
+	lilv_node_free(app->uris.lv2_hardRTCapable);
 
 	lilv_node_free(app->uris.atom_Bool);
 	lilv_node_free(app->uris.atom_Int);
@@ -221,6 +236,13 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.urid_unmap);
 
 	lilv_node_free(app->uris.rsz_resize);
+
+	lilv_node_free(app->uris.bufsz_boundedBlockLength);
+	lilv_node_free(app->uris.bufsz_fixedBlockLength);
+	lilv_node_free(app->uris.bufsz_powerOf2BlockLength);
+	lilv_node_free(app->uris.bufsz_coarseBlockLength);
+
+	lilv_node_free(app->uris.pprops_supportsStrictBounds);
 }
 
 static LV2_URID
@@ -334,6 +356,15 @@ static LV2_Resize_Port_Status
 _resize(LV2_Resize_Port_Feature_Data instance, uint32_t index, size_t size)
 {
 	return LV2_RESIZE_PORT_SUCCESS;
+}
+
+static uint32_t
+_uri_to_id(LV2_URI_Map_Callback_Data instance, const char *map, const char *uri)
+{
+	app_t *app = instance;
+	(void)map;
+
+	return _map(app, uri);
 }
 
 int
@@ -466,6 +497,10 @@ main(int argc, char **argv)
 		.data = &app,
 		.resize = _resize
 	};
+	LV2_URI_Map_Feature urimap = {
+		.callback_data = &app,
+		.uri_to_id = _uri_to_id
+	};
 
 	const LV2_URID atom_Float = map.map(map.handle, LV2_ATOM__Float);
 	const LV2_URID atom_Int = map.map(map.handle, LV2_ATOM__Int);
@@ -554,6 +589,41 @@ main(int argc, char **argv)
 		.URI = LV2_OPTIONS__options,
 		.data = opts
 	};
+	const LV2_Feature feat_urimap = {
+		.URI = LV2_URI_MAP_URI,
+		.data = &urimap
+	};
+
+	const LV2_Feature feat_islive = {
+		.URI = LV2_CORE__isLive
+	};
+	const LV2_Feature feat_inplacebroken = {
+		.URI = LV2_CORE__inPlaceBroken
+	};
+	const LV2_Feature feat_hardrtcapable = {
+		.URI = LV2_CORE__hardRTCapable
+	};
+	const LV2_Feature feat_supportsstrictbounds = {
+		.URI = LV2_PORT_PROPS__supportsStrictBounds
+	};
+	const LV2_Feature feat_boundedblocklength = {
+		.URI = LV2_BUF_SIZE__boundedBlockLength
+	};
+	const LV2_Feature feat_fixedblocklength = {
+		.URI = LV2_BUF_SIZE__fixedBlockLength
+	};
+	const LV2_Feature feat_powerof2blocklength = {
+		.URI = LV2_BUF_SIZE__powerOf2BlockLength
+	};
+	const LV2_Feature feat_coarseblocklength = {
+		.URI = LV2_BUF_SIZE_PREFIX"coarseBlockLength"
+	};
+	const LV2_Feature feat_loaddefaultstate = {
+		.URI = LV2_STATE__loadDefaultState
+	};
+	const LV2_Feature feat_threadsaferestore = {
+		.URI = LV2_STATE_PREFIX"threadSafeRestore"
+	};
 
 	int ret = 0;
 	const LilvPlugin *plugins = lilv_world_get_all_plugins(app.world);
@@ -570,7 +640,7 @@ main(int argc, char **argv)
 					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 					if(app.plugin)
 					{
-						const int MAX_FEATURES = 8;
+						const int MAX_FEATURES = 19;
 						const LV2_Feature *features [MAX_FEATURES];
 						int f = 0;
 
@@ -595,8 +665,28 @@ main(int argc, char **argv)
 									features[f++] = &feat_rsz;
 								else if(lilv_node_equals(feature, app.uris.opts_options))
 									features[f++] = &feat_opts;
-
-								//FIXME
+								else if(lilv_node_equals(feature, app.uris.uri_map))
+									features[f++] = &feat_urimap;
+								else if(lilv_node_equals(feature, app.uris.lv2_isLive))
+									features[f++] = &feat_islive;
+								else if(lilv_node_equals(feature, app.uris.lv2_inPlaceBroken))
+									features[f++] = &feat_inplacebroken;
+								else if(lilv_node_equals(feature, app.uris.lv2_hardRTCapable))
+									features[f++] = &feat_hardrtcapable;
+								else if(lilv_node_equals(feature, app.uris.pprops_supportsStrictBounds))
+									features[f++] = &feat_supportsstrictbounds;
+								else if(lilv_node_equals(feature, app.uris.bufsz_boundedBlockLength))
+									features[f++] = &feat_boundedblocklength;
+								else if(lilv_node_equals(feature, app.uris.bufsz_fixedBlockLength))
+									features[f++] = &feat_fixedblocklength;
+								else if(lilv_node_equals(feature, app.uris.bufsz_powerOf2BlockLength))
+									features[f++] = &feat_powerof2blocklength;
+								else if(lilv_node_equals(feature, app.uris.bufsz_coarseBlockLength))
+									features[f++] = &feat_coarseblocklength;
+								else if(lilv_node_equals(feature, app.uris.state_loadDefaultState))
+									features[f++] = &feat_loaddefaultstate;
+								else if(lilv_node_equals(feature, app.uris.state_threadSafeRestore))
+									features[f++] = &feat_threadsaferestore;
 							}
 							lilv_nodes_free(required_features);
 						}

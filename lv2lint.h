@@ -108,6 +108,9 @@ struct _app_t {
 		LilvNode *lv2_microVersion;
 		LilvNode *lv2_ExtensionData;
 		LilvNode *lv2_requiredFeature;
+		LilvNode *lv2_isLive;
+		LilvNode *lv2_inPlaceBroken;
+		LilvNode *lv2_hardRTCapable;
 
 		LilvNode *atom_Bool;
 		LilvNode *atom_Int;
@@ -156,6 +159,13 @@ struct _app_t {
 		LilvNode *urid_unmap;
 
 		LilvNode *rsz_resize;
+
+		LilvNode *bufsz_boundedBlockLength;
+		LilvNode *bufsz_fixedBlockLength;
+		LilvNode *bufsz_powerOf2BlockLength;
+		LilvNode *bufsz_coarseBlockLength;
+
+		LilvNode *pprops_supportsStrictBounds;
 	} uris;
 };
 
