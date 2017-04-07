@@ -32,8 +32,6 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define MAX_URIDS 8192
-
 typedef enum _lint_t lint_t;
 typedef struct _urid_t urid_t;
 typedef struct _app_t app_t;
@@ -48,7 +46,6 @@ enum _lint_t {
 };
 
 struct _urid_t {
-	LV2_URID urid;
 	char *uri;
 };
 
@@ -69,8 +66,8 @@ struct _app_t {
 	const LV2_State_Interface *state_iface;
 	lint_t show;
 	lint_t mask;
-	urid_t urids [MAX_URIDS];
-	LV2_URID urid;
+	urid_t *urids;
+	LV2_URID nurids;
 	struct {
 		LilvNode *rdfs_label;
 		LilvNode *rdfs_comment;

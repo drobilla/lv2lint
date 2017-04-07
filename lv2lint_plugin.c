@@ -635,9 +635,9 @@ enum {
 };
 
 static const ret_t ret_state [] = {
-	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not found", LV2_STATE__loadDefaultState},
-	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not found", LV2_STATE__interface},
-	[STATE_DEFAULT_NOT_FOUND]           = {LINT_WARN, "state:state not found", LV2_STATE__state},
+	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState},
+	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not define", LV2_STATE__interface},
+	[STATE_DEFAULT_NOT_FOUND]           = {LINT_WARN, "state:state not defined", LV2_STATE__state},
 	[STATE_INTERFACE_NOT_RETURNED]      = {LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
 	[STATE_SAVE_NOT_FOUND]              = {LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
 	[STATE_RESTORE_NOT_FOUND]           = {LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface},

@@ -16,6 +16,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <string.h>
@@ -179,20 +180,24 @@ _map(LV2_URID_Map_Handle instance, const char *uri)
 {
 	app_t *app = instance;
 
-	urid_t *itm;
-	for(itm=app->urids; itm->urid; itm++)
+	for(unsigned i = 0; i < app->nurids; i++)
 	{
+		urid_t *itm = &app->urids[i];
+
 		if(!strcmp(itm->uri, uri))
-			return itm->urid;
+			return i + 1;
 	}
 
-	assert(app->urid + 1 < MAX_URIDS);
+	app->nurids += 1;
+	app->urids = realloc(app->urids, app->nurids*sizeof(urid_t));
+	if(app->urids)
+	{
+		urid_t *itm = &app->urids[app->nurids - 1];
+		itm->uri = strdup(uri);
+		return app->nurids;
+	}
 
-	// create new
-	itm->urid = ++app->urid;
-	itm->uri = strdup(uri);
-
-	return itm->urid;
+	return 0; // failed
 }
 
 static const char *
@@ -200,15 +205,29 @@ _unmap(LV2_URID_Unmap_Handle instance, LV2_URID urid)
 {
 	app_t *app = instance;
 
-	urid_t *itm;
-	for(itm=app->urids; itm->urid; itm++)
+	if( (urid > 0) && (urid <= app->nurids) )
 	{
-		if(itm->urid == urid)
-			return itm->uri;
+		urid_t *itm = &app->urids[urid - 1];
+		return itm->uri;
 	}
 
-	// not found
-	return NULL;
+	return NULL; // failed
+}
+
+static void
+_free_urids(app_t *app)
+{
+	for(unsigned i = 0; i < app->nurids; i++)
+	{
+		urid_t *itm = &app->urids[i];
+
+		if(itm->uri)
+			free(itm->uri);
+	}
+	free(app->urids);
+
+	app->urids = NULL;
+	app->nurids = 0;
 }
 
 static LV2_Worker_Status
@@ -526,6 +545,7 @@ main(int argc, char **argv)
 	}
 
 	_unmap_uris(&app);
+	_free_urids(&app);
 
 	lilv_world_free(app.world);
 
