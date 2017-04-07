@@ -111,6 +111,10 @@ struct _app_t {
 		LilvNode *atom_Chunk;
 		LilvNode *atom_URI;
 		LilvNode *atom_URID;
+		LilvNode *atom_Tuple;
+		LilvNode *atom_Object;
+		LilvNode *atom_Vector;
+		LilvNode *atom_Sequence;
 
 		LilvNode *state_loadDefaultState;
 		LilvNode *state_state;

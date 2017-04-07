@@ -211,7 +211,11 @@ _test_range(app_t *app)
 					|| lilv_node_equals(range_node, app->uris.atom_Path)
 					|| lilv_node_equals(range_node, app->uris.atom_Chunk)
 					|| lilv_node_equals(range_node, app->uris.atom_URI)
-					|| lilv_node_equals(range_node, app->uris.atom_URID) )
+					|| lilv_node_equals(range_node, app->uris.atom_URID)
+					|| lilv_node_equals(range_node, app->uris.atom_Tuple)
+					|| lilv_node_equals(range_node, app->uris.atom_Object)
+					|| lilv_node_equals(range_node, app->uris.atom_Vector)
+					|| lilv_node_equals(range_node, app->uris.atom_Sequence) )
 				{
 					// OK
 				}

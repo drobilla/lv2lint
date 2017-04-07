@@ -80,6 +80,10 @@ _map_uris(app_t *app)
 	app->uris.atom_Chunk = lilv_new_uri(app->world, LV2_ATOM__Chunk);
 	app->uris.atom_URI = lilv_new_uri(app->world, LV2_ATOM__URI);
 	app->uris.atom_URID = lilv_new_uri(app->world, LV2_ATOM__URID);
+	app->uris.atom_Tuple = lilv_new_uri(app->world, LV2_ATOM__Tuple);
+	app->uris.atom_Object = lilv_new_uri(app->world, LV2_ATOM__Object);
+	app->uris.atom_Vector = lilv_new_uri(app->world, LV2_ATOM__Vector);
+	app->uris.atom_Sequence = lilv_new_uri(app->world, LV2_ATOM__Sequence);
 
 	app->uris.state_loadDefaultState = lilv_new_uri(app->world, LV2_STATE__loadDefaultState);
 	app->uris.state_state = lilv_new_uri(app->world, LV2_STATE__state);
@@ -144,6 +148,10 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.atom_Chunk);
 	lilv_node_free(app->uris.atom_URI);
 	lilv_node_free(app->uris.atom_URID);
+	lilv_node_free(app->uris.atom_Tuple);
+	lilv_node_free(app->uris.atom_Object);
+	lilv_node_free(app->uris.atom_Vector);
+	lilv_node_free(app->uris.atom_Sequence);
 
 	lilv_node_free(app->uris.state_loadDefaultState);
 	lilv_node_free(app->uris.state_state);
