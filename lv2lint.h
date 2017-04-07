@@ -20,6 +20,9 @@
 
 #include <lilv/lilv.h>
 
+#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
+
 #define ANSI_COLOR_BOLD    "\x1b[1m"
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -29,7 +32,10 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
+#define MAX_URIDS 8192
+
 typedef enum _lint_t lint_t;
+typedef struct _urid_t urid_t;
 typedef struct _app_t app_t;
 typedef struct _test_t test_t;
 typedef struct _ret_t ret_t;
@@ -41,6 +47,11 @@ enum _lint_t {
 	LINT_FAIL     = (1 << 3)
 };
 
+struct _urid_t {
+	LV2_URID urid;
+	char *uri;
+};
+
 struct _ret_t {
 	lint_t lint;
 	const char *msg;
@@ -50,11 +61,16 @@ struct _ret_t {
 struct _app_t {
 	LilvWorld *world;
 	const LilvPlugin *plugin;
+	LilvInstance *instance;
 	const LilvPort *port;
 	const LilvNode *parameter;
 	const LilvUI *ui;
+	const LV2_Worker_Interface *work_iface;
+	const LV2_State_Interface *state_iface;
 	lint_t show;
 	lint_t mask;
+	urid_t urids [MAX_URIDS];
+	LV2_URID urid;
 	struct {
 		LilvNode *rdfs_label;
 		LilvNode *rdfs_comment;

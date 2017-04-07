@@ -87,7 +87,7 @@ enum {
 
 static const ret_t ret_license [] = {
 	[LICENSE_NOT_FOUND]    = {LINT_WARN, "doap:license not found", LV2_CORE__Plugin},
-		[LICENSE_NOT_AN_URI] = {LINT_FAIL, "doap:license not an URI", LILV_NS_DOAP"license"},
+		[LICENSE_NOT_AN_URI] = {LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license"},
 		[LICENSE_EMPTY]      = {LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
 };
 
@@ -549,12 +549,20 @@ _test_extensions(app_t *app)
 
 enum {
 	WORKER_SCHEDULE_NOT_FOUND,
-	WORKER_INTERFACE_NOT_FOUND
+	WORKER_INTERFACE_NOT_FOUND,
+	WORKER_INTERFACE_NOT_RETURNED,
+	WORKER_WORK_NOT_FOUND,
+	WORKER_WORK_RESPONSE_NOT_FOUND,
+	WORKER_END_RUN_NOT_FOUND,
 };
 
 static const ret_t ret_worker [] = {
 	[WORKER_SCHEDULE_NOT_FOUND]         = {LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule},
 	[WORKER_INTERFACE_NOT_FOUND]        = {LINT_FAIL, "work:interface not defined", LV2_WORKER__interface},
+	[WORKER_INTERFACE_NOT_RETURNED]     = {LINT_FAIL, "work:interface not returned by 'extention_data'", LV2_WORKER__interface},
+	[WORKER_WORK_NOT_FOUND]             = {LINT_FAIL, "work:interface has no 'work' function", LV2_WORKER__interface},
+	[WORKER_WORK_RESPONSE_NOT_FOUND]    = {LINT_FAIL, "work:interface has no 'work_response' function", LV2_WORKER__interface},
+	[WORKER_END_RUN_NOT_FOUND]          = {LINT_NOTE, "work:interface has no 'end_run' function", LV2_WORKER__interface},
 };
 
 static const ret_t *
@@ -565,9 +573,25 @@ _test_worker(app_t *app)
 	const bool has_work_schedule= lilv_plugin_has_feature(app->plugin, app->uris.work_schedule);
 	const bool has_work_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.work_interface);
 
-	if(has_work_schedule || has_work_iface)
+	if(has_work_schedule || has_work_iface || app->work_iface)
 	{
-		if(!has_work_schedule)
+		if(!app->work_iface)
+		{
+			ret = &ret_worker[WORKER_INTERFACE_NOT_RETURNED];
+		}
+		else if(!app->work_iface->work)
+		{
+			ret = &ret_worker[WORKER_WORK_NOT_FOUND];
+		}
+		else if(!app->work_iface->work_response)
+		{
+			ret = &ret_worker[WORKER_WORK_RESPONSE_NOT_FOUND];
+		}
+		else if(!app->work_iface->end_run)
+		{
+			ret = &ret_worker[WORKER_END_RUN_NOT_FOUND];
+		}
+		else if(!has_work_schedule)
 		{
 			ret = &ret_worker[WORKER_SCHEDULE_NOT_FOUND];
 		}
@@ -605,12 +629,18 @@ enum {
 	STATE_LOAD_DEFAULT_NOT_FOUND,
 	STATE_INTERFACE_NOT_FOUND,
 	STATE_DEFAULT_NOT_FOUND,
+	STATE_INTERFACE_NOT_RETURNED,
+	STATE_SAVE_NOT_FOUND,
+	STATE_RESTORE_NOT_FOUND,
 };
 
 static const ret_t ret_state [] = {
 	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not found", LV2_STATE__loadDefaultState},
 	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not found", LV2_STATE__interface},
 	[STATE_DEFAULT_NOT_FOUND]           = {LINT_WARN, "state:state not found", LV2_STATE__state},
+	[STATE_INTERFACE_NOT_RETURNED]      = {LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
+	[STATE_SAVE_NOT_FOUND]              = {LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
+	[STATE_RESTORE_NOT_FOUND]           = {LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface},
 };
 
 static const ret_t *
@@ -623,9 +653,21 @@ _test_state(app_t *app)
 		lilv_plugin_get_uri(app->plugin), app->uris.state_state, NULL);
 	const bool has_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.state_interface);
 
-	if(has_load_default || has_state || has_iface)
+	if(has_load_default || has_state || has_iface || app->state_iface)
 	{
-		if(has_state)
+		if(!app->state_iface)
+		{
+			ret = &ret_state[STATE_INTERFACE_NOT_RETURNED];
+		}
+		else if(!app->state_iface->save)
+		{
+			ret = &ret_state[STATE_SAVE_NOT_FOUND];
+		}
+		else if(!app->state_iface->restore)
+		{
+			ret = &ret_state[STATE_RESTORE_NOT_FOUND];
+		}
+		else if(has_state)
 		{
 			if(!has_load_default)
 			{

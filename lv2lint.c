@@ -19,16 +19,21 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/worker/worker.h>
+#include <lv2/lv2plug.in/ns/ext/log/log.h>
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
 #include <lv2/lv2plug.in/ns/ext/instance-access/instance-access.h>
+#include <lv2/lv2plug.in/ns/ext/parameters/parameters.h>
+#include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
+#include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/lv2plug.in/ns/ext/data-access/data-access.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
@@ -161,6 +166,96 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.data_access);
 }
 
+static LV2_URID
+_map(LV2_URID_Map_Handle instance, const char *uri)
+{
+	app_t *app = instance;
+
+	urid_t *itm;
+	for(itm=app->urids; itm->urid; itm++)
+	{
+		if(!strcmp(itm->uri, uri))
+			return itm->urid;
+	}
+
+	assert(app->urid + 1 < MAX_URIDS);
+
+	// create new
+	itm->urid = ++app->urid;
+	itm->uri = strdup(uri);
+
+	return itm->urid;
+}
+
+static const char *
+_unmap(LV2_URID_Unmap_Handle instance, LV2_URID urid)
+{
+	app_t *app = instance;
+
+	urid_t *itm;
+	for(itm=app->urids; itm->urid; itm++)
+	{
+		if(itm->urid == urid)
+			return itm->uri;
+	}
+
+	// not found
+	return NULL;
+}
+
+static LV2_Worker_Status
+_respond(LV2_Worker_Respond_Handle instance, uint32_t size, const void *data)
+{
+	app_t *app = instance;
+
+	return app->work_iface->work_response(&app->instance, size, data);
+}
+
+static LV2_Worker_Status
+_sched(LV2_Worker_Schedule_Handle instance, uint32_t size, const void *data)
+{
+	app_t *app = instance;
+
+	LV2_Worker_Status status = LV2_WORKER_SUCCESS;
+	status |= app->work_iface->work(&app->instance, _respond, app, size, data);
+	status |= app->work_iface->end_run(&app->instance);
+
+	return status;
+}
+
+static int
+_vprintf(void *data, LV2_URID type, const char *fmt, va_list args)
+{
+	vfprintf(stderr, fmt, args);
+
+	return 0;
+}
+
+static int
+_printf(void *data, LV2_URID type, const char *fmt, ...)
+{
+  va_list args;
+	int ret;
+
+  va_start (args, fmt);
+	ret = _vprintf(data, type, fmt, args);
+  va_end(args);
+
+	return ret;
+}
+
+static char *
+_mkpath(LV2_State_Make_Path_Handle instance, const char *abstract_path)
+{
+	app_t *app = instance;
+	char *absolute_path = NULL;
+
+	if(asprintf(&absolute_path, "/tmp/%s", abstract_path) == -1)
+		absolute_path = NULL;
+
+	return absolute_path;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -266,6 +361,122 @@ main(int argc, char **argv)
 
 	lilv_world_load_all(app.world);
 
+	LV2_URID_Map map = {
+		.handle = &app,
+		.map = _map
+	};
+	LV2_URID_Unmap unmap = {
+		.handle = &app,
+		.unmap = _unmap
+	};
+	LV2_Worker_Schedule sched = {
+		.handle = &app,
+		.schedule_work = _sched
+	};
+	LV2_Log_Log log = {
+		.handle = &app,
+		.printf = _printf,
+		.vprintf = _vprintf
+	};
+	LV2_State_Make_Path mkpath = {
+		.handle = &app,
+		.path = _mkpath
+	};
+
+	const LV2_URID atom_Float = map.map(map.handle, LV2_ATOM__Float);
+	const LV2_URID atom_Int = map.map(map.handle, LV2_ATOM__Int);
+	const LV2_URID param_sampleRate = map.map(map.handle, LV2_PARAMETERS__sampleRate);
+	const LV2_URID ui_updateRate = map.map(map.handle, LV2_UI__updateRate);
+	const LV2_URID bufsz_minBlockLength = map.map(map.handle, LV2_BUF_SIZE__minBlockLength);
+	const LV2_URID bufsz_maxBlockLength = map.map(map.handle, LV2_BUF_SIZE__maxBlockLength);
+	const LV2_URID bufsz_nominalBlockLength = map.map(map.handle, LV2_BUF_SIZE_PREFIX"nominalBlockLength");
+	const LV2_URID bufsz_sequenceSize = map.map(map.handle, LV2_BUF_SIZE__sequenceSize);
+
+	const float param_sample_rate = 48000.f;
+	const float ui_update_rate = 25.f;
+	const int32_t bufsz_min_block_length = 256;
+	const int32_t bufsz_max_block_length = 256;
+	const int32_t bufsz_nominal_block_length = 256;
+	const int32_t bufsz_sequence_size = 2048;
+
+	LV2_Options_Option opts [] = {
+		{
+			.key = param_sampleRate,
+			.size = sizeof(float),
+			.type = atom_Float,
+			.value = &param_sample_rate
+		},
+		{
+			.key = ui_updateRate,
+			.size = sizeof(float),
+			.type = atom_Float,
+			.value = &ui_update_rate
+		},
+		{
+			.key = bufsz_minBlockLength,
+			.size = sizeof(int32_t),
+			.type = atom_Int,
+			.value = &bufsz_min_block_length
+		},
+		{
+			.key = bufsz_maxBlockLength,
+			.size = sizeof(int32_t),
+			.type = atom_Int,
+			.value = &bufsz_max_block_length
+		},
+		{
+			.key = bufsz_nominalBlockLength,
+			.size = sizeof(int32_t),
+			.type = atom_Int,
+			.value = &bufsz_nominal_block_length
+		},
+		{
+			.key = bufsz_sequenceSize,
+			.size = sizeof(int32_t),
+			.type = atom_Int,
+			.value = &bufsz_sequence_size
+		},
+		{
+			.key = 0,
+			.value =NULL
+		}
+	};
+
+	const LV2_Feature feat_map = {
+		.URI = LV2_URID__map,
+		.data = &map
+	};
+	const LV2_Feature feat_unmap = {
+		.URI = LV2_URID__unmap,
+		.data = &unmap
+	};
+	const LV2_Feature feat_sched = {
+		.URI = LV2_WORKER__schedule,
+		.data = &sched
+	};
+	const LV2_Feature feat_log = {
+		.URI = LV2_LOG__log,
+		.data = &log
+	};
+	const LV2_Feature feat_mkpath = {
+		.URI = LV2_STATE__makePath,
+		.data = &mkpath
+	};
+	const LV2_Feature feat_opts = {
+		.URI = LV2_OPTIONS__options,
+		.data = opts
+	};
+
+	const LV2_Feature *const features [] = {
+		&feat_map,
+		&feat_unmap,
+		&feat_sched,
+		&feat_log,
+		&feat_mkpath,
+		&feat_opts,
+		NULL
+	};
+
 	int ret = 0;
 	const LilvPlugin *plugins = lilv_world_get_all_plugins(app.world);
 	if(plugins)
@@ -281,7 +492,20 @@ main(int argc, char **argv)
 					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 					if(app.plugin)
 					{
-						if(!test_plugin(&app))
+						app.instance = lilv_plugin_instantiate(app.plugin, param_sample_rate, features);
+						if(app.instance)
+						{
+							app.work_iface = lilv_instance_get_extension_data(app.instance, LV2_WORKER__interface);
+							app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
+							if(!test_plugin(&app))
+								ret = -1;
+
+							lilv_instance_free(app.instance);
+							app.instance = NULL;
+							app.work_iface = NULL;
+							app.state_iface= NULL;
+						}
+						else
 							ret = -1;
 						app.plugin = NULL;
 					}
