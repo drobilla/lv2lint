@@ -24,6 +24,7 @@
 
 #include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
+#include <lv2/lv2plug.in/ns/ext/options/options.h>
 
 typedef enum _ansi_color_t ansi_color_t;
 
@@ -74,6 +75,7 @@ struct _app_t {
 	const LilvUI *ui;
 	const LV2_Worker_Interface *work_iface;
 	const LV2_State_Interface *state_iface;
+	const LV2_Options_Interface *opts_iface;
 	lint_t show;
 	lint_t mask;
 	urid_t *urids;
@@ -129,6 +131,9 @@ struct _app_t {
 
 		LilvNode *work_schedule;
 		LilvNode *work_interface;
+
+		LilvNode *opts_options;
+		LilvNode *opts_interface;
 
 		LilvNode *patch_writable;
 		LilvNode *patch_readable;

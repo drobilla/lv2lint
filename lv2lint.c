@@ -116,6 +116,9 @@ _map_uris(app_t *app)
 	app->uris.work_schedule = lilv_new_uri(app->world, LV2_WORKER__schedule);
 	app->uris.work_interface = lilv_new_uri(app->world, LV2_WORKER__interface);
 
+	app->uris.opts_options = lilv_new_uri(app->world, LV2_OPTIONS__options);
+	app->uris.opts_interface = lilv_new_uri(app->world, LV2_OPTIONS__interface);
+
 	app->uris.patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
 	app->uris.patch_readable = lilv_new_uri(app->world, LV2_PATCH__readable);
 
@@ -183,6 +186,9 @@ _unmap_uris(app_t *app)
 
 	lilv_node_free(app->uris.work_schedule);
 	lilv_node_free(app->uris.work_interface);
+
+	lilv_node_free(app->uris.opts_options);
+	lilv_node_free(app->uris.opts_interface);
 
 	lilv_node_free(app->uris.patch_writable);
 	lilv_node_free(app->uris.patch_readable);
@@ -547,6 +553,7 @@ main(int argc, char **argv)
 						{
 							app.work_iface = lilv_instance_get_extension_data(app.instance, LV2_WORKER__interface);
 							app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
+							app.opts_iface = lilv_instance_get_extension_data(app.instance, LV2_OPTIONS__interface);
 							if(!test_plugin(&app))
 								ret = -1;
 
@@ -554,6 +561,7 @@ main(int argc, char **argv)
 							app.instance = NULL;
 							app.work_iface = NULL;
 							app.state_iface= NULL;
+							app.opts_iface = NULL;
 						}
 						else
 							ret = -1;

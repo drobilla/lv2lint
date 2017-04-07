@@ -605,6 +605,55 @@ _test_worker(app_t *app)
 }
 
 enum {
+	OPTIONS_OPTIONS_NOT_FOUND,
+	OPTIONS_INTERFACE_NOT_FOUND,
+	OPTIONS_INTERFACE_NOT_RETURNED,
+	OPTIONS_GET_NOT_FOUND,
+	OPTIONS_SET_NOT_FOUND,
+};
+
+static const ret_t ret_options [] = {
+	[OPTIONS_OPTIONS_NOT_FOUND]         = {LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options},
+	[OPTIONS_INTERFACE_NOT_FOUND]       = {LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface},
+	[OPTIONS_INTERFACE_NOT_RETURNED]    = {LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface},
+	[OPTIONS_GET_NOT_FOUND]             = {LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface},
+	[OPTIONS_SET_NOT_FOUND]             = {LINT_FAIL, "opts:interface has no 'set' function", LV2_OPTIONS__interface},
+};
+
+static const ret_t *
+_test_options(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_opts_options= lilv_plugin_has_feature(app->plugin, app->uris.opts_options);
+	const bool has_opts_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.opts_interface);
+
+	if(has_opts_iface || app->opts_iface)
+	{
+		if(!app->opts_iface)
+		{
+			ret = &ret_options[OPTIONS_INTERFACE_NOT_RETURNED];
+		}
+		else if(!app->opts_iface->get)
+		{
+			ret = &ret_options[OPTIONS_GET_NOT_FOUND];
+		}
+		else if(!app->opts_iface->set)
+		{
+			ret = &ret_options[OPTIONS_SET_NOT_FOUND];
+		}
+		else if(!has_opts_iface)
+		{
+			ret = &ret_options[OPTIONS_INTERFACE_NOT_FOUND];
+		}
+	}
+
+	//TODO what to check about for lv2:Feature opts:options ?
+
+	return ret;
+}
+
+enum {
 	URI_MAP_DEPRECATED,
 };
 
@@ -796,6 +845,7 @@ static const test_t tests [] = {
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
 	{"Worker          ", _test_worker},
+	{"Options         ", _test_options},
 	{"URI-Map         ", _test_uri_map},
 	{"State           ", _test_state},
 	{"Comment         ", _test_comment},
