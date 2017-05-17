@@ -147,12 +147,48 @@ _test_resident(app_t *app)
 	return ret;
 }
 
+enum {
+	IDLE_FEATURE_MISSING,
+	IDLE_EXTENSION_MISSING
+};
+
+static const ret_t ret_idle [] = {
+	[IDLE_FEATURE_MISSING]         = {LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface},
+	[IDLE_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface},
+};
+
+static const ret_t *
+_test_idle_interface(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_idle_feature = lilv_world_ask(app->world,
+			lilv_ui_get_uri(app->ui), app->uris.lv2_optionalFeature, app->uris.ui_idleInterface)
+		|| lilv_world_ask(app->world,
+			lilv_ui_get_uri(app->ui), app->uris.lv2_requiredFeature, app->uris.ui_idleInterface);
+	const bool has_idle_extension = lilv_world_ask(app->world,
+		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_idleInterface);
+
+	if(has_idle_feature && !has_idle_extension)
+	{
+		ret = &ret_idle[IDLE_EXTENSION_MISSING];
+	}
+	else if(!has_idle_feature && has_idle_extension)
+	{
+		ret = &ret_idle[IDLE_FEATURE_MISSING];
+	}
+	//FIXME check for presence of extensionData in binary
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
 	{"Mixed DSP/UI    ", _test_mixed},
 	//{"UI Binary       ", _test_binary}, FIXME lilv does not support lv2:binary for UIs, yet
 	{"UI SO Name      ", _test_resident},
+	{"Idle Interface  ", _test_idle_interface},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);

@@ -108,6 +108,8 @@ struct _app_t {
 		LilvNode *lv2_microVersion;
 		LilvNode *lv2_ExtensionData;
 		LilvNode *lv2_requiredFeature;
+		LilvNode *lv2_optionalFeature;
+		LilvNode *lv2_extensionData;
 		LilvNode *lv2_isLive;
 		LilvNode *lv2_inPlaceBroken;
 		LilvNode *lv2_hardRTCapable;
@@ -147,6 +149,7 @@ struct _app_t {
 
 		LilvNode *ui_binary;
 		LilvNode *ui_makeSONameResident;
+		LilvNode *ui_idleInterface;
 
 		LilvNode *event_EventPort;
 		LilvNode *uri_map;

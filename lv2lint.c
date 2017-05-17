@@ -95,6 +95,8 @@ _map_uris(app_t *app)
 	app->uris.lv2_microVersion = lilv_new_uri(app->world, LV2_CORE__microVersion);
 	app->uris.lv2_ExtensionData = lilv_new_uri(app->world, LV2_CORE__ExtensionData);
 	app->uris.lv2_requiredFeature = lilv_new_uri(app->world, LV2_CORE__requiredFeature);
+	app->uris.lv2_optionalFeature = lilv_new_uri(app->world, LV2_CORE__optionalFeature);
+	app->uris.lv2_extensionData = lilv_new_uri(app->world, LV2_CORE__extensionData);
 	app->uris.lv2_isLive = lilv_new_uri(app->world, LV2_CORE__isLive);
 	app->uris.lv2_inPlaceBroken = lilv_new_uri(app->world, LV2_CORE__inPlaceBroken);
 	app->uris.lv2_hardRTCapable = lilv_new_uri(app->world, LV2_CORE__hardRTCapable);
@@ -134,6 +136,7 @@ _map_uris(app_t *app)
 
 	app->uris.ui_binary = lilv_new_uri(app->world, LV2_UI__binary);
 	app->uris.ui_makeSONameResident = lilv_new_uri(app->world, LV2_UI_PREFIX"makeSONameResident");
+	app->uris.ui_idleInterface = lilv_new_uri(app->world, LV2_UI__idleInterface);
 
 	app->uris.event_EventPort = lilv_new_uri(app->world, LV2_EVENT__EventPort);
 	app->uris.uri_map = lilv_new_uri(app->world, LV2_URI_MAP_URI);
@@ -185,6 +188,8 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.lv2_microVersion);
 	lilv_node_free(app->uris.lv2_ExtensionData);
 	lilv_node_free(app->uris.lv2_requiredFeature);
+	lilv_node_free(app->uris.lv2_optionalFeature);
+	lilv_node_free(app->uris.lv2_extensionData);
 	lilv_node_free(app->uris.lv2_isLive);
 	lilv_node_free(app->uris.lv2_inPlaceBroken);
 	lilv_node_free(app->uris.lv2_hardRTCapable);
@@ -224,6 +229,7 @@ _unmap_uris(app_t *app)
 
 	lilv_node_free(app->uris.ui_binary);
 	lilv_node_free(app->uris.ui_makeSONameResident);
+	lilv_node_free(app->uris.ui_idleInterface);
 
 	lilv_node_free(app->uris.event_EventPort);
 	lilv_node_free(app->uris.uri_map);
