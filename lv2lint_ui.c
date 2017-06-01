@@ -16,12 +16,13 @@
  */
 
 #include <math.h>
+#include <dlfcn.h>
+#include <string.h>
 
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/instance-access/instance-access.h>
 #include <lv2/lv2plug.in/ns/ext/data-access/data-access.h>
-#include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
 enum {
 	INSTANCE_ACCESS_DISCOURAGED,
@@ -149,12 +150,14 @@ _test_resident(app_t *app)
 
 enum {
 	IDLE_FEATURE_MISSING,
-	IDLE_EXTENSION_MISSING
+	IDLE_EXTENSION_MISSING,
+	IDLE_EXTENSION_NOT_RETURNED,
 };
 
 static const ret_t ret_idle [] = {
 	[IDLE_FEATURE_MISSING]         = {LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface},
 	[IDLE_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface},
+	[IDLE_EXTENSION_NOT_RETURNED]  = {LINT_FAIL, "ui:idleInterface not returned by 'extention_data'", LV2_UI__idleInterface},
 };
 
 static const ret_t *
@@ -169,15 +172,18 @@ _test_idle_interface(app_t *app)
 	const bool has_idle_extension = lilv_world_ask(app->world,
 		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_idleInterface);
 
-	if(has_idle_feature && !has_idle_extension)
-	{
-		ret = &ret_idle[IDLE_EXTENSION_MISSING];
-	}
-	else if(!has_idle_feature && has_idle_extension)
+	if( (has_idle_extension || app->ui_idle_iface) && !has_idle_feature)
 	{
 		ret = &ret_idle[IDLE_FEATURE_MISSING];
 	}
-	//FIXME check for presence of extensionData in binary
+	else if( (has_idle_feature || app->ui_idle_iface) && !has_idle_extension)
+	{
+		ret = &ret_idle[IDLE_EXTENSION_MISSING];
+	}
+	else if( (has_idle_extension || has_idle_feature) && !app->ui_idle_iface)
+	{
+		ret = &ret_idle[IDLE_EXTENSION_NOT_RETURNED];
+	}
 
 	return ret;
 }
@@ -201,6 +207,71 @@ test_ui(app_t *app)
 	bool msg = false;
 	const ret_t *rets [tests_n];
 
+	void *lib = NULL;
+	const LV2UI_Descriptor *descriptor = NULL;
+
+	{
+		const LilvNode *ui_uri_node = lilv_ui_get_uri(app->ui);
+		const LilvNode *ui_binary_node = lilv_ui_get_binary_uri(app->ui);
+
+		const char *ui_uri = lilv_node_as_uri(ui_uri_node);
+		const char *ui_binary_uri = lilv_node_as_uri(ui_binary_node);
+		char *ui_binary_path = lilv_file_uri_parse(ui_binary_uri, NULL);
+
+		dlerror();
+
+		lib = dlopen(ui_binary_path, RTLD_NOW);
+		if(!lib)
+		{
+			fprintf(stderr, "Unable to open UI library %s (%s)\n", ui_binary_path, dlerror());
+			return -1;
+		}
+
+		// Get discovery function
+		LV2UI_DescriptorFunction df = dlsym(lib, "lv2ui_descriptor");
+		if(!df)
+		{
+			fprintf(stderr, "Broken LV2 UI %s (no lv2ui_descriptor symbol found)\n", ui_binary_path);
+			dlclose(lib);
+			return -1;
+		}
+
+		// Get UI descriptor
+		for(uint32_t i = 0; ; i++)
+		{
+			const LV2UI_Descriptor *ld = df(i);
+			if(!ld)
+			{
+				break; // sentinel
+			}
+			else if(!strcmp(ld->URI, ui_uri))
+			{
+				descriptor = ld;
+				break;
+			}
+		}
+
+		if(!descriptor)
+		{
+			fprintf(stderr, "Failed to find descriptor for <%s> in %s\n", ui_uri, ui_binary_path);
+			dlclose(lib);
+			return -1;
+		}
+
+		if(ui_binary_path)
+			lilv_free(ui_binary_path);
+
+		app->ui_idle_iface = descriptor->extension_data
+			? descriptor->extension_data(LV2_UI__idleInterface)
+			: NULL;
+		app->ui_show_iface = descriptor->extension_data
+			? descriptor->extension_data(LV2_UI__showInterface)
+			: NULL;
+		app->ui_resize_iface = descriptor->extension_data
+			? descriptor->extension_data(LV2_UI__resize)
+			: NULL;
+	}
+
 	for(unsigned i=0; i<tests_n; i++)
 	{
 		const test_t *test = &tests[i];
@@ -208,6 +279,10 @@ test_ui(app_t *app)
 		if(rets[i] && (rets[i]->lint & app->show) )
 			msg = true;
 	}
+
+	app->ui_idle_iface = NULL;
+	app->ui_show_iface = NULL;
+	app->ui_resize_iface = NULL;
 
 	if(msg)
 	{
@@ -254,6 +329,12 @@ test_ui(app_t *app)
 				*/
 			}
 		}
+	}
+
+	if(lib)
+	{
+		dlclose(lib);
+		lib = NULL;
 	}
 
 	return flag;

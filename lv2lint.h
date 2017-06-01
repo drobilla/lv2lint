@@ -25,6 +25,7 @@
 #include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/ext/options/options.h>
+#include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
 typedef enum _ansi_color_t ansi_color_t;
 
@@ -76,6 +77,9 @@ struct _app_t {
 	const LV2_Worker_Interface *work_iface;
 	const LV2_State_Interface *state_iface;
 	const LV2_Options_Interface *opts_iface;
+	const LV2UI_Idle_Interface *ui_idle_iface;
+	const LV2UI_Show_Interface *ui_show_iface;
+	const LV2UI_Resize *ui_resize_iface;
 	lint_t show;
 	lint_t mask;
 	urid_t *urids;
