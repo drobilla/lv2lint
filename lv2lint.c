@@ -138,6 +138,7 @@ _map_uris(app_t *app)
 	app->uris.ui_makeSONameResident = lilv_new_uri(app->world, LV2_UI_PREFIX"makeSONameResident");
 	app->uris.ui_idleInterface = lilv_new_uri(app->world, LV2_UI__idleInterface);
 	app->uris.ui_showInterface = lilv_new_uri(app->world, LV2_UI__showInterface);
+	app->uris.ui_resize = lilv_new_uri(app->world, LV2_UI__resize);
 
 	app->uris.event_EventPort = lilv_new_uri(app->world, LV2_EVENT__EventPort);
 	app->uris.uri_map = lilv_new_uri(app->world, LV2_URI_MAP_URI);
@@ -232,6 +233,7 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.ui_makeSONameResident);
 	lilv_node_free(app->uris.ui_idleInterface);
 	lilv_node_free(app->uris.ui_showInterface);
+	lilv_node_free(app->uris.ui_resize);
 
 	lilv_node_free(app->uris.event_EventPort);
 	lilv_node_free(app->uris.uri_map);

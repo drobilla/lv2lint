@@ -218,6 +218,36 @@ _test_show_interface(app_t *app)
 	return ret;
 }
 
+enum {
+	RESIZE_EXTENSION_MISSING,
+	RESIZE_EXTENSION_NOT_RETURNED,
+};
+
+static const ret_t ret_resize [] = {
+	[RESIZE_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:resize missing", LV2_UI__resize},
+	[RESIZE_EXTENSION_NOT_RETURNED]  = {LINT_FAIL, "ui:resize not returned by 'extention_data'", LV2_UI__resize},
+};
+
+static const ret_t *
+_test_resize_interface(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_resize_extension = lilv_world_ask(app->world,
+		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_resize);
+
+	if(app->ui_resize_iface && !has_resize_extension)
+	{
+		ret = &ret_resize[RESIZE_EXTENSION_MISSING];
+	}
+	else if(has_resize_extension && !app->ui_resize_iface)
+	{
+		ret = &ret_resize[RESIZE_EXTENSION_NOT_RETURNED];
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
@@ -226,6 +256,7 @@ static const test_t tests [] = {
 	{"UI SO Name      ", _test_resident},
 	{"Idle Interface  ", _test_idle_interface},
 	{"Show Interface  ", _test_show_interface},
+	{"Resize Interface", _test_resize_interface},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);
