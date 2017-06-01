@@ -16,8 +16,18 @@
  */
 
 #include <math.h>
-#include <dlfcn.h>
 #include <string.h>
+
+#ifdef _WIN32
+#	include <windows.h>
+#	define dlopen(path, flags) LoadLibrary(path)
+#	define dlclose(lib) FreeLibrary((HMODULE)lib)
+#	define inline __inline
+#	define snprintf _snprintf
+static inline char* dlerror(void) { return "Unknown error"; }
+#else
+#	include <dlfcn.h>
+#endif
 
 #include <lv2lint.h>
 
@@ -290,7 +300,11 @@ test_ui(app_t *app)
 		}
 
 		// Get discovery function
+#ifdef _WIN32
+		LV2UI_DescriptorFunction df = GetProcAddress(lib, "lv2ui_descriptor");
+#else
 		LV2UI_DescriptorFunction df = dlsym(lib, "lv2ui_descriptor");
+#endif
 		if(!df)
 		{
 			fprintf(stderr, "Broken LV2 UI %s (no lv2ui_descriptor symbol found)\n", ui_binary_path);
