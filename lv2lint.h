@@ -154,6 +154,7 @@ struct _app_t {
 		LilvNode *ui_binary;
 		LilvNode *ui_makeSONameResident;
 		LilvNode *ui_idleInterface;
+		LilvNode *ui_showInterface;
 
 		LilvNode *event_EventPort;
 		LilvNode *uri_map;

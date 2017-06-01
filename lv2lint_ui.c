@@ -188,6 +188,36 @@ _test_idle_interface(app_t *app)
 	return ret;
 }
 
+enum {
+	SHOW_EXTENSION_MISSING,
+	SHOW_EXTENSION_NOT_RETURNED,
+};
+
+static const ret_t ret_show [] = {
+	[SHOW_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:showInterface missing", LV2_UI__showInterface},
+	[SHOW_EXTENSION_NOT_RETURNED]  = {LINT_FAIL, "ui:showInterface not returned by 'extention_data'", LV2_UI__showInterface},
+};
+
+static const ret_t *
+_test_show_interface(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_show_extension = lilv_world_ask(app->world,
+		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_showInterface);
+
+	if(app->ui_show_iface && !has_show_extension)
+	{
+		ret = &ret_show[SHOW_EXTENSION_MISSING];
+	}
+	else if(has_show_extension && !app->ui_show_iface)
+	{
+		ret = &ret_show[SHOW_EXTENSION_NOT_RETURNED];
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
@@ -195,6 +225,7 @@ static const test_t tests [] = {
 	//{"UI Binary       ", _test_binary}, FIXME lilv does not support lv2:binary for UIs, yet
 	{"UI SO Name      ", _test_resident},
 	{"Idle Interface  ", _test_idle_interface},
+	{"Show Interface  ", _test_show_interface},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);
