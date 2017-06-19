@@ -19,6 +19,8 @@
 #define _LV2LINT_H
 
 #include <unistd.h> // isatty
+#include <string.h>
+#include <stdlib.h>
 
 #include <lilv/lilv.h>
 
@@ -49,6 +51,7 @@ typedef struct _urid_t urid_t;
 typedef struct _app_t app_t;
 typedef struct _test_t test_t;
 typedef struct _ret_t ret_t;
+typedef struct _res_t res_t;
 typedef const ret_t *(*test_cb_t)(app_t *app);
 
 enum _lint_t {
@@ -65,6 +68,11 @@ struct _ret_t {
 	lint_t lint;
 	const char *msg;
 	const char *url;
+};
+
+struct _res_t {
+	const ret_t *ret;
+	char *urn;
 };
 
 struct _app_t {
@@ -84,6 +92,7 @@ struct _app_t {
 	lint_t mask;
 	urid_t *urids;
 	LV2_URID nurids;
+	char **urn;
 	struct {
 		LilvNode *rdfs_label;
 		LilvNode *rdfs_comment;

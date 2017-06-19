@@ -27,7 +27,7 @@ enum {
 };
 
 static const ret_t ret_class [] = {
-	[CLASS_NOT_VALID]         = {LINT_FAIL, "lv2:Port class not valid", LV2_CORE__Port},
+	[CLASS_NOT_VALID]         = {LINT_FAIL, "lv2:Port class <%s> not valid", LV2_CORE__Port},
 };
 
 static const ret_t *
@@ -49,6 +49,7 @@ _test_class(app_t *app)
 
 				if(!lilv_nodes_contains(class, node))
 				{
+					*app->urn = strdup(lilv_node_as_uri(node));
 					ret = &ret_class[CLASS_NOT_VALID];
 					break;
 				}
@@ -66,7 +67,7 @@ enum {
 };
 
 static const ret_t ret_properties [] = {
-	[PROPERTIES_NOT_VALID]         = {LINT_FAIL, "lv2:portProperty not valid", LV2_CORE__portProperty},
+	[PROPERTIES_NOT_VALID]         = {LINT_FAIL, "lv2:portProperty <%s> not valid", LV2_CORE__portProperty},
 };
 
 static const ret_t *
@@ -87,6 +88,7 @@ _test_properties(app_t *app)
 
 				if(!lilv_nodes_contains(properties, node))
 				{
+					*app->urn = strdup(lilv_node_as_uri(node));
 					ret = &ret_properties[PROPERTIES_NOT_VALID];
 					break;
 				}
@@ -349,13 +351,17 @@ test_port(app_t *app)
 	const bool atty = isatty(1);
 	bool flag = true;
 	bool msg = false;
-	const ret_t *rets [tests_n];
+	res_t rets [tests_n];
 
 	for(unsigned i=0; i<tests_n; i++)
 	{
 		const test_t *test = &tests[i];
-		rets[i] = test->cb(app);
-		if(rets[i] && (rets[i]->lint & app->show) )
+		res_t *res = &rets[i];
+
+		res->urn = NULL;
+		app->urn = &res->urn;
+		res->ret = test->cb(app);
+		if(res->ret && (res->ret->lint & app->show) )
 			msg = true;
 	}
 
@@ -370,28 +376,45 @@ test_port(app_t *app)
 		for(unsigned i=0; i<tests_n; i++)
 		{
 			const test_t *test = &tests[i];
-			const ret_t *ret = rets[i];
+			res_t *res = &rets[i];
+			const ret_t *ret = res->ret;
 
 			if(ret)
 			{
+				char *repl = NULL;
+
+				if(res->urn)
+				{
+					if(strstr(ret->msg, "%s"))
+					{
+						if(asprintf(&repl, ret->msg, res->urn) == -1)
+							repl = NULL;
+					}
+
+					free(res->urn);
+				}
+
 				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
 						fprintf(stdout, "    [%sFAIL%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_RED], colors[atty][ANSI_COLOR_RESET],
-							test->id, ret->msg, ret->url);
+							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_WARN:
 						fprintf(stdout, "    [%sWARN%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_YELLOW], colors[atty][ANSI_COLOR_RESET],
-							test->id, ret->msg, ret->url);
+							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_NOTE:
 						fprintf(stdout, "    [%sNOTE%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_CYAN], colors[atty][ANSI_COLOR_RESET],
-							test->id, ret->msg, ret->url);
+							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 				}
+
+				if(repl)
+					free(repl);
 
 				if(flag)
 					flag = (ret->lint & app->mask) ? false : true;
