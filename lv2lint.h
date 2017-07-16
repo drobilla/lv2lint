@@ -165,6 +165,14 @@ struct _app_t {
 		LilvNode *ui_idleInterface;
 		LilvNode *ui_showInterface;
 		LilvNode *ui_resize;
+		LilvNode *ui_UI;
+		LilvNode *ui_X11UI;
+		LilvNode *ui_WindowsUI;
+		LilvNode *ui_CocoaUI;
+		LilvNode *ui_GtkUI;
+		LilvNode *ui_Gtk3UI;
+		LilvNode *ui_Qt4UI;
+		LilvNode *ui_Qt5UI;
 
 		LilvNode *event_EventPort;
 		LilvNode *uri_map;

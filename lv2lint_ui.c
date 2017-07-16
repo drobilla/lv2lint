@@ -258,6 +258,67 @@ _test_resize_interface(app_t *app)
 	return ret;
 }
 
+enum {
+	TOOLKIT_INVALID,
+	TOOLKIT_UNKNOWN,
+	TOOLKIT_NON_NATIVE,
+};
+
+static const ret_t ret_toolkit [] = {
+	[TOOLKIT_INVALID]			= {LINT_FAIL, "UI toolkit not given", LV2_UI__ui},
+	[TOOLKIT_UNKNOWN]			= {LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui},
+	[TOOLKIT_NON_NATIVE]  = {LINT_WARN, "usage of (big) non-native toolkit <%s> is dicouraged", LV2_UI__ui},
+};
+
+static const ret_t *
+_test_toolkit(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const LilvNode *ui_uri_node = lilv_ui_get_uri(app->ui);
+	LilvNode *ui_class_node = lilv_world_get(app->world, ui_uri_node, app->uris.rdf_type, NULL);
+	LilvNodes *ui_class_nodes = lilv_world_find_nodes(app->world, NULL, app->uris.rdfs_subClassOf, app->uris.ui_UI);
+
+	const bool is_x11_ui = lilv_ui_is_a(app->ui, app->uris.ui_X11UI);
+	const bool is_windows_ui = lilv_ui_is_a(app->ui, app->uris.ui_WindowsUI);
+	const bool is_cocoa_ui = lilv_ui_is_a(app->ui, app->uris.ui_CocoaUI);
+
+	bool is_known = false;
+	if(ui_class_node && ui_class_nodes)
+	{
+		if(lilv_nodes_contains(ui_class_nodes, ui_class_node))
+			is_known = true;
+	}
+
+	if(!ui_class_node)
+	{
+		ret = &ret_toolkit[TOOLKIT_INVALID];
+	}
+	else if(!is_known)
+	{
+		*app->urn = strdup(lilv_node_as_uri(ui_class_node));
+		ret = &ret_toolkit[TOOLKIT_UNKNOWN];
+	}
+#if defined(_WIN32)
+	else if(!is_windows_ui)
+#elif defined(__APPLE__)
+	else if(!is_cocoa_ui)
+#else
+	else if(!is_x11_ui)
+#endif
+	{
+		*app->urn = strdup(lilv_node_as_uri(ui_class_node));
+		ret = &ret_toolkit[TOOLKIT_NON_NATIVE];
+	}
+
+	if(ui_class_node)
+		lilv_node_free(ui_class_node);
+	if(ui_class_nodes)
+		lilv_nodes_free(ui_class_nodes);
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
@@ -267,6 +328,7 @@ static const test_t tests [] = {
 	{"Idle Interface  ", _test_idle_interface},
 	{"Show Interface  ", _test_show_interface},
 	{"Resize Interface", _test_resize_interface},
+	{"Toolkit         ", _test_toolkit},
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);

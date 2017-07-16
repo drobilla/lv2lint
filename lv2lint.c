@@ -139,6 +139,14 @@ _map_uris(app_t *app)
 	app->uris.ui_idleInterface = lilv_new_uri(app->world, LV2_UI__idleInterface);
 	app->uris.ui_showInterface = lilv_new_uri(app->world, LV2_UI__showInterface);
 	app->uris.ui_resize = lilv_new_uri(app->world, LV2_UI__resize);
+	app->uris.ui_UI= lilv_new_uri(app->world, LV2_UI__UI);
+	app->uris.ui_X11UI = lilv_new_uri(app->world, LV2_UI__X11UI);
+	app->uris.ui_WindowsUI = lilv_new_uri(app->world, LV2_UI__WindowsUI);
+	app->uris.ui_CocoaUI = lilv_new_uri(app->world, LV2_UI__CocoaUI);
+	app->uris.ui_GtkUI = lilv_new_uri(app->world, LV2_UI__GtkUI);
+	app->uris.ui_Gtk3UI = lilv_new_uri(app->world, LV2_UI__Gtk3UI);
+	app->uris.ui_Qt4UI = lilv_new_uri(app->world, LV2_UI__Qt4UI);
+	app->uris.ui_Qt5UI = lilv_new_uri(app->world, LV2_UI__Qt5UI);
 
 	app->uris.event_EventPort = lilv_new_uri(app->world, LV2_EVENT__EventPort);
 	app->uris.uri_map = lilv_new_uri(app->world, LV2_URI_MAP_URI);
@@ -234,6 +242,14 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.ui_idleInterface);
 	lilv_node_free(app->uris.ui_showInterface);
 	lilv_node_free(app->uris.ui_resize);
+	lilv_node_free(app->uris.ui_UI);
+	lilv_node_free(app->uris.ui_X11UI);
+	lilv_node_free(app->uris.ui_WindowsUI);
+	lilv_node_free(app->uris.ui_CocoaUI);
+	lilv_node_free(app->uris.ui_GtkUI);
+	lilv_node_free(app->uris.ui_Gtk3UI);
+	lilv_node_free(app->uris.ui_Qt4UI);
+	lilv_node_free(app->uris.ui_Qt5UI);
 
 	lilv_node_free(app->uris.event_EventPort);
 	lilv_node_free(app->uris.uri_map);
