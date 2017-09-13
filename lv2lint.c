@@ -126,6 +126,9 @@ _map_uris(app_t *app)
 	app->uris.work_schedule = lilv_new_uri(app->world, LV2_WORKER__schedule);
 	app->uris.work_interface = lilv_new_uri(app->world, LV2_WORKER__interface);
 
+	app->uris.idisp_queue_draw = lilv_new_uri(app->world, LV2_INLINEDISPLAY__queue_draw);
+	app->uris.idisp_interface = lilv_new_uri(app->world, LV2_INLINEDISPLAY__interface);
+
 	app->uris.opts_options = lilv_new_uri(app->world, LV2_OPTIONS__options);
 	app->uris.opts_interface = lilv_new_uri(app->world, LV2_OPTIONS__interface);
 
@@ -729,6 +732,7 @@ main(int argc, char **argv)
 						if(app.instance)
 						{
 							app.work_iface = lilv_instance_get_extension_data(app.instance, LV2_WORKER__interface);
+							app.idisp_iface = lilv_instance_get_extension_data(app.instance, LV2_INLINEDISPLAY__interface);
 							app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
 							app.opts_iface = lilv_instance_get_extension_data(app.instance, LV2_OPTIONS__interface);
 							if(!test_plugin(&app))
@@ -737,6 +741,7 @@ main(int argc, char **argv)
 							lilv_instance_free(app.instance);
 							app.instance = NULL;
 							app.work_iface = NULL;
+							app.idisp_iface = NULL;
 							app.state_iface= NULL;
 							app.opts_iface = NULL;
 						}

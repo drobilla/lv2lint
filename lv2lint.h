@@ -29,6 +29,8 @@
 #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
+#include <ardour.lv2/lv2_extensions.h>
+
 typedef enum _ansi_color_t ansi_color_t;
 
 enum _ansi_color_t {
@@ -83,6 +85,7 @@ struct _app_t {
 	const LilvNode *parameter;
 	const LilvUI *ui;
 	const LV2_Worker_Interface *work_iface;
+	const LV2_Inline_Display_Interface *idisp_iface;
 	const LV2_State_Interface *state_iface;
 	const LV2_Options_Interface *opts_iface;
 	const LV2UI_Idle_Interface *ui_idle_iface;
@@ -151,6 +154,9 @@ struct _app_t {
 
 		LilvNode *work_schedule;
 		LilvNode *work_interface;
+
+		LilvNode *idisp_queue_draw;
+		LilvNode *idisp_interface;
 
 		LilvNode *opts_options;
 		LilvNode *opts_interface;

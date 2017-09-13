@@ -22,6 +22,7 @@
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
+#include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
 static const ret_t ret_verification = {LINT_FAIL, "failed", NULL};
 
@@ -829,6 +830,51 @@ _test_shortdesc(app_t *app)
 	return ret;
 }
 
+enum {
+	IDISP_QUEUE_DRAW_NOT_FOUND,
+	IDISP_INTERFACE_NOT_FOUND,
+	IDISP_INTERFACE_NOT_RETURNED,
+	IDISP_RENDER_NOT_FOUND,
+};
+
+static const ret_t ret_idisp [] = {
+	[IDISP_QUEUE_DRAW_NOT_FOUND]       = {LINT_FAIL, "idisp:schedule not defined", LV2_INLINEDISPLAY__queue_draw},
+	[IDISP_INTERFACE_NOT_FOUND]        = {LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface},
+	[IDISP_INTERFACE_NOT_RETURNED]     = {LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface},
+	[IDISP_RENDER_NOT_FOUND]           = {LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface},
+};
+
+static const ret_t *
+_test_idisp(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_idisp_queue_draw = lilv_plugin_has_feature(app->plugin, app->uris.idisp_queue_draw);
+	const bool has_idisp_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.idisp_interface);
+
+	if(has_idisp_queue_draw || has_idisp_iface || app->idisp_iface)
+	{
+		if(!app->idisp_iface)
+		{
+			ret = &ret_idisp[IDISP_INTERFACE_NOT_RETURNED];
+		}
+		else if(!app->idisp_iface->render)
+		{
+			ret = &ret_idisp[IDISP_RENDER_NOT_FOUND];
+		}
+		else if(!has_idisp_queue_draw)
+		{
+			ret = &ret_idisp[IDISP_QUEUE_DRAW_NOT_FOUND];
+		}
+		else if(!has_idisp_iface)
+		{
+			ret = &ret_idisp[IDISP_INTERFACE_NOT_FOUND];
+		}
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
@@ -848,6 +894,7 @@ static const test_t tests [] = {
 	{"State           ", _test_state},
 	{"Comment         ", _test_comment},
 	{"Shortdesc       ", _test_shortdesc},
+	{"Inline Display  ", _test_idisp},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
