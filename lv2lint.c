@@ -401,6 +401,13 @@ _uri_to_id(LV2_URI_Map_Callback_Data instance, const char *map, const char *uri)
 	return _map(app, uri);
 }
 
+static void
+_queue_draw(LV2_Inline_Display_Handle instance)
+{
+	app_t *app = instance;
+	(void)app;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -535,6 +542,10 @@ main(int argc, char **argv)
 		.callback_data = &app,
 		.uri_to_id = _uri_to_id
 	};
+	LV2_Inline_Display queue_draw = {
+		.handle = &app,
+		.queue_draw = _queue_draw
+	};
 
 	const LV2_URID atom_Float = map.map(map.handle, LV2_ATOM__Float);
 	const LV2_URID atom_Int = map.map(map.handle, LV2_ATOM__Int);
@@ -658,6 +669,10 @@ main(int argc, char **argv)
 	const LV2_Feature feat_threadsaferestore = {
 		.URI = LV2_STATE_PREFIX"threadSafeRestore"
 	};
+	const LV2_Feature feat_idispqueuedraw = {
+		.URI = LV2_INLINEDISPLAY__queue_draw,
+		.data = &queue_draw
+	};
 
 	int ret = 0;
 	const LilvPlugin *plugins = lilv_world_get_all_plugins(app.world);
@@ -674,7 +689,7 @@ main(int argc, char **argv)
 					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 					if(app.plugin)
 					{
-						const int MAX_FEATURES = 19;
+						const int MAX_FEATURES = 20;
 						const LV2_Feature *features [MAX_FEATURES];
 						int f = 0;
 
@@ -721,6 +736,8 @@ main(int argc, char **argv)
 									features[f++] = &feat_loaddefaultstate;
 								else if(lilv_node_equals(feature, app.uris.state_threadSafeRestore))
 									features[f++] = &feat_threadsaferestore;
+								else if(lilv_node_equals(feature, app.uris.idisp_queue_draw))
+									features[f++] = &feat_idispqueuedraw;
 							}
 							lilv_nodes_free(required_features);
 						}
