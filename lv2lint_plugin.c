@@ -838,7 +838,7 @@ enum {
 };
 
 static const ret_t ret_idisp [] = {
-	[IDISP_QUEUE_DRAW_NOT_FOUND]       = {LINT_FAIL, "idisp:schedule not defined", LV2_INLINEDISPLAY__queue_draw},
+	[IDISP_QUEUE_DRAW_NOT_FOUND]       = {LINT_FAIL, "idisp:queue_draw not defined", LV2_INLINEDISPLAY__queue_draw},
 	[IDISP_INTERFACE_NOT_FOUND]        = {LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface},
 	[IDISP_INTERFACE_NOT_RETURNED]     = {LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface},
 	[IDISP_RENDER_NOT_FOUND]           = {LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface},
