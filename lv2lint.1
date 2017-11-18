@@ -1,0 +1,52 @@
+.TH LV2LINT "1" "Nov 18, 2017"
+
+.SH NAME
+lv2lint \- an LV2 lintian
+
+.SH SYNOPSIS
+.B lv2lint
+[\fIOPTIONS\fR] {\fIPLUGIN_URI\fR}*
+
+.SH DESCRIPTION
+\fBlv2lint\fP checks whether given LV2 plugins are up to the specification.
+.PP
+It not only checks the *.ttl, but actually loads plugins (and their UIs) and
+checks whether required features and exposed extensions actually match between
+binary and *.ttl.
+.PP
+It thus finds errors that cannot readily be found by just checking the *.ttl
+for validity.
+.PP
+It is good practice to run it over your plugins as part of your continuous
+integration after checking them for validity with \fBsord_validate\fP and
+before releasing them to the public
+
+.SH OPTIONS
+.HP
+\fB\-v\fR
+.IP
+Print version and license information
+
+.HP
+\fB\-h\fR
+.IP
+Print usage information
+
+.HP
+\fB\-S\fR warn|note
+.IP
+Apart from errors alone, also show warnings (warn) and/or notes (note) on console
+
+.HP
+\fB\-E\fR warn|note
+.IP
+Apart from errors alone, also treat warnings (warn) and/or notes (note) as errors
+
+.SH LICENSE
+Artistic License 2.0.
+
+.SH AUTHOR
+Hanspeter Portner (dev@open-music-kontrollers.ch).
+
+.SH SEE ALSO
+sord_validate(1)

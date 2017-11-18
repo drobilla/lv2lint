@@ -408,6 +408,42 @@ _queue_draw(LV2_Inline_Display_Handle instance)
 	(void)app;
 }
 
+static void
+_version()
+{
+	fprintf(stderr,
+		"--------------------------------------------------------------------\n"
+		"This is free software: you can redistribute it and/or modify\n"
+		"it under the terms of the Artistic License 2.0 as published by\n"
+		"The Perl Foundation.\n"
+		"\n"
+		"This source is distributed in the hope that it will be useful,\n"
+		"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+		"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n"
+		"Artistic License 2.0 for more details.\n"
+		"\n"
+		"You should have received a copy of the Artistic License 2.0\n"
+		"along the source as a COPYING file. If not, obtain it from\n"
+		"http://www.perlfoundation.org/artistic_license_2_0.\n\n");
+}
+
+static void
+_usage(char **argv)
+{
+	fprintf(stderr,
+		"--------------------------------------------------------------------\n"
+		"USAGE\n"
+		"   %s [OPTIONS] {PLUGIN_URI}*\n"
+		"\n"
+		"OPTIONS\n"
+		"   [-v]                 print version information\n"
+		"   [-h]                 print usage information\n"
+
+		"   [-S] warn|note       show warnings and/or notes\n"
+		"   [-E] warn|note       treat warnings and/or notes as errors\n\n"
+		, argv[0]);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -427,52 +463,19 @@ main(int argc, char **argv)
 		switch(c)
 		{
 			case 'v':
-				fprintf(stderr,
-					"--------------------------------------------------------------------\n"
-					"This is free software: you can redistribute it and/or modify\n"
-					"it under the terms of the Artistic License 2.0 as published by\n"
-					"The Perl Foundation.\n"
-					"\n"
-					"This source is distributed in the hope that it will be useful,\n"
-					"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-					"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n"
-					"Artistic License 2.0 for more details.\n"
-					"\n"
-					"You should have received a copy of the Artistic License 2.0\n"
-					"along the source as a COPYING file. If not, obtain it from\n"
-					"http://www.perlfoundation.org/artistic_license_2_0.\n\n");
+				_version();
 				return 0;
 			case 'h':
-				fprintf(stderr,
-					"--------------------------------------------------------------------\n"
-					"USAGE\n"
-					"   %s [OPTIONS] {PLUGIN_URI}*\n"
-					"\n"
-					"OPTIONS\n"
-					"   [-v]                 print version information\n"
-					"   [-h]                 print usage information\n"
-
-					"   [-S warn]            show warnings\n"
-					"   [-S note]            show notes\n"
-					"   [-S all]             show warnings and notes\n"
-
-					"   [-E warn]            treat warnings as errors\n"
-					"   [-E note]            treat notes as errors\n"
-					"   [-E all]             treat warnings and notes as errors\n\n"
-					, argv[0]);
+				_usage(argv);
 				return 0;
 			case 'S':
 				if(!strcmp(optarg, "warn"))
 				{
-					app.show|= LINT_WARN;
+					app.show |= LINT_WARN;
 				}
 				else if(!strcmp(optarg, "note"))
 				{
-					app.show|= LINT_NOTE;
-				}
-				else if(!strcmp(optarg, "all"))
-				{
-					app.show|= LINT_WARN | LINT_NOTE;
+					app.show |= LINT_NOTE;
 				}
 				break;
 			case 'E':
@@ -486,11 +489,6 @@ main(int argc, char **argv)
 					app.show |= LINT_NOTE;
 					app.mask |= LINT_NOTE;
 				}
-				else if(!strcmp(optarg, "all"))
-				{
-					app.show |= LINT_WARN | LINT_NOTE;
-					app.mask |= LINT_WARN | LINT_NOTE;
-				}
 				break;
 			case '?':
 				if( (optopt == 'S') || (optopt == 'E') )
@@ -503,6 +501,12 @@ main(int argc, char **argv)
 			default:
 				return -1;
 		}
+	}
+
+	if(optind == argc) // no URI given
+	{
+		_usage(argv);
+		return -1;
 	}
 
 	app.world = lilv_world_new();

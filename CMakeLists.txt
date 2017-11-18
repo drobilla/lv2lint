@@ -17,6 +17,7 @@ list(GET VERSION_LIST 2 LV2LINT_MICRO_VERSION)
 add_definitions("-DLV2LINT_VERSION=\"${LV2LINT_VERSION}\"")
 
 find_package(PkgConfig) # ${PKG_CONFIG_FOUND}
+include(FindUnixCommands)
 
 set(LIBS m)
 
@@ -49,6 +50,16 @@ add_executable(lv2lint
 set_target_properties(lv2lint PROPERTIES INTERPROCEDURAL_OPTIMIZATION true) # -flto
 target_link_libraries(lv2lint ${LIBS})
 install(TARGETS lv2lint DESTINATION bin)
+
+add_custom_command(
+	OUTPUT ${PROJECT_BINARY_DIR}/lv2lint.1.gz
+	COMMAND ${GZIP} ARGS
+	"-c9" ${CMAKE_CURRENT_SOURCE_DIR}/lv2lint.1
+		">" ${PROJECT_BINARY_DIR}/lv2lint.1.gz
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/lv2lint.1)
+add_custom_target(LV2LINT_MAN_GZ ALL DEPENDS ${PROJECT_BINARY_DIR}/lv2lint.1.gz)
+install(FILES "${PROJECT_BINARY_DIR}/lv2lint.1.gz" DESTINATION share/man/man1)
 
 include(CTest)
 
