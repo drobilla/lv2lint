@@ -685,111 +685,116 @@ main(int argc, char **argv)
 		for(int i=optind; i<argc; i++)
 		{
 			const char *plugin_uri = argv[i];
-			if(plugin_uri)
+			LilvNode *plugin_uri_node = lilv_new_uri(app.world, plugin_uri);
+			if(plugin_uri_node)
 			{
-				LilvNode *plugin_uri_node = lilv_new_uri(app.world, plugin_uri);
-				if(plugin_uri_node)
+				app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
+				if(app.plugin)
 				{
-					app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
-					if(app.plugin)
+					const int MAX_FEATURES = 20;
+					const LV2_Feature *features [MAX_FEATURES];
+					int f = 0;
+
+					LilvNodes *required_features = lilv_plugin_get_required_features(app.plugin);
+					if(required_features)
 					{
-						const int MAX_FEATURES = 20;
-						const LV2_Feature *features [MAX_FEATURES];
-						int f = 0;
-
-						LilvNodes *required_features = lilv_plugin_get_required_features(app.plugin);
-						if(required_features)
+						LILV_FOREACH(nodes, itr, required_features)
 						{
-							LILV_FOREACH(nodes, itr, required_features)
-							{
-								const LilvNode *feature = lilv_nodes_get(required_features, itr);
+							const LilvNode *feature = lilv_nodes_get(required_features, itr);
 
-								if(lilv_node_equals(feature, app.uris.urid_map))
-									features[f++] = &feat_map;
-								else if(lilv_node_equals(feature, app.uris.urid_unmap))
-									features[f++] = &feat_unmap;
-								else if(lilv_node_equals(feature, app.uris.work_schedule))
-									features[f++] = &feat_sched;
-								else if(lilv_node_equals(feature, app.uris.log_log))
-									features[f++] = &feat_log;
-								else if(lilv_node_equals(feature, app.uris.state_makePath))
-									features[f++] = &feat_mkpath;
-								else if(lilv_node_equals(feature, app.uris.rsz_resize))
-									features[f++] = &feat_rsz;
-								else if(lilv_node_equals(feature, app.uris.opts_options))
-									features[f++] = &feat_opts;
-								else if(lilv_node_equals(feature, app.uris.uri_map))
-									features[f++] = &feat_urimap;
-								else if(lilv_node_equals(feature, app.uris.lv2_isLive))
-									features[f++] = &feat_islive;
-								else if(lilv_node_equals(feature, app.uris.lv2_inPlaceBroken))
-									features[f++] = &feat_inplacebroken;
-								else if(lilv_node_equals(feature, app.uris.lv2_hardRTCapable))
-									features[f++] = &feat_hardrtcapable;
-								else if(lilv_node_equals(feature, app.uris.pprops_supportsStrictBounds))
-									features[f++] = &feat_supportsstrictbounds;
-								else if(lilv_node_equals(feature, app.uris.bufsz_boundedBlockLength))
-									features[f++] = &feat_boundedblocklength;
-								else if(lilv_node_equals(feature, app.uris.bufsz_fixedBlockLength))
-									features[f++] = &feat_fixedblocklength;
-								else if(lilv_node_equals(feature, app.uris.bufsz_powerOf2BlockLength))
-									features[f++] = &feat_powerof2blocklength;
-								else if(lilv_node_equals(feature, app.uris.bufsz_coarseBlockLength))
-									features[f++] = &feat_coarseblocklength;
-								else if(lilv_node_equals(feature, app.uris.state_loadDefaultState))
-									features[f++] = &feat_loaddefaultstate;
-								else if(lilv_node_equals(feature, app.uris.state_threadSafeRestore))
-									features[f++] = &feat_threadsaferestore;
-								else if(lilv_node_equals(feature, app.uris.idisp_queue_draw))
-									features[f++] = &feat_idispqueuedraw;
-							}
-							lilv_nodes_free(required_features);
+							if(lilv_node_equals(feature, app.uris.urid_map))
+								features[f++] = &feat_map;
+							else if(lilv_node_equals(feature, app.uris.urid_unmap))
+								features[f++] = &feat_unmap;
+							else if(lilv_node_equals(feature, app.uris.work_schedule))
+								features[f++] = &feat_sched;
+							else if(lilv_node_equals(feature, app.uris.log_log))
+								features[f++] = &feat_log;
+							else if(lilv_node_equals(feature, app.uris.state_makePath))
+								features[f++] = &feat_mkpath;
+							else if(lilv_node_equals(feature, app.uris.rsz_resize))
+								features[f++] = &feat_rsz;
+							else if(lilv_node_equals(feature, app.uris.opts_options))
+								features[f++] = &feat_opts;
+							else if(lilv_node_equals(feature, app.uris.uri_map))
+								features[f++] = &feat_urimap;
+							else if(lilv_node_equals(feature, app.uris.lv2_isLive))
+								features[f++] = &feat_islive;
+							else if(lilv_node_equals(feature, app.uris.lv2_inPlaceBroken))
+								features[f++] = &feat_inplacebroken;
+							else if(lilv_node_equals(feature, app.uris.lv2_hardRTCapable))
+								features[f++] = &feat_hardrtcapable;
+							else if(lilv_node_equals(feature, app.uris.pprops_supportsStrictBounds))
+								features[f++] = &feat_supportsstrictbounds;
+							else if(lilv_node_equals(feature, app.uris.bufsz_boundedBlockLength))
+								features[f++] = &feat_boundedblocklength;
+							else if(lilv_node_equals(feature, app.uris.bufsz_fixedBlockLength))
+								features[f++] = &feat_fixedblocklength;
+							else if(lilv_node_equals(feature, app.uris.bufsz_powerOf2BlockLength))
+								features[f++] = &feat_powerof2blocklength;
+							else if(lilv_node_equals(feature, app.uris.bufsz_coarseBlockLength))
+								features[f++] = &feat_coarseblocklength;
+							else if(lilv_node_equals(feature, app.uris.state_loadDefaultState))
+								features[f++] = &feat_loaddefaultstate;
+							else if(lilv_node_equals(feature, app.uris.state_threadSafeRestore))
+								features[f++] = &feat_threadsaferestore;
+							else if(lilv_node_equals(feature, app.uris.idisp_queue_draw))
+								features[f++] = &feat_idispqueuedraw;
 						}
-
-						features[f++] = NULL; // sentinel
-						assert(f <= MAX_FEATURES);
-
-						const bool atty = isatty(1);
-						fprintf(stdout, "%s<%s>%s\n",
-							colors[atty][ANSI_COLOR_BOLD],
-							lilv_node_as_uri(lilv_plugin_get_uri(app.plugin)),
-							colors[atty][ANSI_COLOR_RESET]);
-
-						app.instance = lilv_plugin_instantiate(app.plugin, param_sample_rate, features);
-
-						if(app.instance)
-						{
-							app.work_iface = lilv_instance_get_extension_data(app.instance, LV2_WORKER__interface);
-							app.idisp_iface = lilv_instance_get_extension_data(app.instance, LV2_INLINEDISPLAY__interface);
-							app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
-							app.opts_iface = lilv_instance_get_extension_data(app.instance, LV2_OPTIONS__interface);
-						}
-
-						if(!test_plugin(&app))
-						{
-							ret = -1;
-						}
-
-						if(app.instance)
-						{
-							lilv_instance_free(app.instance);
-							app.instance = NULL;
-							app.work_iface = NULL;
-							app.idisp_iface = NULL;
-							app.state_iface= NULL;
-							app.opts_iface = NULL;
-						}
-
-						app.plugin = NULL;
+						lilv_nodes_free(required_features);
 					}
-					else // plugin not found
+
+					features[f++] = NULL; // sentinel
+					assert(f <= MAX_FEATURES);
+
+					const bool atty = isatty(1);
+					fprintf(stdout, "%s<%s>%s\n",
+						colors[atty][ANSI_COLOR_BOLD],
+						lilv_node_as_uri(lilv_plugin_get_uri(app.plugin)),
+						colors[atty][ANSI_COLOR_RESET]);
+
+					app.instance = lilv_plugin_instantiate(app.plugin, param_sample_rate, features);
+
+					if(app.instance)
 					{
-						ret = -1;
+						app.work_iface = lilv_instance_get_extension_data(app.instance, LV2_WORKER__interface);
+						app.idisp_iface = lilv_instance_get_extension_data(app.instance, LV2_INLINEDISPLAY__interface);
+						app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
+						app.opts_iface = lilv_instance_get_extension_data(app.instance, LV2_OPTIONS__interface);
 					}
+
+					if(!test_plugin(&app))
+					{
+						ret += 1;
+					}
+
+					if(app.instance)
+					{
+						lilv_instance_free(app.instance);
+						app.instance = NULL;
+						app.work_iface = NULL;
+						app.idisp_iface = NULL;
+						app.state_iface= NULL;
+						app.opts_iface = NULL;
+					}
+
+					app.plugin = NULL;
 				}
-				lilv_node_free(plugin_uri_node);
+				else
+				{
+					ret += 1;
+				}
 			}
+			else
+			{
+				ret += 1;
+			}
+			lilv_node_free(plugin_uri_node);
 		}
+	}
+	else
+	{
+		ret = -1;
 	}
 
 	_unmap_uris(&app);
