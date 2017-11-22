@@ -24,7 +24,21 @@
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
-static const ret_t ret_verification = {LINT_FAIL, "failed", NULL};
+static const ret_t ret_instantiation = {LINT_FAIL, "failed", LV2_CORE_URI};
+
+static const ret_t *
+_test_instantiation(app_t *app)
+{
+	const ret_t *ret = NULL;
+	if(!app->instance)
+	{
+		ret = &ret_instantiation;
+	}
+
+	return ret;
+}
+
+static const ret_t ret_verification = {LINT_FAIL, "failed", LV2_CORE_URI};
 
 static const ret_t *
 _test_verification(app_t *app)
@@ -876,6 +890,7 @@ _test_idisp(app_t *app)
 }
 
 static const test_t tests [] = {
+	{"Instantiation   ", _test_instantiation},
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
 	{"License         ", _test_license},
@@ -906,11 +921,6 @@ test_plugin(app_t *app)
 	bool flag = true;
 	bool msg = false;
 	res_t rets [tests_n];
-
-	fprintf(stdout, "%s<%s>%s\n",
-		colors[atty][ANSI_COLOR_BOLD],
-		lilv_node_as_uri(lilv_plugin_get_uri(app->plugin)),
-		colors[atty][ANSI_COLOR_RESET]);
 
 	for(unsigned i=0; i<tests_n; i++)
 	{
@@ -1078,7 +1088,6 @@ test_plugin(app_t *app)
 
 		lilv_uis_free(uis);
 	}
-
 
 	fprintf(stdout, "\n");
 

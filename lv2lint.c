@@ -749,16 +749,29 @@ main(int argc, char **argv)
 						features[f++] = NULL; // sentinel
 						assert(f <= MAX_FEATURES);
 
+						const bool atty = isatty(1);
+						fprintf(stdout, "%s<%s>%s\n",
+							colors[atty][ANSI_COLOR_BOLD],
+							lilv_node_as_uri(lilv_plugin_get_uri(app.plugin)),
+							colors[atty][ANSI_COLOR_RESET]);
+
 						app.instance = lilv_plugin_instantiate(app.plugin, param_sample_rate, features);
+
 						if(app.instance)
 						{
 							app.work_iface = lilv_instance_get_extension_data(app.instance, LV2_WORKER__interface);
 							app.idisp_iface = lilv_instance_get_extension_data(app.instance, LV2_INLINEDISPLAY__interface);
 							app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
 							app.opts_iface = lilv_instance_get_extension_data(app.instance, LV2_OPTIONS__interface);
-							if(!test_plugin(&app))
-								ret = -1;
+						}
 
+						if(!test_plugin(&app))
+						{
+							ret = -1;
+						}
+
+						if(app.instance)
+						{
 							lilv_instance_free(app.instance);
 							app.instance = NULL;
 							app.work_iface = NULL;
@@ -766,12 +779,13 @@ main(int argc, char **argv)
 							app.state_iface= NULL;
 							app.opts_iface = NULL;
 						}
-						else
-							ret = -1;
+
 						app.plugin = NULL;
 					}
-					else
+					else // plugin not found
+					{
 						ret = -1;
+					}
 				}
 				lilv_node_free(plugin_uri_node);
 			}
