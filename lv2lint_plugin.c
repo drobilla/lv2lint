@@ -889,6 +889,75 @@ _test_idisp(app_t *app)
 	return ret;
 }
 
+enum {
+	HARD_RT_CAPABLE_NOT_FOUND,
+};
+
+static const ret_t ret_hard_rt_capable [] = {
+	[HARD_RT_CAPABLE_NOT_FOUND]       = {LINT_WARN, "not advertized as real-time safe", LV2_CORE__hardRTCapable},
+};
+
+static const ret_t *
+_test_hard_rt_capable(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool is_hard_rt_capable = lilv_plugin_has_feature(app->plugin, app->uris.lv2_hardRTCapable);
+
+	if(!is_hard_rt_capable)
+	{
+		ret = &ret_hard_rt_capable[HARD_RT_CAPABLE_NOT_FOUND];
+	}
+
+	return ret;
+}
+
+enum {
+	IN_PLACE_BROKEN_FOUND,
+};
+
+static const ret_t ret_in_place_broken[] = {
+	[IN_PLACE_BROKEN_FOUND]       = {LINT_WARN, "cannot process audio/CV in-place", LV2_CORE__inPlaceBroken},
+};
+
+static const ret_t *
+_test_in_place_broken(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool is_in_place_broken = lilv_plugin_has_feature(app->plugin, app->uris.lv2_inPlaceBroken);
+
+	if(is_in_place_broken)
+	{
+		ret = &ret_in_place_broken[IN_PLACE_BROKEN_FOUND];
+	}
+
+	return ret;
+}
+
+enum {
+	IS_LIVE_NOT_FOUND,
+};
+
+static const ret_t ret_is_live [] = {
+	[IS_LIVE_NOT_FOUND]       = {LINT_NOTE, "not meant for live usage", LV2_CORE__isLive},
+};
+
+static const ret_t *
+_test_is_live(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool is_live = lilv_plugin_has_feature(app->plugin, app->uris.lv2_isLive);
+
+	if(!is_live)
+	{
+		ret = &ret_is_live[IS_LIVE_NOT_FOUND];
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instantiation   ", _test_instantiation},
 	{"Verification    ", _test_verification},
@@ -910,6 +979,9 @@ static const test_t tests [] = {
 	{"Comment         ", _test_comment},
 	{"Shortdesc       ", _test_shortdesc},
 	{"Inline Display  ", _test_idisp},
+	{"Hard RT Capable ", _test_hard_rt_capable},
+	{"In Place Broken ", _test_in_place_broken},
+	{"Is Live         ", _test_is_live},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
