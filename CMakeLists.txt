@@ -25,6 +25,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	set(LIBS ${LIBS} dl)
 endif()
 
+# options
+option(ENABLE_ONLINE_TESTS "Enable online tests (e.g. tool will try to connect to the internet)" ON)
 
 pkg_search_module(LV2 REQUIRED lv2>=1.10)
 include_directories(${LV2_INCLUDE_DIRS})
@@ -39,6 +41,14 @@ else()
 endif()
 if((${LILV_VERSION} VERSION_EQUAL "0.22.0") OR (${LILV_VERSION} VERSION_GREATER "0.22.0"))
 	add_definitions("-DLILV_0_22")
+endif()
+
+if(ENABLE_ONLINE_TESTS)
+	add_definitions("-DENABLE_ONLINE_TESTS")
+
+	pkg_search_module(CURL REQUIRED libcurl>=7.0.0)
+	include_directories(${CURL_INCLUDE_DIRS})
+	set(LIBS ${LIBS} ${CURL_LDFLAGS})
 endif()
 
 add_executable(lv2lint

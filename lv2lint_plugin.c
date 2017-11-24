@@ -1015,6 +1015,36 @@ _test_power_of_2_block_length(app_t *app)
 	return ret;
 }
 
+#ifdef ENABLE_ONLINE_TESTS
+enum {
+	PLUGIN_URL_NOT_EXISTING,
+};
+
+static const ret_t ret_plugin_url [] = {
+	[PLUGIN_URL_NOT_EXISTING] = {LINT_WARN, "Plugin Web URL does not exist", LV2_CORE__Plugin},
+};
+
+static const ret_t *
+_test_plugin_url(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const char *uri = lilv_node_as_uri(lilv_plugin_get_uri(app->plugin));
+
+	if(is_url(uri))
+	{
+		const bool url_exists = app->offline || test_url(uri);
+
+		if(!url_exists)
+		{
+			ret = &ret_plugin_url[PLUGIN_URL_NOT_EXISTING];
+		}
+	}
+
+	return ret;
+}
+#endif
+
 static const test_t tests [] = {
 	{"Instantiation   ", _test_instantiation},
 	{"Verification    ", _test_verification},
@@ -1042,6 +1072,9 @@ static const test_t tests [] = {
 	//{"Bounded Block   ", _test_bounded_block_length}, //TODO check for opts:opt
 	{"Fixed Block     ", _test_fixed_block_length},
 	{"PowerOf2 Block  ", _test_power_of_2_block_length},
+#ifdef ENABLE_ONLINE_TESTS
+	{"Plugin URL      ", _test_plugin_url},
+#endif
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);

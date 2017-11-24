@@ -21,7 +21,7 @@ stages:
   script:
     - mkdir build
     - pushd build
-    - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${CI_PROJECT_DIR}/${BASE_NAME}-$(cat ../VERSION)/${CI_BUILD_NAME}" -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} ..
+    - cmake -DENABLE_ONLINE_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${CI_PROJECT_DIR}/${BASE_NAME}-$(cat ../VERSION)/${CI_BUILD_NAME}" -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} ..
     - cmake .. # needed for darwin
     - make
     - make install

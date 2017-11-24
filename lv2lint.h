@@ -96,6 +96,9 @@ struct _app_t {
 	urid_t *urids;
 	LV2_URID nurids;
 	char **urn;
+#ifdef ENABLE_ONLINE_TESTS
+	bool offline;
+#endif
 	struct {
 		LilvNode *rdfs_label;
 		LilvNode *rdfs_comment;
@@ -217,5 +220,13 @@ test_parameter(app_t *app);
 
 bool
 test_ui(app_t *app);
+
+#ifdef ENABLE_ONLINE_TESTS
+bool
+is_url(const char *uri);
+
+bool
+test_url(const char *url);
+#endif
 
 #endif

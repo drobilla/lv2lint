@@ -42,6 +42,10 @@
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
+#ifdef ENABLE_ONLINE_TESTS
+#	include <curl/curl.h>
+#endif
+
 const char *colors [2][ANSI_COLOR_MAX] = {
 	{
 		[ANSI_COLOR_BOLD]    = "",
@@ -441,11 +445,60 @@ _usage(char **argv)
 		"OPTIONS\n"
 		"   [-v]                 print version information\n"
 		"   [-h]                 print usage information\n"
+#ifdef ENABLE_ONLINE_TESTS
+		"   [-o]                 run in offline mode\n"
+#endif
 
 		"   [-S] warn|note       show warnings and/or notes\n"
 		"   [-E] warn|note       treat warnings and/or notes as errors\n\n"
 		, argv[0]);
 }
+
+#ifdef ENABLE_ONLINE_TESTS
+static const char *http_prefix = "http://";
+static const char *https_prefix = "https://";
+static const char *ftp_prefix = "ftp://";
+static const char *ftps_prefix = "ftps://";
+
+bool
+is_url(const char *uri)
+{
+	const bool is_http = strncmp(uri, http_prefix, strlen(http_prefix));
+	const bool is_https = strncmp(uri, https_prefix, strlen(https_prefix));
+	const bool is_ftp = strncmp(uri, ftp_prefix, strlen(ftp_prefix));
+	const bool is_ftps = strncmp(uri, ftps_prefix, strlen(ftps_prefix));
+
+	return is_http || is_https || is_ftp || is_ftps;
+}
+
+bool
+test_url(const char *url)
+{
+	CURL *curl = curl_easy_init();
+	if(curl)
+	{
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L); // secs
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 20L); //secs
+
+		const CURLcode resp = curl_easy_perform(curl);
+
+		long http_code;
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+		curl_easy_cleanup(curl);
+
+		if( (resp == CURLE_OK) && (http_code == 200) )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
 
 int
 main(int argc, char **argv)
@@ -461,7 +514,11 @@ main(int argc, char **argv)
 		argv[0]);
 	
 	int c;
+#ifdef ENABLE_ONLINE_TESTS
+	while( (c = getopt(argc, argv, "vhoS:E:") ) != -1)
+#else
 	while( (c = getopt(argc, argv, "vhS:E:") ) != -1)
+#endif
 	{
 		switch(c)
 		{
@@ -471,6 +528,11 @@ main(int argc, char **argv)
 			case 'h':
 				_usage(argv);
 				return 0;
+#ifdef ENABLE_ONLINE_TESTS
+			case 'o':
+				app.offline = true;
+				break;
+#endif
 			case 'S':
 				if(!strcmp(optarg, "warn"))
 				{

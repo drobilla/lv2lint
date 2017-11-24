@@ -319,6 +319,36 @@ _test_toolkit(app_t *app)
 	return ret;
 }
 
+#ifdef ENABLE_ONLINE_TESTS
+enum {
+	PLUGIN_URL_NOT_EXISTING,
+};
+
+static const ret_t ret_ui_url [] = {
+	[PLUGIN_URL_NOT_EXISTING] = {LINT_WARN, "UI Web URL does not exist", LV2_UI__UI},
+};
+
+static const ret_t *
+_test_ui_url(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const char *uri = lilv_node_as_uri(lilv_ui_get_uri(app->ui));
+
+	if(is_url(uri))
+	{
+		const bool url_exists = app->offline || test_url(uri);
+
+		if(!url_exists)
+		{
+			ret = &ret_ui_url[PLUGIN_URL_NOT_EXISTING];
+		}
+	}
+
+	return ret;
+}
+#endif
+
 static const test_t tests [] = {
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
@@ -329,6 +359,9 @@ static const test_t tests [] = {
 	{"Show Interface  ", _test_show_interface},
 	{"Resize Interface", _test_resize_interface},
 	{"Toolkit         ", _test_toolkit},
+#ifdef ENABLE_ONLINE_TESTS
+	{"UI URL          ", _test_ui_url},
+#endif
 };
 
 static const int tests_n = sizeof(tests) / sizeof(test_t);
