@@ -21,6 +21,7 @@
 #include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
+#include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
@@ -958,6 +959,62 @@ _test_is_live(app_t *app)
 	return ret;
 }
 
+enum {
+	FIXED_BLOCK_LENGTH_FOUND,
+};
+
+static const ret_t ret_fixed_block_length [] = {
+	[FIXED_BLOCK_LENGTH_FOUND] = {
+		LINT_WARN,
+		"requiring a fixed block length is highly discouraged",
+		LV2_BUF_SIZE__fixedBlockLength
+	},
+};
+
+static const ret_t *
+_test_fixed_block_length(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool wants_fixed_block_length =
+		lilv_plugin_has_feature(app->plugin, app->uris.bufsz_fixedBlockLength);
+
+	if(wants_fixed_block_length)
+	{
+		ret = &ret_fixed_block_length[FIXED_BLOCK_LENGTH_FOUND];
+	}
+
+	return ret;
+}
+
+enum {
+	POWER_OF_2_BLOCK_LENGTH_FOUND,
+};
+
+static const ret_t ret_power_of_2_block_length [] = {
+	[POWER_OF_2_BLOCK_LENGTH_FOUND] = {
+		LINT_WARN,
+		"requiring a power of 2 block length is highly discouraged",
+		LV2_BUF_SIZE__powerOf2BlockLength
+	},
+};
+
+static const ret_t *
+_test_power_of_2_block_length(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool wants_power_of_2_block_length =
+		lilv_plugin_has_feature(app->plugin, app->uris.bufsz_powerOf2BlockLength);
+
+	if(wants_power_of_2_block_length)
+	{
+		ret = &ret_power_of_2_block_length[POWER_OF_2_BLOCK_LENGTH_FOUND];
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instantiation   ", _test_instantiation},
 	{"Verification    ", _test_verification},
@@ -982,6 +1039,9 @@ static const test_t tests [] = {
 	{"Hard RT Capable ", _test_hard_rt_capable},
 	{"In Place Broken ", _test_in_place_broken},
 	{"Is Live         ", _test_is_live},
+	//{"Bounded Block   ", _test_bounded_block_length}, //TODO check for opts:opt
+	{"Fixed Block     ", _test_fixed_block_length},
+	{"PowerOf2 Block  ", _test_power_of_2_block_length},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
