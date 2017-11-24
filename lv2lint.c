@@ -232,6 +232,9 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.work_schedule);
 	lilv_node_free(app->uris.work_interface);
 
+	lilv_node_free(app->uris.idisp_queue_draw);
+	lilv_node_free(app->uris.idisp_interface);
+
 	lilv_node_free(app->uris.opts_options);
 	lilv_node_free(app->uris.opts_interface);
 
