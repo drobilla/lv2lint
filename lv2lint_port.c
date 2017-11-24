@@ -343,7 +343,7 @@ static const test_t tests [] = {
 	{"Group           ", _test_group},
 };
 
-static const int tests_n = sizeof(tests) / sizeof(test_t);
+static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
 
 bool
 test_port(app_t *app)

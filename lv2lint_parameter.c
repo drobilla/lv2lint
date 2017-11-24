@@ -246,7 +246,7 @@ static const test_t tests [] = {
 	//TODO scalePoint
 };
 
-static const int tests_n = sizeof(tests) / sizeof(test_t);
+static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
 
 bool
 test_parameter(app_t *app)

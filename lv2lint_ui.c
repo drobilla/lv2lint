@@ -364,7 +364,7 @@ static const test_t tests [] = {
 #endif
 };
 
-static const int tests_n = sizeof(tests) / sizeof(test_t);
+static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
 
 bool
 test_ui(app_t *app)

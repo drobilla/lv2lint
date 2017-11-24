@@ -416,7 +416,7 @@ _queue_draw(LV2_Inline_Display_Handle instance)
 }
 
 static void
-_version()
+_version(void)
 {
 	fprintf(stderr,
 		"--------------------------------------------------------------------\n"
