@@ -99,12 +99,14 @@ enum {
 	LICENSE_NOT_FOUND,
 	LICENSE_NOT_AN_URI,
 	LICENSE_EMPTY,
+	LICENSE_NOT_EXISTING,
 };
 
 static const ret_t ret_license [] = {
 	[LICENSE_NOT_FOUND]    = {LINT_WARN, "doap:license not found", LV2_CORE__Plugin},
-		[LICENSE_NOT_AN_URI] = {LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license"},
-		[LICENSE_EMPTY]      = {LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
+	[LICENSE_NOT_AN_URI]   = {LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license"},
+	[LICENSE_EMPTY]        = {LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
+	[LICENSE_NOT_EXISTING] = {LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license"},
 };
 
 static const ret_t * 
@@ -117,10 +119,23 @@ _test_license(app_t *app)
 	{
 		if(lilv_node_is_uri(license_node))
 		{
-			if(!lilv_node_as_uri(license_node))
+			const char *uri = lilv_node_as_uri(license_node);
+
+			if(!uri)
 			{
 				ret = &ret_license[LICENSE_EMPTY];
 			}
+#ifdef ENABLE_ONLINE_TESTS
+			else if(is_url(uri))
+			{
+				const bool url_exists = app->offline || test_url(uri);
+
+				if(!url_exists)
+				{
+					ret = &ret_license[LICENSE_NOT_EXISTING];
+				}
+			}
+#endif
 		}
 		else
 		{
@@ -146,6 +161,7 @@ enum {
 	AUTHOR_HOMEPAGE_NOT_FOUND,
 	AUTHOR_HOMEPAGE_NOT_AN_URI,
 	AUTHOR_HOMEPAGE_EMPTY,
+	AUTHOR_HOMEPAGE_NOT_EXISTING,
 };
 
 static const ret_t ret_author [] = {
@@ -158,6 +174,7 @@ static const ret_t ret_author [] = {
 	[AUTHOR_HOMEPAGE_NOT_FOUND]    = {LINT_WARN, "foaf:homepage not found", LV2_CORE__project},
 		[AUTHOR_HOMEPAGE_NOT_AN_URI] = {LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage"},
 		[AUTHOR_HOMEPAGE_EMPTY]      = {LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage"},
+		[AUTHOR_HOMEPAGE_NOT_EXISTING]      = {LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage"},
 };
 
 static const ret_t * 
@@ -228,10 +245,23 @@ _test_author_homepage(app_t *app)
 	{
 		if(lilv_node_is_uri(author_homepage))
 		{
-			if(!lilv_node_as_uri(author_homepage))
+			const char *uri = lilv_node_as_uri(author_homepage);
+
+			if(!uri)
 			{
 				ret = &ret_author[AUTHOR_HOMEPAGE_EMPTY];
 			}
+#ifdef ENABLE_ONLINE_TESTS
+			else if(is_url(uri))
+			{
+				const bool url_exists = app->offline || test_url(uri);
+
+				if(!url_exists)
+				{
+					ret = &ret_author[AUTHOR_HOMEPAGE_NOT_EXISTING];
+				}
+			}
+#endif
 		}
 		else
 		{
