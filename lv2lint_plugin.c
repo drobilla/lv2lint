@@ -1286,5 +1286,26 @@ test_plugin(app_t *app)
 
 	fprintf(stdout, "\n");
 
+#if 0
+	const char *to = "mailto:dev@open-music-kontrollers.ch";
+	const char *subj= "[LV2LINT] Bug report for <http://open-music-kontrollers.ch/lv2/moony@a1xa1>";
+	const char *body = "Your plugin is shitty";
+
+	CURL *curl = curl_easy_init();
+	char *subj_esc = curl_easy_escape(curl, subj, strlen(subj));
+	char *body_esc = curl_easy_escape(curl, body, strlen(body));
+	char *mail = NULL;
+
+	asprintf(&mail, "xdg-open '%s?subject=%s&body=%s'", to, subj_esc, body_esc);
+	system(mail);
+
+	curl_easy_cleanup(curl);
+	free(subj_esc);
+	free(body_esc);
+
+	fprintf(stderr, "%s\n", mail);
+	free(mail);
+#endif
+
 	return flag;
 }
