@@ -49,6 +49,7 @@ enum _ansi_color_t {
 const char *colors [2][ANSI_COLOR_MAX];
 
 typedef enum _lint_t lint_t;
+typedef union _var_t var_t;
 typedef struct _urid_t urid_t;
 typedef struct _app_t app_t;
 typedef struct _test_t test_t;
@@ -77,6 +78,14 @@ struct _res_t {
 	char *urn;
 };
 
+union _var_t {
+	uint32_t u32;
+	int32_t i32;
+	int64_t i64;
+	float f32;
+	double f64;
+};
+
 struct _app_t {
 	LilvWorld *world;
 	const LilvPlugin *plugin;
@@ -91,6 +100,9 @@ struct _app_t {
 	const LV2UI_Idle_Interface *ui_idle_iface;
 	const LV2UI_Show_Interface *ui_show_iface;
 	const LV2UI_Resize *ui_resize_iface;
+	var_t min;
+	var_t max;
+	var_t dflt;
 	lint_t show;
 	lint_t mask;
 	urid_t *urids;

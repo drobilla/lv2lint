@@ -104,19 +104,33 @@ _test_properties(app_t *app)
 }
 
 enum {
-	RANGE_NOT_FOUND,
-	RANGE_NOT_AN_INT,
-	RANGE_NOT_A_FLOAT,
-	RANGE_NOT_A_BOOL,
+	NUM_NOT_FOUND,
+	NUM_NOT_AN_INT,
+	NUM_NOT_A_FLOAT,
+	NUM_NOT_A_BOOL,
 };
 
 static inline const ret_t *
-_test_range(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled)
+_test_num(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled,
+	float *val)
 {
 	const ret_t *ret = NULL;
 
 	if(node)
 	{
+		if(lilv_node_is_int(node))
+		{
+			*val = lilv_node_as_int(node);
+		}
+		else if(lilv_node_is_float(node))
+		{
+			*val = lilv_node_as_float(node);
+		}
+		else if(lilv_node_is_bool(node))
+		{
+			*val = lilv_node_as_bool(node) ? 1.f : 0.f;
+		}
+
 		if(is_integer)
 		{
 			if(  lilv_node_is_int(node)
@@ -127,7 +141,7 @@ _test_range(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled)
 			}
 			else
 			{
-				ret = &rets[RANGE_NOT_AN_INT];
+				ret = &rets[NUM_NOT_AN_INT];
 			}
 		}
 		else if(is_toggled)
@@ -142,7 +156,7 @@ _test_range(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled)
 			}
 			else
 			{
-				ret = &rets[RANGE_NOT_A_BOOL];
+				ret = &rets[NUM_NOT_A_BOOL];
 			}
 		}
 		else if( lilv_node_is_float(node)
@@ -152,30 +166,32 @@ _test_range(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled)
 		}
 		else
 		{
-			ret = &rets[RANGE_NOT_A_FLOAT];
+			ret = &rets[NUM_NOT_A_FLOAT];
 		}
 
 		lilv_node_free(node);
 	}
 	else // !node
 	{
-		ret = &rets[RANGE_NOT_FOUND];
+		ret = &rets[NUM_NOT_FOUND];
 	}
 
 	return ret;
 }
 
 static const ret_t ret_default [] = {
-	[RANGE_NOT_FOUND]      = {LINT_WARN, "lv2:default not found", LV2_CORE__Port},
-		[RANGE_NOT_AN_INT]   = {LINT_WARN, "lv2:default not an integer", LV2_CORE__default},
-		[RANGE_NOT_A_FLOAT]  = {LINT_WARN, "lv2:default not a float", LV2_CORE__default},
-		[RANGE_NOT_A_BOOL]   = {LINT_WARN, "lv2:default not a bool", LV2_CORE__default},
+	[NUM_NOT_FOUND]      = {LINT_WARN, "lv2:default not found", LV2_CORE__Port},
+		[NUM_NOT_AN_INT]   = {LINT_WARN, "lv2:default not an integer", LV2_CORE__default},
+		[NUM_NOT_A_FLOAT]  = {LINT_WARN, "lv2:default not a float", LV2_CORE__default},
+		[NUM_NOT_A_BOOL]   = {LINT_WARN, "lv2:default not a bool", LV2_CORE__default},
 };
 
 static const ret_t *
 _test_default(app_t *app)
 {
 	const ret_t *ret = NULL;
+
+	app->dflt.f32 = 0.f; // fall-back
 
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
 	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
@@ -185,23 +201,25 @@ _test_default(app_t *app)
 		&& lilv_port_is_a(app->plugin, app->port, app->uris.lv2_InputPort) )
 	{
 		LilvNode *default_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_default);
-		ret = _test_range(default_node, ret_default, is_integer, is_toggled);
+		ret = _test_num(default_node, ret_default, is_integer, is_toggled, &app->dflt.f32);
 	}
 
 	return ret;
 }
 
 static const ret_t ret_minimum [] = {
-	[RANGE_NOT_FOUND]      = {LINT_WARN, "lv2:minimum not found", LV2_CORE__Port},
-		[RANGE_NOT_AN_INT]   = {LINT_WARN, "lv2:minimum not an integer", LV2_CORE__minimum},
-		[RANGE_NOT_A_FLOAT]  = {LINT_WARN, "lv2:minimum not a float", LV2_CORE__minimum},
-		[RANGE_NOT_A_BOOL]   = {LINT_WARN, "lv2:minimum not a bool", LV2_CORE__minimum},
+	[NUM_NOT_FOUND]      = {LINT_WARN, "lv2:minimum not found", LV2_CORE__Port},
+		[NUM_NOT_AN_INT]   = {LINT_WARN, "lv2:minimum not an integer", LV2_CORE__minimum},
+		[NUM_NOT_A_FLOAT]  = {LINT_WARN, "lv2:minimum not a float", LV2_CORE__minimum},
+		[NUM_NOT_A_BOOL]   = {LINT_WARN, "lv2:minimum not a bool", LV2_CORE__minimum},
 };
 
 static const ret_t *
 _test_minimum(app_t *app)
 {
 	const ret_t *ret = NULL;
+
+	app->min.f32 = 0.f; // fall-back
 
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
 	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
@@ -212,23 +230,25 @@ _test_minimum(app_t *app)
 		&& !is_toggled )
 	{
 		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_minimum);
-		ret = _test_range(minimum_node, ret_minimum, is_integer, is_toggled);
+		ret = _test_num(minimum_node, ret_minimum, is_integer, is_toggled, &app->min.f32);
 	}
 
 	return ret;
 }
 
 static const ret_t ret_maximum [] = {
-	[RANGE_NOT_FOUND]      = {LINT_WARN, "lv2:maximum not found", LV2_CORE__Port},
-		[RANGE_NOT_AN_INT]   = {LINT_WARN, "lv2:maximum not an integer", LV2_CORE__maximum},
-		[RANGE_NOT_A_FLOAT]  = {LINT_WARN, "lv2:maximum not a float", LV2_CORE__maximum},
-		[RANGE_NOT_A_BOOL]   = {LINT_WARN, "lv2:maximum not a bool", LV2_CORE__maximum},
+	[NUM_NOT_FOUND]      = {LINT_WARN, "lv2:maximum not found", LV2_CORE__Port},
+		[NUM_NOT_AN_INT]   = {LINT_WARN, "lv2:maximum not an integer", LV2_CORE__maximum},
+		[NUM_NOT_A_FLOAT]  = {LINT_WARN, "lv2:maximum not a float", LV2_CORE__maximum},
+		[NUM_NOT_A_BOOL]   = {LINT_WARN, "lv2:maximum not a bool", LV2_CORE__maximum},
 };
 
 static const ret_t *
 _test_maximum(app_t *app)
 {
 	const ret_t *ret = NULL;
+
+	app->max.f32 = 1.f; // fall-back
 
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
 	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
@@ -239,7 +259,29 @@ _test_maximum(app_t *app)
 		&& !is_toggled )
 	{
 		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_maximum);
-		ret = _test_range(maximum_node, ret_maximum, is_integer, is_toggled);
+		ret = _test_num(maximum_node, ret_maximum, is_integer, is_toggled, &app->max.f32);
+	}
+
+	return ret;
+}
+
+static const ret_t ret_range = {LINT_FAIL, "range invalid (min <= default <= max)", LV2_CORE__Port};
+
+static const ret_t *
+_test_range(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
+	const bool is_toggled = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_toggled);
+
+	if(  lilv_port_is_a(app->plugin, app->port, app->uris.lv2_ControlPort)
+			|| lilv_port_is_a(app->plugin, app->port, app->uris.lv2_CVPort) )
+	{
+		if( !( (app->min.f32 <= app->dflt.f32) && (app->dflt.f32 <= app->max.f32) ) )
+		{
+			ret = &ret_range;
+		}
 	}
 
 	return ret;
@@ -338,6 +380,7 @@ static const test_t tests [] = {
 	{"Default         ", _test_default},
 	{"Minimum         ", _test_minimum},
 	{"Maximum         ", _test_maximum},
+	{"Range           ", _test_range},
 	{"Event Port      ", _test_event_port},
 	{"Comment         ", _test_comment},
 	{"Group           ", _test_group},
