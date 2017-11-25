@@ -114,6 +114,7 @@ enum {
 	RANGE_MAXIMUM_NOT_FOUND,
 	RANGE_MAXIMUM_NOT_AN_INT,
 	RANGE_MAXIMUM_NOT_A_FLOAT,
+	RANGE_INVALID,
 };
 
 static const ret_t ret_range [] = {
@@ -127,6 +128,7 @@ static const ret_t ret_range [] = {
 		[RANGE_MAXIMUM_NOT_FOUND]     = {LINT_WARN, "lv2:maximum not found", LV2_CORE__maximum},
 			[RANGE_MAXIMUM_NOT_AN_INT]  = {LINT_FAIL, "lv2:maximum not an integer", LV2_CORE__maximum},
 			[RANGE_MAXIMUM_NOT_A_FLOAT] = {LINT_FAIL, "lv2:maximum not a float", LV2_CORE__maximum},
+		[RANGE_INVALID]               = {LINT_FAIL, "range invalid (min <= max)", LV2_CORE_PREFIX"Parameter"},
 };
 
 static const ret_t *
@@ -160,6 +162,11 @@ _test_range(app_t *app)
 							if(!lilv_node_is_int(minimum))
 							{
 								ret = &ret_range[RANGE_MINIMUM_NOT_AN_INT];
+								app->min.i64 = 0; // fall-back
+							}
+							else
+							{
+								app->min.i64 = lilv_node_as_int(minimum);
 							}
 						}
 						else if(lilv_node_equals(range_node, app->uris.atom_Float)
@@ -168,6 +175,11 @@ _test_range(app_t *app)
 							if(!lilv_node_is_float(minimum))
 							{
 								ret = &ret_range[RANGE_MINIMUM_NOT_A_FLOAT];
+								app->min.f64 = 0.0; // fall-back
+							}
+							else
+							{
+								app->min.f64 = lilv_node_as_float(minimum);
 							}
 						}
 
@@ -187,6 +199,11 @@ _test_range(app_t *app)
 							if(!lilv_node_is_int(maximum))
 							{
 								ret = &ret_range[RANGE_MAXIMUM_NOT_AN_INT];
+								app->max.i64 = 1; // fall-back
+							}
+							else
+							{
+								app->max.i64 = lilv_node_as_int(maximum);
 							}
 						}
 						else if(lilv_node_equals(range_node, app->uris.atom_Float)
@@ -195,6 +212,11 @@ _test_range(app_t *app)
 							if(!lilv_node_is_float(maximum))
 							{
 								ret = &ret_range[RANGE_MAXIMUM_NOT_A_FLOAT];
+								app->max.f64 = 1.0; // fall-back
+							}
+							else
+							{
+								app->max.f64 = lilv_node_as_float(maximum);
 							}
 						}
 
@@ -203,6 +225,26 @@ _test_range(app_t *app)
 					else
 					{
 						ret = &ret_range[RANGE_MAXIMUM_NOT_FOUND];
+					}
+
+					if(minimum && maximum)
+					{
+						if(  lilv_node_equals(range_node, app->uris.atom_Int)
+							|| lilv_node_equals(range_node, app->uris.atom_Long) )
+						{
+							if( !(app->min.i64 <= app->max.i64) )
+							{
+								ret = &ret_range[RANGE_INVALID];
+							}
+						}
+						else if(lilv_node_equals(range_node, app->uris.atom_Float)
+							|| lilv_node_equals(range_node, app->uris.atom_Double) )
+						{
+							if( !(app->min.f64 <= app->max.f64) )
+							{
+								ret = &ret_range[RANGE_INVALID];
+							}
+						}
 					}
 				}
 				else if(lilv_node_equals(range_node, app->uris.atom_Bool)
