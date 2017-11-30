@@ -660,6 +660,8 @@ _test_worker(app_t *app)
 
 enum {
 	OPTIONS_OPTIONS_NOT_FOUND,
+	OPTIONS_SUPPORTED_NOT_FOUND,
+	OPTIONS_REQUIRED_FOUND,
 	OPTIONS_INTERFACE_NOT_FOUND,
 	OPTIONS_INTERFACE_NOT_RETURNED,
 	OPTIONS_GET_NOT_FOUND,
@@ -668,6 +670,8 @@ enum {
 
 static const ret_t ret_options [] = {
 	[OPTIONS_OPTIONS_NOT_FOUND]         = {LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options},
+	[OPTIONS_SUPPORTED_NOT_FOUND]        = {LINT_WARN, "opts:{required,supported} options not defined", LV2_OPTIONS__supportedOption},
+	[OPTIONS_REQUIRED_FOUND]             = {LINT_WARN, "opts:required options defined", LV2_OPTIONS__requiredOption},
 	[OPTIONS_INTERFACE_NOT_FOUND]       = {LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface},
 	[OPTIONS_INTERFACE_NOT_RETURNED]    = {LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface},
 	[OPTIONS_GET_NOT_FOUND]             = {LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface},
@@ -675,11 +679,10 @@ static const ret_t ret_options [] = {
 };
 
 static const ret_t *
-_test_options(app_t *app)
+_test_options_iface(app_t *app)
 {
 	const ret_t *ret = NULL;
 
-	const bool has_opts_options= lilv_plugin_has_feature(app->plugin, app->uris.opts_options);
 	const bool has_opts_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.opts_interface);
 
 	if(has_opts_iface || app->opts_iface)
@@ -702,7 +705,47 @@ _test_options(app_t *app)
 		}
 	}
 
-	//TODO what to check about for lv2:Feature opts:options ?
+	return ret;
+}
+
+static const ret_t *
+_test_options_feature(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const bool has_opts_options= lilv_plugin_has_feature(app->plugin, app->uris.opts_options);
+	LilvNodes *required_options = lilv_plugin_get_value(app->plugin, app->uris.opts_requiredOption);
+	LilvNodes *supported_options = lilv_plugin_get_value(app->plugin, app->uris.opts_supportedOption);
+
+	const unsigned required_n = lilv_nodes_size(required_options);
+	const unsigned supported_n = lilv_nodes_size(supported_options);
+	const unsigned n = required_n + supported_n;
+
+	if(has_opts_options || n)
+	{
+		if(!has_opts_options)
+		{
+			ret = &ret_options[OPTIONS_OPTIONS_NOT_FOUND];
+		}
+		else if(!n)
+		{
+			ret = &ret_options[OPTIONS_SUPPORTED_NOT_FOUND];
+		}
+	}
+	else if(required_n)
+	{
+		ret = &ret_options[OPTIONS_REQUIRED_FOUND];
+	}
+
+	if(required_options)
+	{
+		lilv_nodes_free(required_options);
+	}
+
+	if(supported_options)
+	{
+		lilv_nodes_free(supported_options);
+	}
 
 	return ret;
 }
@@ -1090,7 +1133,8 @@ static const test_t tests [] = {
 	{"Features        ", _test_features},
 	{"Extension Data  ", _test_extensions},
 	{"Worker          ", _test_worker},
-	{"Options         ", _test_options},
+	{"Options Iface   ", _test_options_iface},
+	{"Options Feature ", _test_options_feature},
 	{"URI-Map         ", _test_uri_map},
 	{"State           ", _test_state},
 	{"Comment         ", _test_comment},

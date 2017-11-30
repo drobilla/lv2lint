@@ -135,6 +135,8 @@ _map_uris(app_t *app)
 
 	app->uris.opts_options = lilv_new_uri(app->world, LV2_OPTIONS__options);
 	app->uris.opts_interface = lilv_new_uri(app->world, LV2_OPTIONS__interface);
+	app->uris.opts_requiredOption = lilv_new_uri(app->world, LV2_OPTIONS__requiredOption);
+	app->uris.opts_supportedOption = lilv_new_uri(app->world, LV2_OPTIONS__supportedOption);
 
 	app->uris.patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
 	app->uris.patch_readable = lilv_new_uri(app->world, LV2_PATCH__readable);
@@ -241,6 +243,8 @@ _unmap_uris(app_t *app)
 
 	lilv_node_free(app->uris.opts_options);
 	lilv_node_free(app->uris.opts_interface);
+	lilv_node_free(app->uris.opts_requiredOption);
+	lilv_node_free(app->uris.opts_supportedOption);
 
 	lilv_node_free(app->uris.patch_writable);
 	lilv_node_free(app->uris.patch_readable);

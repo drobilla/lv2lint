@@ -175,6 +175,8 @@ struct _app_t {
 
 		LilvNode *opts_options;
 		LilvNode *opts_interface;
+		LilvNode *opts_requiredOption;
+		LilvNode *opts_supportedOption;
 
 		LilvNode *patch_writable;
 		LilvNode *patch_readable;
