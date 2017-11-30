@@ -7,9 +7,14 @@
 [![build status](https://gitlab.com/OpenMusicKontrollers/lv2lint/badges/master/build.svg)](https://gitlab.com/OpenMusicKontrollers/lv2lint/commits/master)
 
 ### Dependencies
+#### Mandatory
 
-* [LV2](http://lv2plug.in) (LV2 Plugin Standard)
+* [LV2](http://lv2plug.in/) (LV2 Plugin Standard)
 * [lilv](http://drobilla.net/software/lilv/) (LV2 plugin host library)
+
+#### Optional
+
+* [libcurl](https://curl.haxx.se/libcurl/) (The multiprotocol file transfer library)
 
 ### Build / install
 
@@ -23,7 +28,7 @@
 
 ### Usage
 
-	lv2lint http://lv2plug.in/plugins/eg-scope#Stereo
+	lv2lint -Swarn -Snote http://lv2plug.in/plugins/eg-scope#Stereo
 
 ### License
 
