@@ -34,6 +34,37 @@ static inline char* dlerror(void) { return "Unknown error"; }
 #include <lv2/lv2plug.in/ns/ext/instance-access/instance-access.h>
 #include <lv2/lv2plug.in/ns/ext/data-access/data-access.h>
 
+#ifdef ENABLE_ELF_TESTS
+static const ret_t ret_symbols = {LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
+
+static const ret_t *
+_test_symbols(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const LilvNode* node = lilv_ui_get_binary_uri(app->ui);
+	if(node && lilv_node_is_uri(node))
+	{
+		const char *uri = lilv_node_as_uri(node);
+		if(uri)
+		{
+			char *path = lilv_file_uri_parse(uri, NULL);
+			if(path)
+			{
+				if(!test_visibility(path, "lv2ui_descriptor"))
+				{
+					ret = &ret_symbols;
+				}
+
+				lilv_free(path);
+			}
+		}
+	}
+
+	return ret;
+}
+#endif
+
 enum {
 	INSTANCE_ACCESS_DISCOURAGED,
 };
@@ -350,6 +381,9 @@ _test_ui_url(app_t *app)
 #endif
 
 static const test_t tests [] = {
+#ifdef ENABLE_ELF_TESTS
+	{"Symbols         ", _test_symbols},
+#endif
 	{"Instance Access ", _test_instance_access},
 	{"Data Access     ", _test_data_access},
 	{"Mixed DSP/UI    ", _test_mixed},
