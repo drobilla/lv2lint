@@ -15,6 +15,7 @@
 #### Optional
 
 * [libcurl](https://curl.haxx.se/libcurl/) (The multiprotocol file transfer library)
+* [libelf](http://www.mr511.de/software/) (ELF object file access library)
 
 ### Build / install
 

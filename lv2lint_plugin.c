@@ -15,9 +15,11 @@
  * http://www.perlfoundation.org/artistic_license_2_0.
  */
 
-#include <fcntl.h>
-#include <libelf.h>
-#include <gelf.h>
+#ifdef ENABLE_ELF_TESTS
+#	include <fcntl.h>
+#	include <libelf.h>
+#	include <gelf.h>
+#endif
 
 #include <lv2lint.h>
 
@@ -43,6 +45,7 @@ _test_instantiation(app_t *app)
 	return ret;
 }
 
+#ifdef ENABLE_ELF_TESTS
 static const ret_t ret_symbols = {LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
 
 static bool
@@ -138,6 +141,7 @@ _test_symbols(app_t *app)
 
 	return ret;
 }
+#endif
 
 static const ret_t ret_verification = {LINT_FAIL, "failed", LV2_CORE_URI};
 
@@ -1220,7 +1224,9 @@ _test_plugin_url(app_t *app)
 
 static const test_t tests [] = {
 	{"Instantiation   ", _test_instantiation},
+#ifdef ENABLE_ELF_TESTS
 	{"Symbols         ", _test_symbols},
+#endif
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
 	{"License         ", _test_license},
