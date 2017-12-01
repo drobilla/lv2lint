@@ -15,6 +15,10 @@
  * http://www.perlfoundation.org/artistic_license_2_0.
  */
 
+#include <fcntl.h>
+#include <libelf.h>
+#include <gelf.h>
+
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
@@ -25,7 +29,7 @@
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
-static const ret_t ret_instantiation = {LINT_FAIL, "failed", LV2_CORE_URI};
+static const ret_t ret_instantiation = {LINT_FAIL, "failed to instantiate", LV2_CORE_URI};
 
 static const ret_t *
 _test_instantiation(app_t *app)
@@ -34,6 +38,102 @@ _test_instantiation(app_t *app)
 	if(!app->instance)
 	{
 		ret = &ret_instantiation;
+	}
+
+	return ret;
+}
+
+static const ret_t ret_symbols = {LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
+
+static bool
+_test_visibility(const char *path, const char *description)
+{
+	bool desc = false;
+	unsigned invalid = 0;
+
+	const int fd = open(path, O_RDONLY);
+	if(fd != -1)
+	{
+		elf_version(EV_CURRENT);
+
+		Elf *elf = elf_begin(fd, ELF_C_READ, NULL);
+		if(elf)
+		{
+			for(Elf_Scn *scn = elf_nextscn(elf, NULL);
+				scn;
+				scn = elf_nextscn(elf, scn))
+			{
+				GElf_Shdr shdr;
+				memset(&shdr, 0x0, sizeof(GElf_Shdr));
+				gelf_getshdr(scn, &shdr);
+
+				if( (shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM) )
+				{
+					/* found a symbol table, go print it. */
+					Elf_Data *data = elf_getdata(scn, NULL);
+					const unsigned count = shdr.sh_size / shdr.sh_entsize;
+
+					/* print the symbol names */
+					for(unsigned i = 0; i < count; i++)
+					{
+						GElf_Sym sym;
+						memset(&sym, 0x0, sizeof(GElf_Sym));
+						gelf_getsym(data, i, &sym);
+
+						const bool is_global = GELF_ST_BIND(sym.st_info) == STB_GLOBAL;
+						if(sym.st_value && is_global)
+						{
+							const char *name = elf_strptr(elf, shdr.sh_link, sym.st_name);
+
+							if(!strcmp(name, description))
+							{
+								desc = true;
+							}
+							else if(strcmp(name, "_init")
+								&& strcmp(name, "_fini")
+								&& strcmp(name, "_edata")
+								&& strcmp(name, "_end")
+								&& strcmp(name, "__bss_start") )
+							{
+								//fprintf(stderr, "%s\n", name);
+								invalid++;
+							}
+						}
+					}
+
+					break;
+				}
+			}
+			elf_end(elf);
+		}
+		close(fd);
+	}
+
+	return !(!desc || invalid);
+}
+
+static const ret_t *
+_test_symbols(app_t *app)
+{
+	const ret_t *ret = NULL;
+
+	const LilvNode* node = lilv_plugin_get_library_uri(app->plugin);
+	if(node && lilv_node_is_uri(node))
+	{
+		const char *uri = lilv_node_as_uri(node);
+		if(uri)
+		{
+			char *path = lilv_file_uri_parse(uri, NULL);
+			if(path)
+			{
+				if(!_test_visibility(path, "lv2_descriptor"))
+				{
+					ret = &ret_symbols;
+				}
+
+				lilv_free(path);
+			}
+		}
 	}
 
 	return ret;
@@ -1120,6 +1220,7 @@ _test_plugin_url(app_t *app)
 
 static const test_t tests [] = {
 	{"Instantiation   ", _test_instantiation},
+	{"Symbols         ", _test_symbols},
 	{"Verification    ", _test_verification},
 	{"Name            ", _test_name},
 	{"License         ", _test_license},

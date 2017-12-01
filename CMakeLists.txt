@@ -27,6 +27,7 @@ endif()
 
 # options
 option(ENABLE_ONLINE_TESTS "Enable online tests (e.g. tool will try to connect to the internet)" ON)
+option(ENABLE_ELF_TESTS "Enable ELF tests (e.g. tool will check for symbol visibility)" ON)
 
 pkg_search_module(LV2 REQUIRED lv2>=1.10)
 include_directories(${LV2_INCLUDE_DIRS})
@@ -49,6 +50,14 @@ if(ENABLE_ONLINE_TESTS)
 	pkg_search_module(CURL REQUIRED libcurl>=7.0.0)
 	include_directories(${CURL_INCLUDE_DIRS})
 	set(LIBS ${LIBS} ${CURL_LDFLAGS})
+endif()
+
+if(ENABLE_ELF_TESTS)
+	add_definitions("-DENABLE_ELF_TESTS")
+
+	pkg_search_module(ELF REQUIRED libelf>=0.170)
+	include_directories(${ELF_INCLUDE_DIRS})
+	set(LIBS ${LIBS} ${ELF_LDFLAGS})
 endif()
 
 add_executable(lv2lint
