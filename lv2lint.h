@@ -243,4 +243,9 @@ bool
 test_url(const char *url);
 #endif
 
+#ifdef ENABLE_ELF_TESTS
+bool
+test_visibility(const char *path, const char *description);
+#endif
+
 #endif

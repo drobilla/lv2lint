@@ -46,6 +46,12 @@
 #	include <curl/curl.h>
 #endif
 
+#ifdef ENABLE_ELF_TESTS
+#	include <fcntl.h>
+#	include <libelf.h>
+#	include <gelf.h>
+#endif
+
 const char *colors [2][ANSI_COLOR_MAX] = {
 	{
 		[ANSI_COLOR_BOLD]    = "",
@@ -501,6 +507,75 @@ test_url(const char *url)
 	}
 
 	return false;
+}
+#endif
+
+#ifdef ENABLE_ELF_TESTS
+bool
+test_visibility(const char *path, const char *description)
+{
+	bool desc = false;
+	unsigned invalid = 0;
+
+	const int fd = open(path, O_RDONLY);
+	if(fd != -1)
+	{
+		elf_version(EV_CURRENT);
+
+		Elf *elf = elf_begin(fd, ELF_C_READ, NULL);
+		if(elf)
+		{
+			for(Elf_Scn *scn = elf_nextscn(elf, NULL);
+				scn;
+				scn = elf_nextscn(elf, scn))
+			{
+				GElf_Shdr shdr;
+				memset(&shdr, 0x0, sizeof(GElf_Shdr));
+				gelf_getshdr(scn, &shdr);
+
+				if( (shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM) )
+				{
+					/* found a symbol table, go print it. */
+					Elf_Data *data = elf_getdata(scn, NULL);
+					const unsigned count = shdr.sh_size / shdr.sh_entsize;
+
+					/* print the symbol names */
+					for(unsigned i = 0; i < count; i++)
+					{
+						GElf_Sym sym;
+						memset(&sym, 0x0, sizeof(GElf_Sym));
+						gelf_getsym(data, i, &sym);
+
+						const bool is_global = GELF_ST_BIND(sym.st_info) == STB_GLOBAL;
+						if(sym.st_value && is_global)
+						{
+							const char *name = elf_strptr(elf, shdr.sh_link, sym.st_name);
+
+							if(!strcmp(name, description))
+							{
+								desc = true;
+							}
+							else if(strcmp(name, "_init")
+								&& strcmp(name, "_fini")
+								&& strcmp(name, "_edata")
+								&& strcmp(name, "_end")
+								&& strcmp(name, "__bss_start") )
+							{
+								//fprintf(stderr, "%s\n", name);
+								invalid++;
+							}
+						}
+					}
+
+					break;
+				}
+			}
+			elf_end(elf);
+		}
+		close(fd);
+	}
+
+	return !(!desc || invalid);
 }
 #endif
 
