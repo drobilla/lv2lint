@@ -25,12 +25,14 @@
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
-static const ret_t ret_instantiation = {LINT_FAIL, "failed to instantiate", LV2_CORE_URI};
-
 static const ret_t *
 _test_instantiation(app_t *app)
 {
+	static const ret_t ret_instantiation = {
+		LINT_FAIL, "failed to instantiate", LV2_CORE_URI};
+
 	const ret_t *ret = NULL;
+
 	if(!app->instance)
 	{
 		ret = &ret_instantiation;
@@ -40,11 +42,12 @@ _test_instantiation(app_t *app)
 }
 
 #ifdef ENABLE_ELF_TESTS
-static const ret_t ret_symbols = {LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
-
 static const ret_t *
 _test_symbols(app_t *app)
 {
+	static const ret_t ret_symbols = {
+		LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
+
 	const ret_t *ret = NULL;
 
 	const LilvNode* node = lilv_plugin_get_library_uri(app->plugin);
@@ -70,12 +73,14 @@ _test_symbols(app_t *app)
 }
 #endif
 
-static const ret_t ret_verification = {LINT_FAIL, "failed", LV2_CORE_URI};
-
 static const ret_t *
 _test_verification(app_t *app)
 {
+	static const ret_t ret_verification = {
+		LINT_FAIL, "failed", LV2_CORE_URI};
+
 	const ret_t *ret = NULL;
+
 	if(!lilv_plugin_verify(app->plugin))
 	{
 		ret = &ret_verification;
@@ -84,21 +89,16 @@ _test_verification(app_t *app)
 	return ret;
 }
 
-enum {
-	NAME_NOT_FOUND,
-	NAME_NOT_A_STRING,
-	NAME_EMPTY
-};
-
-static const ret_t ret_name [] = {
-	[NAME_NOT_FOUND]      = {LINT_FAIL, "doap:name not found", LV2_CORE__Plugin},
-		[NAME_NOT_A_STRING] = {LINT_FAIL, "doap:name not a string", LILV_NS_DOAP"name"},
-		[NAME_EMPTY]        = {LINT_FAIL, "doap:name empty", LILV_NS_DOAP"name"}
-};
-
 static const ret_t *
 _test_name(app_t *app)
 {
+	static const ret_t ret_name_not_found = {
+		LINT_FAIL, "doap:name not found", LV2_CORE__Plugin},
+	ret_name_not_a_string = {
+		LINT_FAIL, "doap:name not a string", LILV_NS_DOAP"name"},
+	ret_name_empty = {
+		LINT_FAIL, "doap:name empty", LILV_NS_DOAP"name"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *name_node = lilv_plugin_get_name(app->plugin);
@@ -109,40 +109,35 @@ _test_name(app_t *app)
 			const char *name = lilv_node_as_string(name_node);
 			if(!name)
 			{
-				ret = &ret_name[NAME_EMPTY];
+				ret = &ret_name_empty;
 			}
 		}
 		else // !is_string
 		{
-			ret = &ret_name[NAME_NOT_A_STRING];
+			ret = &ret_name_not_a_string;
 		}
 		lilv_node_free(name_node);
 	}
 	else // !name_node
 	{
-		ret = &ret_name[NAME_NOT_FOUND];
+		ret = &ret_name_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	LICENSE_NOT_FOUND,
-	LICENSE_NOT_AN_URI,
-	LICENSE_EMPTY,
-	LICENSE_NOT_EXISTING,
-};
-
-static const ret_t ret_license [] = {
-	[LICENSE_NOT_FOUND]    = {LINT_WARN, "doap:license not found", LV2_CORE__Plugin},
-	[LICENSE_NOT_AN_URI]   = {LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license"},
-	[LICENSE_EMPTY]        = {LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
-	[LICENSE_NOT_EXISTING] = {LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license"},
-};
-
 static const ret_t * 
 _test_license(app_t *app)
 {
+	static const ret_t ret_license_not_found = {
+		LINT_WARN, "doap:license not found", LV2_CORE__Plugin},
+	ret_license_not_a_uri = {
+		LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license"},
+	ret_license_empty = {
+		LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
+	ret_license_not_existing = {
+		LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *license_node = lilv_world_get(app->world, lilv_plugin_get_uri(app->plugin), app->uris.doap_license, NULL);
@@ -154,7 +149,7 @@ _test_license(app_t *app)
 
 			if(!uri)
 			{
-				ret = &ret_license[LICENSE_EMPTY];
+				ret = &ret_license_empty;
 			}
 #ifdef ENABLE_ONLINE_TESTS
 			else if(is_url(uri))
@@ -163,54 +158,35 @@ _test_license(app_t *app)
 
 				if(!url_exists)
 				{
-					ret = &ret_license[LICENSE_NOT_EXISTING];
+					ret = &ret_license_not_existing;
 				}
 			}
 #endif
 		}
 		else
 		{
-			ret = &ret_license[LICENSE_NOT_AN_URI];
+			ret = &ret_license_not_a_uri;
 		}
 		lilv_node_free(license_node);
 	}
 	else
 	{
-		ret = &ret_license[LICENSE_NOT_FOUND];
+		ret = &ret_license_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	AUTHOR_NAME_NOT_FOUND,
-	AUTHOR_NAME_NOT_A_STRING,
-	AUTHOR_NAME_EMPTY,
-	AUTHOR_EMAIL_NOT_FOUND,
-	AUTHOR_EMAIL_NOT_AN_URI,
-	AUTHOR_EMAIL_EMPTY,
-	AUTHOR_HOMEPAGE_NOT_FOUND,
-	AUTHOR_HOMEPAGE_NOT_AN_URI,
-	AUTHOR_HOMEPAGE_EMPTY,
-	AUTHOR_HOMEPAGE_NOT_EXISTING,
-};
-
-static const ret_t ret_author [] = {
-	[AUTHOR_NAME_NOT_FOUND]        = {LINT_WARN, "foaf:name not found", LV2_CORE__project},
-		[AUTHOR_NAME_NOT_A_STRING]   = {LINT_FAIL, "foaf:name not an string", LILV_NS_FOAF"name"},
-		[AUTHOR_NAME_EMPTY]          = {LINT_FAIL, "foaf:name empty", LILV_NS_FOAF"name"},
-	[AUTHOR_EMAIL_NOT_FOUND]       = {LINT_WARN, "foaf:email not found", LV2_CORE__project},
-		[AUTHOR_EMAIL_NOT_AN_URI]    = {LINT_FAIL, "foaf:email not an URI", LILV_NS_FOAF"email"},
-		[AUTHOR_EMAIL_EMPTY]         = {LINT_FAIL, "foaf:email empty", LILV_NS_FOAF"email"},
-	[AUTHOR_HOMEPAGE_NOT_FOUND]    = {LINT_WARN, "foaf:homepage not found", LV2_CORE__project},
-		[AUTHOR_HOMEPAGE_NOT_AN_URI] = {LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage"},
-		[AUTHOR_HOMEPAGE_EMPTY]      = {LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage"},
-		[AUTHOR_HOMEPAGE_NOT_EXISTING]      = {LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage"},
-};
-
 static const ret_t * 
 _test_author_name(app_t *app)
 {
+	static const ret_t ret_author_not_found = {
+		LINT_WARN, "foaf:name not found", LV2_CORE__project},
+	ret_author_not_a_string = {
+		LINT_FAIL, "foaf:name not an string", LILV_NS_FOAF"name"},
+	ret_author_empty = {
+		LINT_FAIL, "foaf:name empty", LILV_NS_FOAF"name"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *author_name = lilv_plugin_get_author_name(app->plugin);
@@ -220,18 +196,18 @@ _test_author_name(app_t *app)
 		{
 			if(!lilv_node_as_string(author_name))
 			{
-				ret = &ret_author[AUTHOR_NAME_EMPTY];
+				ret = &ret_author_empty;
 			}
 		}
 		else
 		{
-			ret = &ret_author[AUTHOR_NAME_NOT_A_STRING];
+			ret = &ret_author_not_a_string;
 		}
 		lilv_node_free(author_name);
 	}
 	else
 	{
-		ret = &ret_author[AUTHOR_NAME_NOT_FOUND];
+		ret = &ret_author_not_found;
 	}
 
 	return ret;
@@ -240,6 +216,13 @@ _test_author_name(app_t *app)
 static const ret_t *
 _test_author_email(app_t *app)
 {
+	static const ret_t ret_email_not_found = {
+		LINT_WARN, "foaf:email not found", LV2_CORE__project},
+	ret_email_not_a_uri = {
+		LINT_FAIL, "foaf:email not an URI", LILV_NS_FOAF"email"},
+	ret_email_empty = {
+		LINT_FAIL, "foaf:email empty", LILV_NS_FOAF"email"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *author_email = lilv_plugin_get_author_email(app->plugin);
@@ -249,18 +232,18 @@ _test_author_email(app_t *app)
 		{
 			if(!lilv_node_as_uri(author_email))
 			{
-				ret = &ret_author[AUTHOR_EMAIL_EMPTY];
+				ret = &ret_email_empty;
 			}
 		}
 		else
 		{
-			ret = &ret_author[AUTHOR_EMAIL_NOT_AN_URI];
+			ret = &ret_email_not_a_uri;
 		}
 		lilv_node_free(author_email);
 	}
 	else
 	{
-		ret = &ret_author[AUTHOR_EMAIL_NOT_FOUND];
+		ret = &ret_email_not_found;
 	}
 
 	return ret;
@@ -269,6 +252,15 @@ _test_author_email(app_t *app)
 static const ret_t *
 _test_author_homepage(app_t *app)
 {
+	static const ret_t ret_homepage_not_found = {
+		LINT_WARN, "foaf:homepage not found", LV2_CORE__project},
+	ret_homepage_not_a_uri = {
+		LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage"},
+	ret_homepage_empty = {
+		LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage"},
+	ret_homepage_not_existing = {
+		LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *author_homepage = lilv_plugin_get_author_homepage(app->plugin);
@@ -280,7 +272,7 @@ _test_author_homepage(app_t *app)
 
 			if(!uri)
 			{
-				ret = &ret_author[AUTHOR_HOMEPAGE_EMPTY];
+				ret = &ret_homepage_empty;
 			}
 #ifdef ENABLE_ONLINE_TESTS
 			else if(is_url(uri))
@@ -289,46 +281,35 @@ _test_author_homepage(app_t *app)
 
 				if(!url_exists)
 				{
-					ret = &ret_author[AUTHOR_HOMEPAGE_NOT_EXISTING];
+					ret = &ret_homepage_not_existing;
 				}
 			}
 #endif
 		}
 		else
 		{
-			ret = &ret_author[AUTHOR_HOMEPAGE_NOT_AN_URI];
+			ret = &ret_homepage_not_a_uri;
 		}
 		lilv_node_free(author_homepage);
 	}
 	else
 	{
-		ret = &ret_author[AUTHOR_HOMEPAGE_NOT_FOUND];
+		ret = &ret_homepage_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	VERSION_MINOR_NOT_FOUND,
-	VERSION_MINOR_NOT_AN_INT,
-	VERSION_MINOR_UNSTABLE,
-	VERSION_MICRO_NOT_FOUND,
-	VERSION_MICRO_NOT_AN_INT,
-	VERSION_MICRO_UNSTABLE,
-};
-
-static const ret_t ret_version [] = {
-	[VERSION_MINOR_NOT_FOUND]      = {LINT_FAIL, "lv2:minorVersion not found", LV2_CORE__minorVersion},
-		[VERSION_MINOR_NOT_AN_INT]   = {LINT_FAIL, "lv2:minorVersion not an integer", LV2_CORE__minorVersion},
-		[VERSION_MINOR_UNSTABLE]     = {LINT_NOTE, "lv2:minorVersion denotes an unstable version", LV2_CORE__minorVersion},
-	[VERSION_MICRO_NOT_FOUND]      = {LINT_FAIL, "lv2:microVersion not found", LV2_CORE__microVersion},
-		[VERSION_MICRO_NOT_AN_INT]   = {LINT_FAIL, "lv2:microVersion not an integer", LV2_CORE__microVersion},
-		[VERSION_MICRO_UNSTABLE]     = {LINT_NOTE, "lv2:microVersion denotes an unstable version", LV2_CORE__microVersion},
-};
-
 static const ret_t * 
 _test_version_minor(app_t *app)
 {
+	static const ret_t ret_version_minor_not_found = {
+		LINT_FAIL, "lv2:minorVersion not found", LV2_CORE__minorVersion},
+	ret_version_minor_not_an_int = {
+		LINT_FAIL, "lv2:minorVersion not an integer", LV2_CORE__minorVersion},
+	ret_version_minor_unstable = {
+		LINT_NOTE, "lv2:minorVersion denotes an unstable version", LV2_CORE__minorVersion};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *minor_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_minorVersion);
@@ -342,23 +323,23 @@ _test_version_minor(app_t *app)
 				const int minor_version = lilv_node_as_int(minor_version_node);
 				if( (minor_version % 2 != 0) || (minor_version == 0) )
 				{
-					ret = &ret_version[VERSION_MINOR_UNSTABLE];
+					ret = &ret_version_minor_unstable;
 				}
 			}
 			else
 			{
-				ret = &ret_version[VERSION_MINOR_NOT_AN_INT];
+				ret = &ret_version_minor_not_an_int;
 			}
 		}
 		else
 		{
-			ret = &ret_version[VERSION_MINOR_NOT_FOUND];
+			ret = &ret_version_minor_not_found;
 		}
 		lilv_nodes_free(minor_version_nodes);
 	}
 	else
 	{
-		ret = &ret_version[VERSION_MINOR_NOT_FOUND];
+		ret = &ret_version_minor_not_found;
 	}
 
 	return ret;
@@ -367,6 +348,13 @@ _test_version_minor(app_t *app)
 static const ret_t * 
 _test_version_micro(app_t *app)
 {
+	static const ret_t ret_version_micro_not_found = {
+		LINT_FAIL, "lv2:microVersion not found", LV2_CORE__microVersion},
+	ret_version_micro_not_an_int = {
+		LINT_FAIL, "lv2:microVersion not an integer", LV2_CORE__microVersion},
+	ret_version_micro_unstable = {
+		LINT_NOTE, "lv2:microVersion denotes an unstable version", LV2_CORE__microVersion};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *micro_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_microVersion);
@@ -380,23 +368,23 @@ _test_version_micro(app_t *app)
 				const int micro_version = lilv_node_as_int(micro_version_node);
 				if(micro_version % 2 != 0)
 				{
-					ret = &ret_version[VERSION_MICRO_UNSTABLE];
+					ret = &ret_version_micro_unstable;
 				}
 			}
 			else
 			{
-				ret = &ret_version[VERSION_MICRO_NOT_AN_INT];
+				ret = &ret_version_micro_not_an_int;
 			}
 		}
 		else
 		{
-			ret = &ret_version[VERSION_MICRO_NOT_FOUND];
+			ret = &ret_version_micro_not_found;
 		}
 		lilv_nodes_free(micro_version_nodes);
 	}
 	else
 	{
-		ret = &ret_version[VERSION_MICRO_NOT_FOUND];
+		ret = &ret_version_micro_not_found;
 	}
 
 	return ret;
@@ -426,23 +414,18 @@ _test_extension_data(app_t *app)
 	return ret;
 }
 
-enum {
-	PROJECT_NOT_FOUND,
-	PROJECT_NAME_NOT_FOUND,
-	PROJECT_NAME_NOT_A_STRING,
-	PROJECT_NAME_EMPTY,
-};
-
-static const ret_t ret_project [] = {
-	[PROJECT_NOT_FOUND]           = {LINT_NOTE, "lv2:project not found", LV2_CORE__project},
-		[PROJECT_NAME_NOT_FOUND]    = {LINT_WARN, "lv2:project doap:name not found", LV2_CORE__project},
-		[PROJECT_NAME_NOT_A_STRING] = {LINT_FAIL, "lv2:project doap:name not a string", LILV_NS_DOAP"name"},
-		[PROJECT_NAME_EMPTY]        = {LINT_FAIL, "lv2:project doap:name empty", LILV_NS_DOAP"name"},
-};
-
 static const ret_t *
 _test_project(app_t *app)
 {
+	static const ret_t ret_project_not_found = {
+		LINT_NOTE, "lv2:project not found", LV2_CORE__project},
+	ret_project_name_not_found = {
+		LINT_WARN, "lv2:project doap:name not found", LV2_CORE__project},
+	ret_project_name_not_a_string = {
+		LINT_FAIL, "lv2:project doap:name not a string", LILV_NS_DOAP"name"},
+	ret_project_name_empty = {
+		LINT_FAIL, "lv2:project doap:name empty", LILV_NS_DOAP"name"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *project_node = lilv_plugin_get_project(app->plugin);
@@ -455,40 +438,28 @@ _test_project(app_t *app)
 			{
 				if(!lilv_node_as_string(project_name_node))
 				{
-					ret = &ret_project[PROJECT_NAME_EMPTY];
+					ret = &ret_project_name_empty;
 				}
 			}
 			else
 			{
-				ret = &ret_project[PROJECT_NAME_NOT_A_STRING];
+				ret = &ret_project_name_not_a_string;
 			}
 			lilv_free(project_name_node);
 		}
 		else // !doap_name_node
 		{
-			ret = &ret_project[PROJECT_NAME_NOT_FOUND];
+			ret = &ret_project_name_not_found;
 		}
 		lilv_node_free(project_node);
 	}
 	else // !project_node
 	{
-		ret = &ret_project[PROJECT_NOT_FOUND];
+		ret = &ret_project_not_found;
 	}
 
 	return ret;
 }
-
-enum {
-	CLASS_NOT_FOUND,
-	CLASS_IS_BASE_CLASS,
-	CLASS_NOT_VALID,
-};
-
-static const ret_t ret_class [] = {
-	[CLASS_NOT_FOUND]           = {LINT_FAIL, "lv2:class not found", LV2_CORE__Plugin},
-		[CLASS_IS_BASE_CLASS]     = {LINT_WARN, "lv2:class is base class", LV2_CORE__Plugin},
-		[CLASS_NOT_VALID]         = {LINT_FAIL, "lv2:class <%s> not valid", LV2_CORE__Plugin},
-};
 
 static inline bool
 _test_class_equals(const LilvPluginClass *base, const LilvPluginClass *class)
@@ -526,6 +497,13 @@ _test_class_match(const LilvPluginClass *base, const LilvPluginClass *class)
 static const ret_t *
 _test_class(app_t *app)
 {
+	static const ret_t ret_class_not_found = {
+		LINT_FAIL, "lv2:class not found", LV2_CORE__Plugin},
+	ret_class_is_base_class = {
+		LINT_WARN, "lv2:class is base class", LV2_CORE__Plugin},
+	ret_class_not_valid = {
+		LINT_FAIL, "lv2:class <%s> not valid", LV2_CORE__Plugin};
+
 	const ret_t *ret = NULL;
 
 	const LilvPluginClass *class = lilv_plugin_get_class(app->plugin);
@@ -534,33 +512,28 @@ _test_class(app_t *app)
 		const LilvPluginClass *base = lilv_world_get_plugin_class(app->world);
 		if(_test_class_equals(base, class))
 		{
-			ret = &ret_class[CLASS_IS_BASE_CLASS];
+			ret = &ret_class_is_base_class;
 		}
 		else if(!_test_class_match(base, class))
 		{
 			*app->urn = strdup(lilv_node_as_uri(lilv_plugin_class_get_uri(class)));
-			ret = &ret_class[CLASS_NOT_VALID];
+			ret = &ret_class_not_valid;
 		}
 	}
 	else // !class
 	{
-		ret = &ret_class[CLASS_NOT_FOUND];
+		ret = &ret_class_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	FEATURES_NOT_VALID,
-};
-
-static const ret_t ret_features [] = {
-	[FEATURES_NOT_VALID]         = {LINT_FAIL, "lv2:[optional|required]Feature <%s> not valid", LV2_CORE__Feature},
-};
-
 static const ret_t *
 _test_features(app_t *app)
 {
+	static const ret_t ret_features_not_valid = {
+		LINT_FAIL, "lv2:[optional|required]Feature <%s> not valid", LV2_CORE__Feature};
+
 	const ret_t *ret = NULL;
 
 	LilvNodes *features = lilv_world_find_nodes(app->world,
@@ -577,7 +550,7 @@ _test_features(app_t *app)
 				if(!lilv_nodes_contains(features, node))
 				{
 					*app->urn = strdup(lilv_node_as_uri(node));
-					ret = &ret_features[FEATURES_NOT_VALID];
+					ret = &ret_features_not_valid;
 					break;
 				}
 			}
@@ -591,17 +564,12 @@ _test_features(app_t *app)
 	return ret;
 }
 
-enum {
-	EXTENSIONS_NOT_VALID,
-};
-
-static const ret_t ret_extensions [] = {
-	[EXTENSIONS_NOT_VALID]         = {LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData},
-};
-
 static const ret_t *
 _test_extensions(app_t *app)
 {
+	static const ret_t ret_extensions_not_valid = {
+		LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData};
+
 	const ret_t *ret = NULL;
 
 	LilvNodes *extensions = lilv_world_find_nodes(app->world,
@@ -618,7 +586,7 @@ _test_extensions(app_t *app)
 				if(!lilv_nodes_contains(extensions, node))
 				{
 					*app->urn = strdup(lilv_node_as_uri(node));
-					ret = &ret_extensions[EXTENSIONS_NOT_VALID];
+					ret = &ret_extensions_not_valid;
 					break;
 				}
 			}
@@ -632,27 +600,22 @@ _test_extensions(app_t *app)
 	return ret;
 }
 
-enum {
-	WORKER_SCHEDULE_NOT_FOUND,
-	WORKER_INTERFACE_NOT_FOUND,
-	WORKER_INTERFACE_NOT_RETURNED,
-	WORKER_WORK_NOT_FOUND,
-	WORKER_WORK_RESPONSE_NOT_FOUND,
-	WORKER_END_RUN_NOT_FOUND,
-};
-
-static const ret_t ret_worker [] = {
-	[WORKER_SCHEDULE_NOT_FOUND]         = {LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule},
-	[WORKER_INTERFACE_NOT_FOUND]        = {LINT_FAIL, "work:interface not defined", LV2_WORKER__interface},
-	[WORKER_INTERFACE_NOT_RETURNED]     = {LINT_FAIL, "work:interface not returned by 'extention_data'", LV2_WORKER__interface},
-	[WORKER_WORK_NOT_FOUND]             = {LINT_FAIL, "work:interface has no 'work' function", LV2_WORKER__interface},
-	[WORKER_WORK_RESPONSE_NOT_FOUND]    = {LINT_FAIL, "work:interface has no 'work_response' function", LV2_WORKER__interface},
-	[WORKER_END_RUN_NOT_FOUND]          = {LINT_NOTE, "work:interface has no 'end_run' function", LV2_WORKER__interface},
-};
-
 static const ret_t *
 _test_worker(app_t *app)
 {
+	static const ret_t ret_worker_schedule_not_found = {
+		LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule},
+	ret_worker_interface_not_found = {
+		LINT_FAIL, "work:interface not defined", LV2_WORKER__interface},
+	ret_worker_interface_not_returned = {
+		LINT_FAIL, "work:interface not returned by 'extention_data'", LV2_WORKER__interface},
+	ret_worker_work_not_found = {
+		LINT_FAIL, "work:interface has no 'work' function", LV2_WORKER__interface},
+	ret_worker_work_response_not_found = {
+		LINT_FAIL, "work:interface has no 'work_response' function", LV2_WORKER__interface},
+	ret_worker_end_run_not_found = {
+		LINT_NOTE, "work:interface has no 'end_run' function", LV2_WORKER__interface};
+
 	const ret_t *ret = NULL;
 
 	const bool has_work_schedule= lilv_plugin_has_feature(app->plugin, app->uris.work_schedule);
@@ -662,56 +625,45 @@ _test_worker(app_t *app)
 	{
 		if(!app->work_iface)
 		{
-			ret = &ret_worker[WORKER_INTERFACE_NOT_RETURNED];
+			ret = &ret_worker_interface_not_returned;
 		}
 		else if(!app->work_iface->work)
 		{
-			ret = &ret_worker[WORKER_WORK_NOT_FOUND];
+			ret = &ret_worker_work_not_found;
 		}
 		else if(!app->work_iface->work_response)
 		{
-			ret = &ret_worker[WORKER_WORK_RESPONSE_NOT_FOUND];
+			ret = &ret_worker_work_response_not_found;
 		}
 		else if(!app->work_iface->end_run)
 		{
-			ret = &ret_worker[WORKER_END_RUN_NOT_FOUND];
+			ret = &ret_worker_end_run_not_found;
 		}
 		else if(!has_work_schedule)
 		{
-			ret = &ret_worker[WORKER_SCHEDULE_NOT_FOUND];
+			ret = &ret_worker_schedule_not_found;
 		}
 		else if(!has_work_iface)
 		{
-			ret = &ret_worker[WORKER_INTERFACE_NOT_FOUND];
+			ret = &ret_worker_interface_not_found;
 		}
 	}
 
 	return ret;
 }
 
-enum {
-	OPTIONS_OPTIONS_NOT_FOUND,
-	OPTIONS_SUPPORTED_NOT_FOUND,
-	OPTIONS_REQUIRED_FOUND,
-	OPTIONS_INTERFACE_NOT_FOUND,
-	OPTIONS_INTERFACE_NOT_RETURNED,
-	OPTIONS_GET_NOT_FOUND,
-	OPTIONS_SET_NOT_FOUND,
-};
-
-static const ret_t ret_options [] = {
-	[OPTIONS_OPTIONS_NOT_FOUND]         = {LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options},
-	[OPTIONS_SUPPORTED_NOT_FOUND]        = {LINT_WARN, "opts:{required,supported} options not defined", LV2_OPTIONS__supportedOption},
-	[OPTIONS_REQUIRED_FOUND]             = {LINT_WARN, "opts:required options defined", LV2_OPTIONS__requiredOption},
-	[OPTIONS_INTERFACE_NOT_FOUND]       = {LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface},
-	[OPTIONS_INTERFACE_NOT_RETURNED]    = {LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface},
-	[OPTIONS_GET_NOT_FOUND]             = {LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface},
-	[OPTIONS_SET_NOT_FOUND]             = {LINT_FAIL, "opts:interface has no 'set' function", LV2_OPTIONS__interface},
-};
-
 static const ret_t *
 _test_options_iface(app_t *app)
 {
+	static const ret_t ret_options_interface_not_found = {
+		LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface},
+	ret_options_interface_not_returned = {
+		LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface},
+	ret_options_get_not_found = {
+		LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface},
+	ret_options_set_not_found = {
+		LINT_FAIL, "opts:interface has no 'set' function", LV2_OPTIONS__interface};
+
 	const ret_t *ret = NULL;
 
 	const bool has_opts_iface = lilv_plugin_has_extension_data(app->plugin, app->uris.opts_interface);
@@ -720,19 +672,19 @@ _test_options_iface(app_t *app)
 	{
 		if(!app->opts_iface)
 		{
-			ret = &ret_options[OPTIONS_INTERFACE_NOT_RETURNED];
+			ret = &ret_options_interface_not_returned;
 		}
 		else if(!app->opts_iface->get)
 		{
-			ret = &ret_options[OPTIONS_GET_NOT_FOUND];
+			ret = &ret_options_get_not_found;
 		}
 		else if(!app->opts_iface->set)
 		{
-			ret = &ret_options[OPTIONS_SET_NOT_FOUND];
+			ret = &ret_options_set_not_found;
 		}
 		else if(!has_opts_iface)
 		{
-			ret = &ret_options[OPTIONS_INTERFACE_NOT_FOUND];
+			ret = &ret_options_interface_not_found;
 		}
 	}
 
@@ -742,6 +694,13 @@ _test_options_iface(app_t *app)
 static const ret_t *
 _test_options_feature(app_t *app)
 {
+	static const ret_t ret_options_options_not_found = {
+		LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options},
+	ret_options_supported_not_found = {
+		LINT_WARN, "opts:{required,supported} options not defined", LV2_OPTIONS__supportedOption},
+	ret_options_required_found = {
+		LINT_WARN, "opts:required options defined", LV2_OPTIONS__requiredOption};
+
 	const ret_t *ret = NULL;
 
 	const bool has_opts_options= lilv_plugin_has_feature(app->plugin, app->uris.opts_options);
@@ -756,16 +715,16 @@ _test_options_feature(app_t *app)
 	{
 		if(!has_opts_options)
 		{
-			ret = &ret_options[OPTIONS_OPTIONS_NOT_FOUND];
+			ret = &ret_options_options_not_found;
 		}
 		else if(!n)
 		{
-			ret = &ret_options[OPTIONS_SUPPORTED_NOT_FOUND];
+			ret = &ret_options_supported_not_found;
 		}
 	}
 	else if(required_n)
 	{
-		ret = &ret_options[OPTIONS_REQUIRED_FOUND];
+		ret = &ret_options_required_found;
 	}
 
 	if(required_options)
@@ -781,48 +740,38 @@ _test_options_feature(app_t *app)
 	return ret;
 }
 
-enum {
-	URI_MAP_DEPRECATED,
-};
-
-static const ret_t ret_uri_map [] = {
-	[URI_MAP_DEPRECATED]         = {LINT_FAIL, "uri-map is deprecated, use urid:map instead", LV2_URI_MAP_URI},
-};
-
 static const ret_t *
 _test_uri_map(app_t *app)
 {
+	static const ret_t ret_uri_map_deprecated = {
+		LINT_FAIL, "uri-map is deprecated, use urid:map instead", LV2_URI_MAP_URI};
+
 	const ret_t *ret = NULL;
 
 	if(lilv_plugin_has_feature(app->plugin, app->uris.uri_map))
 	{
-		ret = &ret_uri_map[URI_MAP_DEPRECATED];
+		ret = &ret_uri_map_deprecated;
 	}
 
 	return ret;
 }
 
-enum {
-	STATE_LOAD_DEFAULT_NOT_FOUND,
-	STATE_INTERFACE_NOT_FOUND,
-	STATE_STATE_NOT_FOUND,
-	STATE_INTERFACE_NOT_RETURNED,
-	STATE_SAVE_NOT_FOUND,
-	STATE_RESTORE_NOT_FOUND,
-};
-
-static const ret_t ret_state [] = {
-	[STATE_LOAD_DEFAULT_NOT_FOUND]      = {LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState},
-	[STATE_INTERFACE_NOT_FOUND]         = {LINT_FAIL, "state:interface not defined", LV2_STATE__interface},
-	[STATE_STATE_NOT_FOUND]             = {LINT_WARN, "state:state not defined", LV2_STATE__state},
-	[STATE_INTERFACE_NOT_RETURNED]      = {LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
-	[STATE_SAVE_NOT_FOUND]              = {LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
-	[STATE_RESTORE_NOT_FOUND]           = {LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface},
-};
-
 static const ret_t *
 _test_state(app_t *app)
 {
+	static const ret_t ret_state_load_default_not_found = {
+		LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState},
+	ret_state_interface_not_found = {
+		LINT_FAIL, "state:interface not defined", LV2_STATE__interface},
+	ret_state_state_not_found = {
+		LINT_WARN, "state:state not defined", LV2_STATE__state},
+	ret_state_interface_not_returned = {
+		LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
+	ret_state_save_not_found = {
+		LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
+	ret_state_restore_not_found = {
+		LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface};
+
 	const ret_t *ret = NULL;
 
 	const bool has_load_default = lilv_plugin_has_feature(app->plugin, app->uris.state_loadDefaultState);
@@ -835,29 +784,29 @@ _test_state(app_t *app)
 	{
 		if(!app->state_iface)
 		{
-			ret = &ret_state[STATE_INTERFACE_NOT_RETURNED];
+			ret = &ret_state_interface_not_returned;
 		}
 		else if(!app->state_iface->save)
 		{
-			ret = &ret_state[STATE_SAVE_NOT_FOUND];
+			ret = &ret_state_save_not_found;
 		}
 		else if(!app->state_iface->restore)
 		{
-			ret = &ret_state[STATE_RESTORE_NOT_FOUND];
+			ret = &ret_state_restore_not_found;
 		}
 		else if(!has_iface)
 		{
-			ret = &ret_state[STATE_INTERFACE_NOT_FOUND];
+			ret = &ret_state_interface_not_found;
 		}
 		else if(has_load_default || has_state)
 		{
 			if(!has_load_default)
 			{
-				ret = &ret_state[STATE_LOAD_DEFAULT_NOT_FOUND];
+				ret = &ret_state_load_default_not_found;
 			}
 			else if(!has_state)
 			{
-				ret = &ret_state[STATE_STATE_NOT_FOUND];
+				ret = &ret_state_state_not_found;
 			}
 		}
 	}
@@ -865,21 +814,16 @@ _test_state(app_t *app)
 	return ret;
 }
 
-enum {
-	COMMENT_NOT_FOUND,
-	COMMENT_NOT_A_STRING,
-	DESCRIPTION_NOT_A_STRING,
-};
-
-static const ret_t ret_comment [] = {
-	[COMMENT_NOT_FOUND]         = {LINT_NOTE, "rdfs:comment or doap:description not found", LV2_CORE__Plugin},
-	[COMMENT_NOT_A_STRING]      = {LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"},
-	[DESCRIPTION_NOT_A_STRING]  = {LINT_FAIL, "doap:description not a string", LILV_NS_DOAP"description"},
-};
-
 static const ret_t *
 _test_comment(app_t *app)
 {
+	static const ret_t ret_comment_not_found = {
+		LINT_NOTE, "rdfs:comment or doap:description not found", LV2_CORE__Plugin},
+	ret_comment_not_a_string = {
+		LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"},
+	ret_description_not_a_string = {
+		LINT_FAIL, "doap:description not a string", LILV_NS_DOAP"description"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *comment = lilv_world_get(app->world,
@@ -891,7 +835,7 @@ _test_comment(app_t *app)
 	{
 		if(!lilv_node_is_string(comment))
 		{
-			ret = &ret_comment[COMMENT_NOT_A_STRING];
+			ret = &ret_comment_not_a_string;
 		}
 
 		lilv_node_free(comment);
@@ -902,32 +846,27 @@ _test_comment(app_t *app)
 	{
 		if(!lilv_node_is_string(description))
 		{
-			ret = &ret_comment[DESCRIPTION_NOT_A_STRING];
+			ret = &ret_description_not_a_string;
 		}
 
 		lilv_node_free(description);
 	}
 	else
 	{
-		ret = &ret_comment[COMMENT_NOT_FOUND];
+		ret = &ret_comment_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	SHORTDESC_NOT_FOUND,
-	SHORTDESC_NOT_A_STRING,
-};
-
-static const ret_t ret_shortdesc [] = {
-	[SHORTDESC_NOT_FOUND]         = {LINT_NOTE, "doap:shortdesc not found", LILV_NS_DOAP"shortdesc"},
-	[SHORTDESC_NOT_A_STRING]      = {LINT_FAIL, "doap:shortdesc not a string", LILV_NS_DOAP"shortdesc"},
-};
-
 static const ret_t *
 _test_shortdesc(app_t *app)
 {
+	static const ret_t ret_shortdesc_not_found = {
+		LINT_NOTE, "doap:shortdesc not found", LILV_NS_DOAP"shortdesc"},
+	ret_shortdesc_not_a_string = {
+		LINT_FAIL, "doap:shortdesc not a string", LILV_NS_DOAP"shortdesc"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *shortdesc = lilv_world_get(app->world,
@@ -936,36 +875,31 @@ _test_shortdesc(app_t *app)
 	{
 		if(!lilv_node_is_string(shortdesc))
 		{
-			ret = &ret_shortdesc[SHORTDESC_NOT_A_STRING];
+			ret = &ret_shortdesc_not_a_string;
 		}
 
 		lilv_node_free(shortdesc);
 	}
 	else
 	{
-		ret = &ret_shortdesc[SHORTDESC_NOT_FOUND];
+		ret = &ret_shortdesc_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	IDISP_QUEUE_DRAW_NOT_FOUND,
-	IDISP_INTERFACE_NOT_FOUND,
-	IDISP_INTERFACE_NOT_RETURNED,
-	IDISP_RENDER_NOT_FOUND,
-};
-
-static const ret_t ret_idisp [] = {
-	[IDISP_QUEUE_DRAW_NOT_FOUND]       = {LINT_FAIL, "idisp:queue_draw not defined", LV2_INLINEDISPLAY__queue_draw},
-	[IDISP_INTERFACE_NOT_FOUND]        = {LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface},
-	[IDISP_INTERFACE_NOT_RETURNED]     = {LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface},
-	[IDISP_RENDER_NOT_FOUND]           = {LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface},
-};
-
 static const ret_t *
 _test_idisp(app_t *app)
 {
+	static const ret_t ret_idisp_queue_draw_not_found = {
+		LINT_FAIL, "idisp:queue_draw not defined", LV2_INLINEDISPLAY__queue_draw},
+	ret_idisp_interface_not_found = {
+		LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface},
+	ret_idisp_interface_not_returned = {
+		LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface},
+	ret_idisp_render_not_found = {
+		LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface};
+
 	const ret_t *ret = NULL;
 
 	const bool has_idisp_queue_draw = lilv_plugin_has_feature(app->plugin, app->uris.idisp_queue_draw);
@@ -975,109 +909,85 @@ _test_idisp(app_t *app)
 	{
 		if(!app->idisp_iface)
 		{
-			ret = &ret_idisp[IDISP_INTERFACE_NOT_RETURNED];
+			ret = &ret_idisp_interface_not_returned;
 		}
 		else if(!app->idisp_iface->render)
 		{
-			ret = &ret_idisp[IDISP_RENDER_NOT_FOUND];
+			ret = &ret_idisp_render_not_found;
 		}
 		else if(!has_idisp_queue_draw)
 		{
-			ret = &ret_idisp[IDISP_QUEUE_DRAW_NOT_FOUND];
+			ret = &ret_idisp_queue_draw_not_found;
 		}
 		else if(!has_idisp_iface)
 		{
-			ret = &ret_idisp[IDISP_INTERFACE_NOT_FOUND];
+			ret = &ret_idisp_interface_not_found;
 		}
 	}
 
 	return ret;
 }
 
-enum {
-	HARD_RT_CAPABLE_NOT_FOUND,
-};
-
-static const ret_t ret_hard_rt_capable [] = {
-	[HARD_RT_CAPABLE_NOT_FOUND]       = {LINT_WARN, "not advertized as real-time safe", LV2_CORE__hardRTCapable},
-};
-
 static const ret_t *
 _test_hard_rt_capable(app_t *app)
 {
+	static const ret_t ret_hard_rt_capable_not_found = {
+		LINT_WARN, "not advertized as real-time safe", LV2_CORE__hardRTCapable};
+
 	const ret_t *ret = NULL;
 
 	const bool is_hard_rt_capable = lilv_plugin_has_feature(app->plugin, app->uris.lv2_hardRTCapable);
 
 	if(!is_hard_rt_capable)
 	{
-		ret = &ret_hard_rt_capable[HARD_RT_CAPABLE_NOT_FOUND];
+		ret = &ret_hard_rt_capable_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	IN_PLACE_BROKEN_FOUND,
-};
-
-static const ret_t ret_in_place_broken[] = {
-	[IN_PLACE_BROKEN_FOUND]       = {LINT_WARN, "cannot process audio/CV in-place", LV2_CORE__inPlaceBroken},
-};
-
 static const ret_t *
 _test_in_place_broken(app_t *app)
 {
+	static const ret_t ret_in_place_broken_found = {
+		LINT_WARN, "cannot process audio/CV in-place", LV2_CORE__inPlaceBroken};
+
 	const ret_t *ret = NULL;
 
 	const bool is_in_place_broken = lilv_plugin_has_feature(app->plugin, app->uris.lv2_inPlaceBroken);
 
 	if(is_in_place_broken)
 	{
-		ret = &ret_in_place_broken[IN_PLACE_BROKEN_FOUND];
+		ret = &ret_in_place_broken_found;
 	}
 
 	return ret;
 }
 
-enum {
-	IS_LIVE_NOT_FOUND,
-};
-
-static const ret_t ret_is_live [] = {
-	[IS_LIVE_NOT_FOUND]       = {LINT_NOTE, "not meant for live usage", LV2_CORE__isLive},
-};
-
 static const ret_t *
 _test_is_live(app_t *app)
 {
+	static const ret_t ret_is_live_not_found = {
+		LINT_NOTE, "not meant for live usage", LV2_CORE__isLive};
+
 	const ret_t *ret = NULL;
 
 	const bool is_live = lilv_plugin_has_feature(app->plugin, app->uris.lv2_isLive);
 
 	if(!is_live)
 	{
-		ret = &ret_is_live[IS_LIVE_NOT_FOUND];
+		ret = &ret_is_live_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	FIXED_BLOCK_LENGTH_FOUND,
-};
-
-static const ret_t ret_fixed_block_length [] = {
-	[FIXED_BLOCK_LENGTH_FOUND] = {
-		LINT_WARN,
-		"requiring a fixed block length is highly discouraged",
-		LV2_BUF_SIZE__fixedBlockLength
-	},
-};
-
 static const ret_t *
 _test_fixed_block_length(app_t *app)
 {
+	static const ret_t ret_fixed_block_length_found = {
+		LINT_WARN, "requiring a fixed block length is highly discouraged", LV2_BUF_SIZE__fixedBlockLength};
+
 	const ret_t *ret = NULL;
 
 	const bool wants_fixed_block_length =
@@ -1085,27 +995,18 @@ _test_fixed_block_length(app_t *app)
 
 	if(wants_fixed_block_length)
 	{
-		ret = &ret_fixed_block_length[FIXED_BLOCK_LENGTH_FOUND];
+		ret = &ret_fixed_block_length_found;
 	}
 
 	return ret;
 }
 
-enum {
-	POWER_OF_2_BLOCK_LENGTH_FOUND,
-};
-
-static const ret_t ret_power_of_2_block_length [] = {
-	[POWER_OF_2_BLOCK_LENGTH_FOUND] = {
-		LINT_WARN,
-		"requiring a power of 2 block length is highly discouraged",
-		LV2_BUF_SIZE__powerOf2BlockLength
-	},
-};
-
 static const ret_t *
 _test_power_of_2_block_length(app_t *app)
 {
+	static const ret_t ret_power_of_2_block_length_found = {
+		LINT_WARN, "requiring a power of 2 block length is highly discouraged", LV2_BUF_SIZE__powerOf2BlockLength};
+
 	const ret_t *ret = NULL;
 
 	const bool wants_power_of_2_block_length =
@@ -1113,24 +1014,19 @@ _test_power_of_2_block_length(app_t *app)
 
 	if(wants_power_of_2_block_length)
 	{
-		ret = &ret_power_of_2_block_length[POWER_OF_2_BLOCK_LENGTH_FOUND];
+		ret = &ret_power_of_2_block_length_found;
 	}
 
 	return ret;
 }
 
 #ifdef ENABLE_ONLINE_TESTS
-enum {
-	PLUGIN_URL_NOT_EXISTING,
-};
-
-static const ret_t ret_plugin_url [] = {
-	[PLUGIN_URL_NOT_EXISTING] = {LINT_WARN, "Plugin Web URL does not exist", LV2_CORE__Plugin},
-};
-
 static const ret_t *
 _test_plugin_url(app_t *app)
 {
+	static const ret_t ret_plugin_url_not_existing = {
+		LINT_WARN, "Plugin Web URL does not exist", LV2_CORE__Plugin};
+
 	const ret_t *ret = NULL;
 
 	const char *uri = lilv_node_as_uri(lilv_plugin_get_uri(app->plugin));
@@ -1141,7 +1037,7 @@ _test_plugin_url(app_t *app)
 
 		if(!url_exists)
 		{
-			ret = &ret_plugin_url[PLUGIN_URL_NOT_EXISTING];
+			ret = &ret_plugin_url_not_existing;
 		}
 	}
 
