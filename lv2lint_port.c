@@ -22,19 +22,13 @@
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 
-enum {
-	CLASS_NOT_VALID,
-};
-
-static const ret_t ret_class [] = {
-	[CLASS_NOT_VALID]         = {LINT_FAIL, "lv2:Port class <%s> not valid", LV2_CORE__Port},
-};
-
 static const ret_t *
 _test_class(app_t *app)
 {
-	const ret_t *ret = NULL;
+	static const ret_t ret_class_not_valid = {
+		LINT_FAIL, "lv2:Port class <%s> not valid", LV2_CORE__Port};
 
+	const ret_t *ret = NULL;
 
 	LilvNodes *class = lilv_world_find_nodes(app->world,
 		NULL, app->uris.rdfs_subClassOf, app->uris.lv2_Port);
@@ -50,7 +44,7 @@ _test_class(app_t *app)
 				if(!lilv_nodes_contains(class, node))
 				{
 					*app->urn = strdup(lilv_node_as_uri(node));
-					ret = &ret_class[CLASS_NOT_VALID];
+					ret = &ret_class_not_valid;
 					break;
 				}
 			}
@@ -62,17 +56,12 @@ _test_class(app_t *app)
 	return ret;
 }
 
-enum {
-	PROPERTIES_NOT_VALID,
-};
-
-static const ret_t ret_properties [] = {
-	[PROPERTIES_NOT_VALID]         = {LINT_FAIL, "lv2:portProperty <%s> not valid", LV2_CORE__portProperty},
-};
-
 static const ret_t *
 _test_properties(app_t *app)
 {
+	static const ret_t ret_properties_not_valid = {
+		LINT_FAIL, "lv2:portProperty <%s> not valid", LV2_CORE__portProperty};
+
 	const ret_t *ret = NULL;
 
 	LilvNodes *properties = lilv_world_find_nodes(app->world,
@@ -89,7 +78,7 @@ _test_properties(app_t *app)
 				if(!lilv_nodes_contains(properties, node))
 				{
 					*app->urn = strdup(lilv_node_as_uri(node));
-					ret = &ret_properties[PROPERTIES_NOT_VALID];
+					ret = &ret_properties_not_valid;
 					break;
 				}
 			}
@@ -103,17 +92,19 @@ _test_properties(app_t *app)
 	return ret;
 }
 
-enum {
-	NUM_NOT_FOUND,
-	NUM_NOT_AN_INT,
-	NUM_NOT_A_FLOAT,
-	NUM_NOT_A_BOOL,
-};
-
 static inline const ret_t *
-_test_num(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled,
+_test_num(LilvNode *node, bool is_integer, bool is_toggled,
 	float *val)
 {
+	static const ret_t ret_num_not_found = {
+		LINT_WARN, "number not found", LV2_CORE__Port},
+	ret_num_not_an_int = {
+		LINT_WARN, "number not an integer", LV2_CORE__default},
+	ret_num_not_a_float = {
+		LINT_WARN, "number no a float", LV2_CORE__default},
+	ret_num_not_a_bool = {
+		LINT_WARN, "number not a bool", LV2_CORE__default};
+
 	const ret_t *ret = NULL;
 
 	if(node)
@@ -141,7 +132,7 @@ _test_num(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled,
 			}
 			else
 			{
-				ret = &rets[NUM_NOT_AN_INT];
+				ret = &ret_num_not_an_int;
 			}
 		}
 		else if(is_toggled)
@@ -156,7 +147,7 @@ _test_num(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled,
 			}
 			else
 			{
-				ret = &rets[NUM_NOT_A_BOOL];
+				ret = &ret_num_not_a_bool;
 			}
 		}
 		else if( lilv_node_is_float(node)
@@ -166,25 +157,18 @@ _test_num(LilvNode *node, const ret_t *rets, bool is_integer, bool is_toggled,
 		}
 		else
 		{
-			ret = &rets[NUM_NOT_A_FLOAT];
+			ret = &ret_num_not_a_float;
 		}
 
 		lilv_node_free(node);
 	}
 	else // !node
 	{
-		ret = &rets[NUM_NOT_FOUND];
+		ret = &ret_num_not_found;
 	}
 
 	return ret;
 }
-
-static const ret_t ret_default [] = {
-	[NUM_NOT_FOUND]      = {LINT_WARN, "lv2:default not found", LV2_CORE__Port},
-		[NUM_NOT_AN_INT]   = {LINT_WARN, "lv2:default not an integer", LV2_CORE__default},
-		[NUM_NOT_A_FLOAT]  = {LINT_WARN, "lv2:default not a float", LV2_CORE__default},
-		[NUM_NOT_A_BOOL]   = {LINT_WARN, "lv2:default not a bool", LV2_CORE__default},
-};
 
 static const ret_t *
 _test_default(app_t *app)
@@ -201,18 +185,11 @@ _test_default(app_t *app)
 		&& lilv_port_is_a(app->plugin, app->port, app->uris.lv2_InputPort) )
 	{
 		LilvNode *default_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_default);
-		ret = _test_num(default_node, ret_default, is_integer, is_toggled, &app->dflt.f32);
+		ret = _test_num(default_node, is_integer, is_toggled, &app->dflt.f32);
 	}
 
 	return ret;
 }
-
-static const ret_t ret_minimum [] = {
-	[NUM_NOT_FOUND]      = {LINT_WARN, "lv2:minimum not found", LV2_CORE__Port},
-		[NUM_NOT_AN_INT]   = {LINT_WARN, "lv2:minimum not an integer", LV2_CORE__minimum},
-		[NUM_NOT_A_FLOAT]  = {LINT_WARN, "lv2:minimum not a float", LV2_CORE__minimum},
-		[NUM_NOT_A_BOOL]   = {LINT_WARN, "lv2:minimum not a bool", LV2_CORE__minimum},
-};
 
 static const ret_t *
 _test_minimum(app_t *app)
@@ -230,18 +207,11 @@ _test_minimum(app_t *app)
 		&& !is_toggled )
 	{
 		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_minimum);
-		ret = _test_num(minimum_node, ret_minimum, is_integer, is_toggled, &app->min.f32);
+		ret = _test_num(minimum_node, is_integer, is_toggled, &app->min.f32);
 	}
 
 	return ret;
 }
-
-static const ret_t ret_maximum [] = {
-	[NUM_NOT_FOUND]      = {LINT_WARN, "lv2:maximum not found", LV2_CORE__Port},
-		[NUM_NOT_AN_INT]   = {LINT_WARN, "lv2:maximum not an integer", LV2_CORE__maximum},
-		[NUM_NOT_A_FLOAT]  = {LINT_WARN, "lv2:maximum not a float", LV2_CORE__maximum},
-		[NUM_NOT_A_BOOL]   = {LINT_WARN, "lv2:maximum not a bool", LV2_CORE__maximum},
-};
 
 static const ret_t *
 _test_maximum(app_t *app)
@@ -259,17 +229,18 @@ _test_maximum(app_t *app)
 		&& !is_toggled )
 	{
 		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_maximum);
-		ret = _test_num(maximum_node, ret_maximum, is_integer, is_toggled, &app->max.f32);
+		ret = _test_num(maximum_node, is_integer, is_toggled, &app->max.f32);
 	}
 
 	return ret;
 }
 
-static const ret_t ret_range = {LINT_FAIL, "range invalid (min <= default <= max)", LV2_CORE__Port};
-
 static const ret_t *
 _test_range(app_t *app)
 {
+	static const ret_t ret_range = {
+		LINT_FAIL, "range invalid (min <= default <= max)", LV2_CORE__Port};
+
 	const ret_t *ret = NULL;
 
 	const bool is_integer = lilv_port_has_property(app->plugin, app->port, app->uris.lv2_integer);
@@ -287,40 +258,30 @@ _test_range(app_t *app)
 	return ret;
 }
 
-enum {
-	EVENT_PORT_DEPRECATED,
-};
-
-static const ret_t ret_event_port [] = {
-	[EVENT_PORT_DEPRECATED]         = {LINT_FAIL, "lv2:EventPort is deprecated, use atom:AtomPort instead", LV2_EVENT__EventPort},
-};
-
 static const ret_t *
 _test_event_port(app_t *app)
 {
+	static const ret_t ret_event_port_deprecated = {
+		LINT_FAIL, "lv2:EventPort is deprecated, use atom:AtomPort instead", LV2_EVENT__EventPort};
+
 	const ret_t *ret = NULL;
 
 	if(lilv_port_is_a(app->plugin, app->port, app->uris.event_EventPort))
 	{
-		ret = &ret_event_port[EVENT_PORT_DEPRECATED];
+		ret = &ret_event_port_deprecated;
 	}
 
 	return ret;
 }
 
-enum {
-	COMMENT_NOT_FOUND,
-	COMMENT_NOT_A_STRING,
-};
-
-static const ret_t ret_comment [] = {
-	[COMMENT_NOT_FOUND]         = {LINT_NOTE, "rdfs:comment not found", LILV_NS_RDFS"comment"},
-	[COMMENT_NOT_A_STRING]      = {LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"},
-};
-
 static const ret_t *
 _test_comment(app_t *app)
 {
+	static const ret_t ret_comment_not_found = {
+		LINT_NOTE, "rdfs:comment not found", LILV_NS_RDFS"comment"},
+	ret_comment_not_a_string = {
+		LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *comment = lilv_port_get(app->plugin, app->port, app->uris.rdfs_comment);
@@ -328,32 +289,27 @@ _test_comment(app_t *app)
 	{
 		if(!lilv_node_is_string(comment))
 		{
-			ret = &ret_comment[COMMENT_NOT_A_STRING];
+			ret = &ret_comment_not_a_string;
 		}
 
 		lilv_node_free(comment);
 	}
 	else
 	{
-		ret = &ret_comment[COMMENT_NOT_FOUND];
+		ret = &ret_comment_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	GROUP_NOT_FOUND,
-	GROUP_NOT_A_URI,
-};
-
-static const ret_t ret_group [] = {
-	[GROUP_NOT_FOUND]         = {LINT_NOTE, "pg:group not found", LV2_PORT_GROUPS__group},
-	[GROUP_NOT_A_URI]         = {LINT_FAIL, "pg:group not a URI", LV2_PORT_GROUPS__group},
-};
-
 static const ret_t *
 _test_group(app_t *app)
 {
+	static const ret_t ret_group_not_found = {
+		LINT_NOTE, "pg:group not found", LV2_PORT_GROUPS__group},
+	ret_group_not_a_uri = {
+		LINT_FAIL, "pg:group not a URI", LV2_PORT_GROUPS__group};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *group = lilv_port_get(app->plugin, app->port, app->uris.pg_group);
@@ -361,14 +317,14 @@ _test_group(app_t *app)
 	{
 		if(!lilv_node_is_uri(group))
 		{
-			ret = &ret_group[GROUP_NOT_A_URI];
+			ret = &ret_group_not_a_uri;
 		}
 
 		lilv_node_free(group);
 	}
 	else
 	{
-		ret = &ret_group[GROUP_NOT_FOUND];
+		ret = &ret_group_not_found;
 	}
 
 	return ret;
