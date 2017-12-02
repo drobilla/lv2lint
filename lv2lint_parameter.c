@@ -19,21 +19,16 @@
 
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 
-enum {
-	LABEL_NOT_FOUND,
-	LABEL_NOT_A_STRING,
-	LABEL_EMPTY
-};
-
-static const ret_t ret_label [] = {
-	[LABEL_NOT_FOUND]      = {LINT_FAIL, "rdfs:label not found", LV2_CORE_PREFIX"Parameter"},
-		[LABEL_NOT_A_STRING] = {LINT_FAIL, "rdfs:label not a string", LILV_NS_DOAP"label"},
-		[LABEL_EMPTY]        = {LINT_FAIL, "rdfs:label empty", LILV_NS_DOAP"label"}
-};
-
 static const ret_t *
 _test_label(app_t *app)
 {
+	static const ret_t ret_label_not_found = {
+		LINT_FAIL, "rdfs:label not found", LV2_CORE_PREFIX"Parameter"},
+	ret_label_not_a_string = {
+		LINT_FAIL, "rdfs:label not a string", LILV_NS_DOAP"label"},
+	ret_label_empty = {
+		LINT_FAIL, "rdfs:label empty", LILV_NS_DOAP"label"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *label_node = lilv_world_get(app->world, app->parameter, app->uris.rdfs_label, NULL);
@@ -44,38 +39,34 @@ _test_label(app_t *app)
 			const char *label = lilv_node_as_string(label_node);
 			if(!label)
 			{
-				ret = &ret_label[LABEL_EMPTY];
+				ret = &ret_label_empty;
 			}
 		}
 		else // !is_string
 		{
-			ret = &ret_label[LABEL_NOT_A_STRING];
+			ret = &ret_label_not_a_string;
 		}
 		lilv_node_free(label_node);
 	}
 	else // !label_node
 	{
-		ret = &ret_label[LABEL_NOT_FOUND];
+		ret = &ret_label_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	COMMENT_NOT_FOUND,
-	COMMENT_NOT_A_STRING,
-	COMMENT_EMPTY
-};
-
-static const ret_t ret_comment [] = {
-	[COMMENT_NOT_FOUND]      = {LINT_NOTE, "rdfs:comment not found", LV2_CORE_PREFIX"Parameter"},
-		[COMMENT_NOT_A_STRING] = {LINT_FAIL, "rdfs:comment not a string", LILV_NS_DOAP"comment"},
-		[COMMENT_EMPTY]        = {LINT_FAIL, "rdfs:comment empty", LILV_NS_DOAP"comment"}
-};
 
 static const ret_t *
 _test_comment(app_t *app)
 {
+	static const ret_t ret_comment_not_found = {
+		LINT_NOTE, "rdfs:comment not found", LV2_CORE_PREFIX"Parameter"},
+	ret_comment_not_a_string = {
+		LINT_FAIL, "rdfs:comment not a string", LILV_NS_DOAP"comment"},
+	ret_comment_empty = {
+		LINT_FAIL, "rdfs:comment empty", LILV_NS_DOAP"comment"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *comment_node = lilv_world_get(app->world, app->parameter, app->uris.rdfs_comment, NULL);
@@ -86,54 +77,49 @@ _test_comment(app_t *app)
 			const char *comment = lilv_node_as_string(comment_node);
 			if(!comment)
 			{
-				ret = &ret_comment[COMMENT_EMPTY];
+				ret = &ret_comment_empty;
 			}
 		}
 		else // !is_string
 		{
-			ret = &ret_comment[COMMENT_NOT_A_STRING];
+			ret = &ret_comment_not_a_string;
 		}
 		lilv_node_free(comment_node);
 	}
 	else // !comment_node
 	{
-		ret = &ret_comment[COMMENT_NOT_FOUND];
+		ret = &ret_comment_not_found;
 	}
 
 	return ret;
 }
 
-enum {
-	RANGE_NOT_FOUND,
-	RANGE_NOT_A_URI,
-	RANGE_NOT_AN_ATOM,
-	RANGE_EMPTY,
-	RANGE_MINIMUM_NOT_FOUND,
-	RANGE_MINIMUM_NOT_AN_INT,
-	RANGE_MINIMUM_NOT_A_FLOAT,
-	RANGE_MAXIMUM_NOT_FOUND,
-	RANGE_MAXIMUM_NOT_AN_INT,
-	RANGE_MAXIMUM_NOT_A_FLOAT,
-	RANGE_INVALID,
-};
-
-static const ret_t ret_range [] = {
-	[RANGE_NOT_FOUND]               = {LINT_FAIL, "rdfs:range not found", LV2_CORE_PREFIX"Parameter"},
-		[RANGE_NOT_A_URI]             = {LINT_FAIL, "rdfs:range not a URI", LILV_NS_DOAP"range"},
-		[RANGE_NOT_AN_ATOM]           = {LINT_WARN, "rdfs:range not an lv2:Atom", LV2_ATOM__Atom},
-		[RANGE_EMPTY]                 = {LINT_FAIL, "rdfs:range empty", LILV_NS_DOAP"range"},
-		[RANGE_MINIMUM_NOT_FOUND]     = {LINT_WARN, "lv2:minimum not found", LV2_CORE__minimum},
-			[RANGE_MINIMUM_NOT_AN_INT]  = {LINT_FAIL, "lv2:minimum not an integer", LV2_CORE__minimum},
-			[RANGE_MINIMUM_NOT_A_FLOAT] = {LINT_FAIL, "lv2:minimum not a float", LV2_CORE__minimum},
-		[RANGE_MAXIMUM_NOT_FOUND]     = {LINT_WARN, "lv2:maximum not found", LV2_CORE__maximum},
-			[RANGE_MAXIMUM_NOT_AN_INT]  = {LINT_FAIL, "lv2:maximum not an integer", LV2_CORE__maximum},
-			[RANGE_MAXIMUM_NOT_A_FLOAT] = {LINT_FAIL, "lv2:maximum not a float", LV2_CORE__maximum},
-		[RANGE_INVALID]               = {LINT_FAIL, "range invalid (min <= max)", LV2_CORE_PREFIX"Parameter"},
-};
-
 static const ret_t *
 _test_range(app_t *app)
 {
+	static const ret_t ret_range_not_found = {
+		LINT_FAIL, "rdfs:range not found", LV2_CORE_PREFIX"Parameter"},
+	ret_range_not_a_uri = {
+		LINT_FAIL, "rdfs:range not a URI", LILV_NS_DOAP"range"},
+	ret_range_not_an_atom = {
+		LINT_WARN, "rdfs:range not an lv2:Atom", LV2_ATOM__Atom},
+	ret_range_empty = {
+		LINT_FAIL, "rdfs:range empty", LILV_NS_DOAP"range"},
+	ret_range_minimum_not_found = {
+		LINT_WARN, "lv2:minimum not found", LV2_CORE__minimum},
+	ret_range_minimum_not_an_int = {
+		LINT_FAIL, "lv2:minimum not an integer", LV2_CORE__minimum},
+	ret_range_minimum_not_a_float = {
+		LINT_FAIL, "lv2:minimum not a float", LV2_CORE__minimum},
+	ret_range_maximum_not_found = {
+		LINT_WARN, "lv2:maximum not found", LV2_CORE__maximum},
+	ret_range_maximum_not_an_int = {
+		LINT_FAIL, "lv2:maximum not an integer", LV2_CORE__maximum},
+	ret_range_maximum_not_a_float = {
+		LINT_FAIL, "lv2:maximum not a float", LV2_CORE__maximum},
+	ret_range_invalid = {
+		LINT_FAIL, "range invalid (min <= max)", LV2_CORE_PREFIX"Parameter"};
+
 	const ret_t *ret = NULL;
 
 	LilvNode *range_node = lilv_world_get(app->world, app->parameter, app->uris.rdfs_range, NULL);
@@ -144,7 +130,7 @@ _test_range(app_t *app)
 			const char *range = lilv_node_as_uri(range_node);
 			if(!range)
 			{
-				ret = &ret_range[RANGE_EMPTY];
+				ret = &ret_range_empty;
 			}
 			else
 			{
@@ -161,7 +147,7 @@ _test_range(app_t *app)
 						{
 							if(!lilv_node_is_int(minimum))
 							{
-								ret = &ret_range[RANGE_MINIMUM_NOT_AN_INT];
+								ret = &ret_range_minimum_not_an_int;
 								app->min.i64 = 0; // fall-back
 							}
 							else
@@ -174,7 +160,7 @@ _test_range(app_t *app)
 						{
 							if(!lilv_node_is_float(minimum))
 							{
-								ret = &ret_range[RANGE_MINIMUM_NOT_A_FLOAT];
+								ret = &ret_range_minimum_not_a_float;
 								app->min.f64 = 0.0; // fall-back
 							}
 							else
@@ -187,7 +173,7 @@ _test_range(app_t *app)
 					}
 					else
 					{
-						ret = &ret_range[RANGE_MINIMUM_NOT_FOUND];
+						ret = &ret_range_minimum_not_found;
 					}
 
 					LilvNode *maximum = lilv_world_get(app->world, app->parameter, app->uris.lv2_maximum, NULL);
@@ -198,7 +184,7 @@ _test_range(app_t *app)
 						{
 							if(!lilv_node_is_int(maximum))
 							{
-								ret = &ret_range[RANGE_MAXIMUM_NOT_AN_INT];
+								ret = &ret_range_maximum_not_an_int;
 								app->max.i64 = 1; // fall-back
 							}
 							else
@@ -211,7 +197,7 @@ _test_range(app_t *app)
 						{
 							if(!lilv_node_is_float(maximum))
 							{
-								ret = &ret_range[RANGE_MAXIMUM_NOT_A_FLOAT];
+								ret = &ret_range_maximum_not_a_float;
 								app->max.f64 = 1.0; // fall-back
 							}
 							else
@@ -224,7 +210,7 @@ _test_range(app_t *app)
 					}
 					else
 					{
-						ret = &ret_range[RANGE_MAXIMUM_NOT_FOUND];
+						ret = &ret_range_maximum_not_found;
 					}
 
 					if(minimum && maximum)
@@ -234,7 +220,7 @@ _test_range(app_t *app)
 						{
 							if( !(app->min.i64 <= app->max.i64) )
 							{
-								ret = &ret_range[RANGE_INVALID];
+								ret = &ret_range_invalid;
 							}
 						}
 						else if(lilv_node_equals(range_node, app->uris.atom_Float)
@@ -242,7 +228,7 @@ _test_range(app_t *app)
 						{
 							if( !(app->min.f64 <= app->max.f64) )
 							{
-								ret = &ret_range[RANGE_INVALID];
+								ret = &ret_range_invalid;
 							}
 						}
 					}
@@ -263,19 +249,19 @@ _test_range(app_t *app)
 				}
 				else
 				{
-					ret = &ret_range[RANGE_NOT_AN_ATOM];
+					ret = &ret_range_not_an_atom;
 				}
 			}
 		}
 		else // !is_string
 		{
-			ret = &ret_range[RANGE_NOT_A_URI];
+			ret = &ret_range_not_a_uri;
 		}
 		lilv_node_free(range_node);
 	}
 	else // !range_node
 	{
-		ret = &ret_range[RANGE_NOT_FOUND];
+		ret = &ret_range_not_found;
 	}
 
 	return ret;
