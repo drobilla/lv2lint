@@ -35,11 +35,12 @@ static inline char* dlerror(void) { return "Unknown error"; }
 #include <lv2/lv2plug.in/ns/ext/data-access/data-access.h>
 
 #ifdef ENABLE_ELF_TESTS
-static const ret_t ret_symbols = {LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
-
 static const ret_t *
 _test_symbols(app_t *app)
 {
+	static const ret_t ret_symbols = {
+		LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
+
 	const ret_t *ret = NULL;
 
 	const LilvNode* node = lilv_ui_get_binary_uri(app->ui);
@@ -65,17 +66,12 @@ _test_symbols(app_t *app)
 }
 #endif
 
-enum {
-	INSTANCE_ACCESS_DISCOURAGED,
-};
-
-static const ret_t ret_instance_access [] = {
-	[INSTANCE_ACCESS_DISCOURAGED]         = {LINT_WARN, "usage of instance-access is highly discouraged", LV2_INSTANCE_ACCESS_URI},
-};
-
 static const ret_t *
 _test_instance_access(app_t *app)
 {
+	static const ret_t ret_instance_access_discouraged = {
+		LINT_WARN, "usage of instance-access is highly discouraged", LV2_INSTANCE_ACCESS_URI};
+
 	const ret_t *ret = NULL;
 
 	const LilvNode *uri = lilv_ui_get_uri(app->ui);
@@ -85,23 +81,18 @@ _test_instance_access(app_t *app)
 
 	if(needs_instance_access)
 	{
-		ret = &ret_instance_access[INSTANCE_ACCESS_DISCOURAGED];
+		ret = &ret_instance_access_discouraged;
 	}
 
 	return ret;
 }
 
-enum {
-	DATA_ACCESS_DISCOURAGED,
-};
-
-static const ret_t ret_data_access [] = {
-	[DATA_ACCESS_DISCOURAGED]         = {LINT_WARN, "usage of data-access is highly discouraged", LV2_DATA_ACCESS_URI},
-};
-
 static const ret_t *
 _test_data_access(app_t *app)
 {
+	static const ret_t ret_data_access_discouraged = {
+		LINT_WARN, "usage of data-access is highly discouraged", LV2_DATA_ACCESS_URI};
+
 	const ret_t *ret = NULL;
 
 	const LilvNode *uri = lilv_ui_get_uri(app->ui);
@@ -111,23 +102,18 @@ _test_data_access(app_t *app)
 
 	if(needs_data_access)
 	{
-		ret = &ret_data_access[DATA_ACCESS_DISCOURAGED];
+		ret = &ret_data_access_discouraged;
 	}
 
 	return ret;
 }
 
-enum {
-	MIXED_NOT_VALID,
-};
-
-static const ret_t ret_mixed [] = {
-	[MIXED_NOT_VALID]         = {LINT_WARN, "mixing DSP and UI code in same binary is discouraged", LV2_UI_PREFIX},
-};
-
 static const ret_t *
 _test_mixed(app_t *app)
 {
+	static const ret_t ret_mixed_discouraged = {
+		LINT_WARN, "mixing DSP and UI code in same binary is discouraged", LV2_UI_PREFIX};
+
 	const ret_t *ret = NULL;
 
 	const LilvNode *library_uri = lilv_plugin_get_library_uri(app->plugin);
@@ -135,23 +121,18 @@ _test_mixed(app_t *app)
 	const LilvNode *ui_library_uri = lilv_ui_get_binary_uri(app->ui);
 	if(ui_library_uri && lilv_node_equals(library_uri, ui_library_uri))
 	{
-		ret = &ret_mixed[MIXED_NOT_VALID];
+		ret = &ret_mixed_discouraged;
 	}
 
 	return ret;
 }
 
-enum {
-	BINARY_DEPRECATED,
-};
-
-static const ret_t ret_binary [] = {
-	[BINARY_DEPRECATED]         = {LINT_FAIL, "ui:binary is deprecated, use lv2:binary instead", LV2_UI__binary},
-};
-
 static const ret_t *
 _test_binary(app_t *app)
 {
+	static const ret_t ret_binary_deprecated = {
+		LINT_FAIL, "ui:binary is deprecated, use lv2:binary instead", LV2_UI__binary};
+
 	const ret_t *ret = NULL;
 
 	const bool has_ui_binary = lilv_world_ask(app->world,
@@ -159,23 +140,18 @@ _test_binary(app_t *app)
 
 	if(has_ui_binary)
 	{
-		ret = &ret_binary[BINARY_DEPRECATED];
+		ret = &ret_binary_deprecated;
 	}
 
 	return ret;
 }
 
-enum {
-	RESIDENT_DEPRECATED,
-};
-
-static const ret_t ret_resident [] = {
-	[RESIDENT_DEPRECATED]         = {LINT_FAIL, "ui:makeSONameResident is deprecated", LV2_UI_PREFIX"makeSONameResident"},
-};
-
 static const ret_t *
 _test_resident(app_t *app)
 {
+	static const ret_t ret_resident_deprecated = {
+		LINT_FAIL, "ui:makeSONameResident is deprecated", LV2_UI_PREFIX"makeSONameResident"};
+
 	const ret_t *ret = NULL;
 
 	const bool has_ui_resident = lilv_world_ask(app->world,
@@ -183,27 +159,22 @@ _test_resident(app_t *app)
 
 	if(has_ui_resident)
 	{
-		ret = &ret_resident[RESIDENT_DEPRECATED];
+		ret = &ret_resident_deprecated;
 	}
 
 	return ret;
 }
 
-enum {
-	IDLE_FEATURE_MISSING,
-	IDLE_EXTENSION_MISSING,
-	IDLE_EXTENSION_NOT_RETURNED,
-};
-
-static const ret_t ret_idle [] = {
-	[IDLE_FEATURE_MISSING]         = {LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface},
-	[IDLE_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface},
-	[IDLE_EXTENSION_NOT_RETURNED]  = {LINT_FAIL, "ui:idleInterface not returned by 'extention_data'", LV2_UI__idleInterface},
-};
-
 static const ret_t *
 _test_idle_interface(app_t *app)
 {
+	static const ret_t ret_idle_feature_missing = {
+		LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface},
+	ret_idle_extension_missing = {
+		LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface},
+	ret_idle_extension_not_returned = {
+		LINT_FAIL, "ui:idleInterface not returned by 'extention_data'", LV2_UI__idleInterface};
+
 	const ret_t *ret = NULL;
 
 	const bool has_idle_feature = lilv_world_ask(app->world,
@@ -215,33 +186,28 @@ _test_idle_interface(app_t *app)
 
 	if( (has_idle_extension || app->ui_idle_iface) && !has_idle_feature)
 	{
-		ret = &ret_idle[IDLE_FEATURE_MISSING];
+		ret = &ret_idle_feature_missing;
 	}
 	else if( (has_idle_feature || app->ui_idle_iface) && !has_idle_extension)
 	{
-		ret = &ret_idle[IDLE_EXTENSION_MISSING];
+		ret = &ret_idle_extension_missing;
 	}
 	else if( (has_idle_extension || has_idle_feature) && !app->ui_idle_iface)
 	{
-		ret = &ret_idle[IDLE_EXTENSION_NOT_RETURNED];
+		ret = &ret_idle_extension_not_returned;
 	}
 
 	return ret;
 }
 
-enum {
-	SHOW_EXTENSION_MISSING,
-	SHOW_EXTENSION_NOT_RETURNED,
-};
-
-static const ret_t ret_show [] = {
-	[SHOW_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:showInterface missing", LV2_UI__showInterface},
-	[SHOW_EXTENSION_NOT_RETURNED]  = {LINT_FAIL, "ui:showInterface not returned by 'extention_data'", LV2_UI__showInterface},
-};
-
 static const ret_t *
 _test_show_interface(app_t *app)
 {
+	static const ret_t ret_show_extension_missing =	{
+		LINT_FAIL, "lv2:extensionData ui:showInterface missing", LV2_UI__showInterface},
+	ret_show_extension_not_returned = {
+		LINT_FAIL, "ui:showInterface not returned by 'extention_data'", LV2_UI__showInterface};
+
 	const ret_t *ret = NULL;
 
 	const bool has_show_extension = lilv_world_ask(app->world,
@@ -249,29 +215,24 @@ _test_show_interface(app_t *app)
 
 	if(app->ui_show_iface && !has_show_extension)
 	{
-		ret = &ret_show[SHOW_EXTENSION_MISSING];
+		ret = &ret_show_extension_missing;
 	}
 	else if(has_show_extension && !app->ui_show_iface)
 	{
-		ret = &ret_show[SHOW_EXTENSION_NOT_RETURNED];
+		ret = &ret_show_extension_not_returned;
 	}
 
 	return ret;
 }
 
-enum {
-	RESIZE_EXTENSION_MISSING,
-	RESIZE_EXTENSION_NOT_RETURNED,
-};
-
-static const ret_t ret_resize [] = {
-	[RESIZE_EXTENSION_MISSING]       = {LINT_FAIL, "lv2:extensionData ui:resize missing", LV2_UI__resize},
-	[RESIZE_EXTENSION_NOT_RETURNED]  = {LINT_FAIL, "ui:resize not returned by 'extention_data'", LV2_UI__resize},
-};
-
 static const ret_t *
 _test_resize_interface(app_t *app)
 {
+	static const ret_t ret_resize_missing = {
+		LINT_FAIL, "lv2:extensionData ui:resize missing", LV2_UI__resize},
+	ret_resize_not_returned = {
+		LINT_FAIL, "ui:resize not returned by 'extention_data'", LV2_UI__resize};
+
 	const ret_t *ret = NULL;
 
 	const bool has_resize_extension = lilv_world_ask(app->world,
@@ -279,31 +240,26 @@ _test_resize_interface(app_t *app)
 
 	if(app->ui_resize_iface && !has_resize_extension)
 	{
-		ret = &ret_resize[RESIZE_EXTENSION_MISSING];
+		ret = &ret_resize_missing;
 	}
 	else if(has_resize_extension && !app->ui_resize_iface)
 	{
-		ret = &ret_resize[RESIZE_EXTENSION_NOT_RETURNED];
+		ret = &ret_resize_not_returned;
 	}
 
 	return ret;
 }
 
-enum {
-	TOOLKIT_INVALID,
-	TOOLKIT_UNKNOWN,
-	TOOLKIT_NON_NATIVE,
-};
-
-static const ret_t ret_toolkit [] = {
-	[TOOLKIT_INVALID]			= {LINT_FAIL, "UI toolkit not given", LV2_UI__ui},
-	[TOOLKIT_UNKNOWN]			= {LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui},
-	[TOOLKIT_NON_NATIVE]  = {LINT_WARN, "usage of (big) non-native toolkit <%s> is dicouraged", LV2_UI__ui},
-};
-
 static const ret_t *
 _test_toolkit(app_t *app)
 {
+	static const ret_t ret_toolkit_invalid = {
+		LINT_FAIL, "UI toolkit not given", LV2_UI__ui},
+	ret_toolkit_unknown = {
+		LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui},
+	ret_toolkit_non_native = {
+		LINT_WARN, "usage of (big) non-native toolkit <%s> is dicouraged", LV2_UI__ui};
+
 	const ret_t *ret = NULL;
 
 	const LilvNode *ui_uri_node = lilv_ui_get_uri(app->ui);
@@ -323,12 +279,12 @@ _test_toolkit(app_t *app)
 
 	if(!ui_class_node)
 	{
-		ret = &ret_toolkit[TOOLKIT_INVALID];
+		ret = &ret_toolkit_invalid;
 	}
 	else if(!is_known)
 	{
 		*app->urn = strdup(lilv_node_as_uri(ui_class_node));
-		ret = &ret_toolkit[TOOLKIT_UNKNOWN];
+		ret = &ret_toolkit_unknown;
 	}
 #if defined(_WIN32)
 	else if(!is_windows_ui)
@@ -339,7 +295,7 @@ _test_toolkit(app_t *app)
 #endif
 	{
 		*app->urn = strdup(lilv_node_as_uri(ui_class_node));
-		ret = &ret_toolkit[TOOLKIT_NON_NATIVE];
+		ret = &ret_toolkit_non_native;
 	}
 
 	if(ui_class_node)
@@ -351,17 +307,13 @@ _test_toolkit(app_t *app)
 }
 
 #ifdef ENABLE_ONLINE_TESTS
-enum {
-	PLUGIN_URL_NOT_EXISTING,
-};
-
-static const ret_t ret_ui_url [] = {
-	[PLUGIN_URL_NOT_EXISTING] = {LINT_WARN, "UI Web URL does not exist", LV2_UI__UI},
-};
 
 static const ret_t *
 _test_ui_url(app_t *app)
 {
+	static const ret_t ret_ui_url_not_existing = {
+		LINT_WARN, "UI Web URL does not exist", LV2_UI__UI};
+
 	const ret_t *ret = NULL;
 
 	const char *uri = lilv_node_as_uri(lilv_ui_get_uri(app->ui));
@@ -372,7 +324,7 @@ _test_ui_url(app_t *app)
 
 		if(!url_exists)
 		{
-			ret = &ret_ui_url[PLUGIN_URL_NOT_EXISTING];
+			ret = &ret_ui_url_not_existing;
 		}
 	}
 
