@@ -25,10 +25,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	set(LIBS ${LIBS} dl)
 endif()
 
-# options
-option(ENABLE_ONLINE_TESTS "Enable online tests (e.g. tool will try to connect to the internet)" ON)
-option(ENABLE_ELF_TESTS "Enable ELF tests (e.g. tool will check for symbol visibility)" ON)
-
 pkg_search_module(LV2 REQUIRED lv2>=1.10)
 include_directories(${LV2_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${LV2_LDFLAGS})
@@ -44,6 +40,7 @@ if((${LILV_VERSION} VERSION_EQUAL "0.22.0") OR (${LILV_VERSION} VERSION_GREATER 
 	add_definitions("-DLILV_0_22")
 endif()
 
+option(ENABLE_ONLINE_TESTS "Enable online tests (e.g. tool will try to connect to the internet)" ON)
 if(ENABLE_ONLINE_TESTS)
 	add_definitions("-DENABLE_ONLINE_TESTS")
 
@@ -52,12 +49,15 @@ if(ENABLE_ONLINE_TESTS)
 	set(LIBS ${LIBS} ${CURL_LDFLAGS})
 endif()
 
-if(ENABLE_ELF_TESTS)
-	add_definitions("-DENABLE_ELF_TESTS")
+if(NOT WIN32)
+	option(ENABLE_ELF_TESTS "Enable ELF tests (e.g. tool will check for symbol visibility)" ON)
+	if(ENABLE_ELF_TESTS)
+		add_definitions("-DENABLE_ELF_TESTS")
 
-	pkg_search_module(ELF REQUIRED libelf>=0.170)
-	include_directories(${ELF_INCLUDE_DIRS})
-	set(LIBS ${LIBS} ${ELF_LDFLAGS})
+		pkg_search_module(ELF REQUIRED libelf>=0.170)
+		include_directories(${ELF_INCLUDE_DIRS})
+		set(LIBS ${LIBS} ${ELF_LDFLAGS})
+	endif()
 endif()
 
 add_executable(lv2lint
