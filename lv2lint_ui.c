@@ -257,6 +257,8 @@ _test_toolkit(app_t *app)
 		LINT_FAIL, "UI toolkit not given", LV2_UI__ui},
 	ret_toolkit_show_interface = {
 		LINT_WARN, "usage of external UI is discouraged", LV2_UI__showInterface},
+	ret_toolkit_external = {
+		LINT_WARN, "usage of external UI is discouraged", LV2_EXTERNAL_UI__Widget},
 	ret_toolkit_unknown = {
 		LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui},
 	ret_toolkit_non_native = {
@@ -274,6 +276,7 @@ _test_toolkit(app_t *app)
 
 	const bool has_show_extension = lilv_world_ask(app->world,
 		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_showInterface);
+	const bool is_external = lilv_node_equals(ui_class_node, app->uris.ext_Widget);
 
 	bool is_known = false;
 	if(ui_class_node && ui_class_nodes)
@@ -289,6 +292,10 @@ _test_toolkit(app_t *app)
 	else if(app->ui_show_iface || has_show_extension)
 	{
 		ret = &ret_toolkit_show_interface;
+	}
+	else if(is_external)
+	{
+		ret = &ret_toolkit_external;
 	}
 	else if(!is_known)
 	{

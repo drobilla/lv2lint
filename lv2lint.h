@@ -30,6 +30,9 @@
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
 #include <ardour.lv2/lv2_extensions.h>
+#include <kx.lv2/lv2_external_ui.h>
+#include <kx.lv2/lv2_programs.h>
+#include <kx.lv2/lv2_rtmempool.h>
 
 typedef enum _ansi_color_t ansi_color_t;
 
@@ -224,6 +227,8 @@ struct _app_t {
 		LilvNode *bufsz_sequenceSize;
 
 		LilvNode *ui_updateRate;
+
+		LilvNode *ext_Widget;
 	} uris;
 };
 

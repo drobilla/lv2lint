@@ -190,6 +190,8 @@ _map_uris(app_t *app)
 	app->uris.bufsz_sequenceSize = lilv_new_uri(app->world, LV2_BUF_SIZE__sequenceSize);
 
 	app->uris.ui_updateRate = lilv_new_uri(app->world, LV2_UI__updateRate);
+
+	app->uris.ext_Widget = lilv_new_uri(app->world, LV2_EXTERNAL_UI__Widget);
 }
 
 static void
@@ -307,6 +309,8 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.bufsz_sequenceSize);
 
 	lilv_node_free(app->uris.ui_updateRate);
+
+	lilv_node_free(app->uris.ext_Widget);
 }
 
 static LV2_URID
