@@ -49,7 +49,7 @@ if(ENABLE_ONLINE_TESTS)
 	set(LIBS ${LIBS} ${CURL_LDFLAGS})
 endif()
 
-if(NOT WIN32)
+if(NOT (WIN32 OR APPLE))
 	option(ENABLE_ELF_TESTS "Enable ELF tests (e.g. tool will check for symbol visibility)" ON)
 	if(ENABLE_ELF_TESTS)
 		add_definitions("-DENABLE_ELF_TESTS")
