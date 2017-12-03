@@ -255,10 +255,12 @@ _test_toolkit(app_t *app)
 {
 	static const ret_t ret_toolkit_invalid = {
 		LINT_FAIL, "UI toolkit not given", LV2_UI__ui},
+	ret_toolkit_show_interface = {
+		LINT_WARN, "usage of external UI is discouraged", LV2_UI__showInterface},
 	ret_toolkit_unknown = {
 		LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui},
 	ret_toolkit_non_native = {
-		LINT_WARN, "usage of (big) non-native toolkit <%s> is dicouraged", LV2_UI__ui};
+		LINT_WARN, "usage of non-native toolkit <%s> is dicouraged", LV2_UI__ui};
 
 	const ret_t *ret = NULL;
 
@@ -270,6 +272,9 @@ _test_toolkit(app_t *app)
 	const bool is_windows_ui = lilv_ui_is_a(app->ui, app->uris.ui_WindowsUI);
 	const bool is_cocoa_ui = lilv_ui_is_a(app->ui, app->uris.ui_CocoaUI);
 
+	const bool has_show_extension = lilv_world_ask(app->world,
+		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_showInterface);
+
 	bool is_known = false;
 	if(ui_class_node && ui_class_nodes)
 	{
@@ -280,6 +285,10 @@ _test_toolkit(app_t *app)
 	if(!ui_class_node)
 	{
 		ret = &ret_toolkit_invalid;
+	}
+	else if(app->ui_show_iface || has_show_extension)
+	{
+		ret = &ret_toolkit_show_interface;
 	}
 	else if(!is_known)
 	{
