@@ -181,6 +181,15 @@ _map_uris(app_t *app)
 	app->uris.bufsz_coarseBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE_PREFIX"coarseBlockLength");
 
 	app->uris.pprops_supportsStrictBounds = lilv_new_uri(app->world, LV2_PORT_PROPS__supportsStrictBounds);
+
+	app->uris.param_sampleRate = lilv_new_uri(app->world, LV2_PARAMETERS__sampleRate);
+
+	app->uris.bufsz_minBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE__minBlockLength);
+	app->uris.bufsz_maxBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE__maxBlockLength);
+	app->uris.bufsz_nominalBlockLength = lilv_new_uri(app->world, LV2_BUF_SIZE__nominalBlockLength);
+	app->uris.bufsz_sequenceSize = lilv_new_uri(app->world, LV2_BUF_SIZE__sequenceSize);
+
+	app->uris.ui_updateRate = lilv_new_uri(app->world, LV2_UI__updateRate);
 }
 
 static void
@@ -289,6 +298,15 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.bufsz_coarseBlockLength);
 
 	lilv_node_free(app->uris.pprops_supportsStrictBounds);
+
+	lilv_node_free(app->uris.param_sampleRate);
+
+	lilv_node_free(app->uris.bufsz_minBlockLength);
+	lilv_node_free(app->uris.bufsz_maxBlockLength);
+	lilv_node_free(app->uris.bufsz_nominalBlockLength);
+	lilv_node_free(app->uris.bufsz_sequenceSize);
+
+	lilv_node_free(app->uris.ui_updateRate);
 }
 
 static LV2_URID
@@ -591,7 +609,7 @@ main(int argc, char **argv)
 		"Copyright (c) 2016-2017 Hanspeter Portner (dev@open-music-kontrollers.ch)\n"
 		"Released under Artistic License 2.0 by Open Music Kontrollers\n",
 		argv[0]);
-	
+
 	int c;
 #ifdef ENABLE_ONLINE_TESTS
 	while( (c = getopt(argc, argv, "vhoS:E:") ) != -1)
@@ -711,48 +729,55 @@ main(int argc, char **argv)
 	const int32_t bufsz_nominal_block_length = 256;
 	const int32_t bufsz_sequence_size = 2048;
 
-	LV2_Options_Option opts [] = {
-		{
-			.key = param_sampleRate,
-			.size = sizeof(float),
-			.type = atom_Float,
-			.value = &param_sample_rate
-		},
-		{
-			.key = ui_updateRate,
-			.size = sizeof(float),
-			.type = atom_Float,
-			.value = &ui_update_rate
-		},
-		{
-			.key = bufsz_minBlockLength,
-			.size = sizeof(int32_t),
-			.type = atom_Int,
-			.value = &bufsz_min_block_length
-		},
-		{
-			.key = bufsz_maxBlockLength,
-			.size = sizeof(int32_t),
-			.type = atom_Int,
-			.value = &bufsz_max_block_length
-		},
-		{
-			.key = bufsz_nominalBlockLength,
-			.size = sizeof(int32_t),
-			.type = atom_Int,
-			.value = &bufsz_nominal_block_length
-		},
-		{
-			.key = bufsz_sequenceSize,
-			.size = sizeof(int32_t),
-			.type = atom_Int,
-			.value = &bufsz_sequence_size
-		},
-		{
-			.key = 0,
-			.value =NULL
-		}
+	const LV2_Options_Option opts_sampleRate = {
+		.key = param_sampleRate,
+		.size = sizeof(float),
+		.type = atom_Float,
+		.value = &param_sample_rate
 	};
+
+	const LV2_Options_Option opts_updateRate = {
+		.key = ui_updateRate,
+		.size = sizeof(float),
+		.type = atom_Float,
+		.value = &ui_update_rate
+	};
+
+	const LV2_Options_Option opts_minBlockLength = {
+		.key = bufsz_minBlockLength,
+		.size = sizeof(int32_t),
+		.type = atom_Int,
+		.value = &bufsz_min_block_length
+	};
+
+	const LV2_Options_Option opts_maxBlockLength = {
+		.key = bufsz_maxBlockLength,
+		.size = sizeof(int32_t),
+		.type = atom_Int,
+		.value = &bufsz_max_block_length
+	};
+
+	const LV2_Options_Option opts_nominalBlockLength = {
+		.key = bufsz_nominalBlockLength,
+		.size = sizeof(int32_t),
+		.type = atom_Int,
+		.value = &bufsz_nominal_block_length
+	};
+
+	const LV2_Options_Option opts_sequenceSize = {
+		.key = bufsz_sequenceSize,
+		.size = sizeof(int32_t),
+		.type = atom_Int,
+		.value = &bufsz_sequence_size
+	};
+
+	const LV2_Options_Option opts_sentinel = {
+		.key = 0,
+		.value =NULL
+	};
+
+	const unsigned MAX_OPTS = 7;
+	LV2_Options_Option opts [MAX_OPTS];
 
 	const LV2_Feature feat_map = {
 		.URI = LV2_URID__map,
@@ -837,59 +862,131 @@ main(int argc, char **argv)
 				{
 					const int MAX_FEATURES = 20;
 					const LV2_Feature *features [MAX_FEATURES];
-					int f = 0;
+					bool requires_bounded_block_length = false;
 
-					LilvNodes *required_features = lilv_plugin_get_required_features(app.plugin);
-					if(required_features)
+					// populate feature list
 					{
-						LILV_FOREACH(nodes, itr, required_features)
-						{
-							const LilvNode *feature = lilv_nodes_get(required_features, itr);
+						int f = 0;
 
-							if(lilv_node_equals(feature, app.uris.urid_map))
-								features[f++] = &feat_map;
-							else if(lilv_node_equals(feature, app.uris.urid_unmap))
-								features[f++] = &feat_unmap;
-							else if(lilv_node_equals(feature, app.uris.work_schedule))
-								features[f++] = &feat_sched;
-							else if(lilv_node_equals(feature, app.uris.log_log))
-								features[f++] = &feat_log;
-							else if(lilv_node_equals(feature, app.uris.state_makePath))
-								features[f++] = &feat_mkpath;
-							else if(lilv_node_equals(feature, app.uris.rsz_resize))
-								features[f++] = &feat_rsz;
-							else if(lilv_node_equals(feature, app.uris.opts_options))
-								features[f++] = &feat_opts;
-							else if(lilv_node_equals(feature, app.uris.uri_map))
-								features[f++] = &feat_urimap;
-							else if(lilv_node_equals(feature, app.uris.lv2_isLive))
-								features[f++] = &feat_islive;
-							else if(lilv_node_equals(feature, app.uris.lv2_inPlaceBroken))
-								features[f++] = &feat_inplacebroken;
-							else if(lilv_node_equals(feature, app.uris.lv2_hardRTCapable))
-								features[f++] = &feat_hardrtcapable;
-							else if(lilv_node_equals(feature, app.uris.pprops_supportsStrictBounds))
-								features[f++] = &feat_supportsstrictbounds;
-							else if(lilv_node_equals(feature, app.uris.bufsz_boundedBlockLength))
-								features[f++] = &feat_boundedblocklength;
-							else if(lilv_node_equals(feature, app.uris.bufsz_fixedBlockLength))
-								features[f++] = &feat_fixedblocklength;
-							else if(lilv_node_equals(feature, app.uris.bufsz_powerOf2BlockLength))
-								features[f++] = &feat_powerof2blocklength;
-							else if(lilv_node_equals(feature, app.uris.bufsz_coarseBlockLength))
-								features[f++] = &feat_coarseblocklength;
-							else if(lilv_node_equals(feature, app.uris.state_loadDefaultState))
-								features[f++] = &feat_loaddefaultstate;
-							else if(lilv_node_equals(feature, app.uris.state_threadSafeRestore))
-								features[f++] = &feat_threadsaferestore;
-							else if(lilv_node_equals(feature, app.uris.idisp_queue_draw))
-								features[f++] = &feat_idispqueuedraw;
+						LilvNodes *required_features = lilv_plugin_get_required_features(app.plugin);
+						if(required_features)
+						{
+							LILV_FOREACH(nodes, itr, required_features)
+							{
+								const LilvNode *feature = lilv_nodes_get(required_features, itr);
+
+								if(lilv_node_equals(feature, app.uris.urid_map))
+									features[f++] = &feat_map;
+								else if(lilv_node_equals(feature, app.uris.urid_unmap))
+									features[f++] = &feat_unmap;
+								else if(lilv_node_equals(feature, app.uris.work_schedule))
+									features[f++] = &feat_sched;
+								else if(lilv_node_equals(feature, app.uris.log_log))
+									features[f++] = &feat_log;
+								else if(lilv_node_equals(feature, app.uris.state_makePath))
+									features[f++] = &feat_mkpath;
+								else if(lilv_node_equals(feature, app.uris.rsz_resize))
+									features[f++] = &feat_rsz;
+								else if(lilv_node_equals(feature, app.uris.opts_options))
+									features[f++] = &feat_opts;
+								else if(lilv_node_equals(feature, app.uris.uri_map))
+									features[f++] = &feat_urimap;
+								else if(lilv_node_equals(feature, app.uris.lv2_isLive))
+									features[f++] = &feat_islive;
+								else if(lilv_node_equals(feature, app.uris.lv2_inPlaceBroken))
+									features[f++] = &feat_inplacebroken;
+								else if(lilv_node_equals(feature, app.uris.lv2_hardRTCapable))
+									features[f++] = &feat_hardrtcapable;
+								else if(lilv_node_equals(feature, app.uris.pprops_supportsStrictBounds))
+									features[f++] = &feat_supportsstrictbounds;
+								else if(lilv_node_equals(feature, app.uris.bufsz_boundedBlockLength))
+								{
+									features[f++] = &feat_boundedblocklength;
+									requires_bounded_block_length = true;
+								}
+								else if(lilv_node_equals(feature, app.uris.bufsz_fixedBlockLength))
+									features[f++] = &feat_fixedblocklength;
+								else if(lilv_node_equals(feature, app.uris.bufsz_powerOf2BlockLength))
+									features[f++] = &feat_powerof2blocklength;
+								else if(lilv_node_equals(feature, app.uris.bufsz_coarseBlockLength))
+									features[f++] = &feat_coarseblocklength;
+								else if(lilv_node_equals(feature, app.uris.state_loadDefaultState))
+									features[f++] = &feat_loaddefaultstate;
+								else if(lilv_node_equals(feature, app.uris.state_threadSafeRestore))
+									features[f++] = &feat_threadsaferestore;
+								else if(lilv_node_equals(feature, app.uris.idisp_queue_draw))
+									features[f++] = &feat_idispqueuedraw;
+								else
+								{
+									//FIXME unknown feature
+								}
+							}
+							lilv_nodes_free(required_features);
 						}
-						lilv_nodes_free(required_features);
+
+						features[f++] = NULL; // sentinel
+						assert(f <= MAX_FEATURES);
 					}
 
-					features[f++] = NULL; // sentinel
-					assert(f <= MAX_FEATURES);
+					// populate required option list
+					{
+						unsigned n_opts = 0;
+						bool requires_min_block_length = false;
+						bool requires_max_block_length = false;
+
+						LilvNodes *required_options = lilv_plugin_get_value(app.plugin, app.uris.opts_requiredOption);
+						if(required_options)
+						{
+							LILV_FOREACH(nodes, itr, required_options)
+							{
+								const LilvNode *option = lilv_nodes_get(required_options, itr);
+
+								if(lilv_node_equals(option, app.uris.param_sampleRate))
+								{
+									opts[n_opts++] = opts_sampleRate;
+								}
+								else if(lilv_node_equals(option, app.uris.bufsz_minBlockLength))
+								{
+									opts[n_opts++] = opts_minBlockLength;
+									requires_min_block_length = true;
+								}
+								else if(lilv_node_equals(option, app.uris.bufsz_maxBlockLength))
+								{
+									opts[n_opts++] = opts_maxBlockLength;
+									requires_max_block_length = true;
+								}
+								else if(lilv_node_equals(option, app.uris.bufsz_nominalBlockLength))
+								{
+									opts[n_opts++] = opts_nominalBlockLength;
+								}
+								else if(lilv_node_equals(option, app.uris.bufsz_sequenceSize))
+								{
+									opts[n_opts++] = opts_sequenceSize;
+								}
+								else if(lilv_node_equals(option, app.uris.ui_updateRate))
+								{
+									opts[n_opts++] = opts_updateRate;
+								}
+								else
+								{
+									//FIXME unknown option
+								}
+							}
+						}
+
+						// handle bufsz:boundedBlockLength feature which activates options itself
+						if(requires_bounded_block_length)
+						{
+							if(!requires_min_block_length) // was not explicitely required
+								opts[n_opts++] = opts_minBlockLength;
+
+							if(!requires_max_block_length) // was not explicitely required
+								opts[n_opts++] = opts_maxBlockLength;
+						}
+
+						opts[n_opts++] = opts_sentinel; // sentinel
+						assert(n_opts <= MAX_OPTS);
+					}
 
 					const bool atty = isatty(1);
 					fprintf(stdout, "%s<%s>%s\n",

@@ -215,6 +215,15 @@ struct _app_t {
 		LilvNode *bufsz_coarseBlockLength;
 
 		LilvNode *pprops_supportsStrictBounds;
+
+		LilvNode *param_sampleRate;
+
+		LilvNode *bufsz_minBlockLength;
+		LilvNode *bufsz_maxBlockLength;
+		LilvNode *bufsz_nominalBlockLength;
+		LilvNode *bufsz_sequenceSize;
+
+		LilvNode *ui_updateRate;
 	} uris;
 };
 
