@@ -1,0 +1,77 @@
+* atom
+	* Check whether plugin requires urid:map
+
+* buf-size
+	* DONE
+
+* data-access
+	* DONE
+
+* dynmanifest
+	* Warn about it, if possible
+
+* event
+	* Fail if used, as it is deprecated
+
+* instance-access
+	* DONE
+
+* log
+	* Propose its usage
+
+* lv2core
+	* TODO
+
+* midi
+	* Check whether plugin requires urid:map
+
+* morph
+	* Warn about it, as not widely supported
+	* Implement it
+
+* options
+	* Implement dynamic options handling
+
+* parameters
+	* TODO
+
+* patch
+	* Check whether plugin supports patch:Message if it has some patch:writable/readables
+	* Check whether plugin properly handles patch:Get/Set/Put messages
+	* Check whether plugin requires urid:map
+
+* port-groups
+	* Check for left/right channels in stereo plugins
+	* Check for surround channels
+
+* port-props
+	* TODO
+
+* presets
+	* Check for preset bundles
+
+* resize-port
+	* Warn about requiring that feature
+
+* state
+	* Actually load default state if requested
+	* Provide worker to state reload
+	* Provide path functions to state, instantiate
+
+* time
+	* TODO
+
+* ui
+	* Actually instantiate UI
+
+* units
+	* Propose its definition for all control ports and parameters
+
+* urid
+	* DONE
+
+* uri-map
+	* DONE
+
+* worker
+	* DONE
