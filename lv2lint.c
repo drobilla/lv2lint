@@ -494,6 +494,7 @@ _usage(char **argv)
 		"   [-h]                 print usage information\n"
 #ifdef ENABLE_ONLINE_TESTS
 		"   [-o]                 run in offline mode\n"
+		"   [-m]                 create mail to plugin author\n"
 #endif
 
 		"   [-S] warn|note       show warnings and/or notes\n"
@@ -631,7 +632,7 @@ main(int argc, char **argv)
 
 	int c;
 #ifdef ENABLE_ONLINE_TESTS
-	while( (c = getopt(argc, argv, "vhoS:E:") ) != -1)
+	while( (c = getopt(argc, argv, "vhomS:E:") ) != -1)
 #else
 	while( (c = getopt(argc, argv, "vhS:E:") ) != -1)
 #endif
@@ -647,6 +648,9 @@ main(int argc, char **argv)
 #ifdef ENABLE_ONLINE_TESTS
 			case 'o':
 				app.offline = true;
+				break;
+			case 'm':
+				app.mailto = true;
 				break;
 #endif
 			case 'S':
@@ -1007,6 +1011,13 @@ main(int argc, char **argv)
 						assert(n_opts <= MAX_OPTS);
 					}
 
+#ifdef ENABLE_ONLINE_TESTS
+					if(app.mailto)
+					{
+						app.mail = calloc(1, sizeof(char));
+					}
+#endif
+
 					const bool atty = isatty(1);
 					lv2lint_printf(&app, "%s<%s>%s\n",
 						colors[atty][ANSI_COLOR_BOLD],
@@ -1039,6 +1050,43 @@ main(int argc, char **argv)
 					}
 
 					app.plugin = NULL;
+
+#ifdef ENABLE_ONLINE_TESTS
+					if(app.mailto && app.mail)
+					{
+						const char *to = "mailto:dev@open-music-kontrollers.ch"; //FIXME
+						const char *subj= "[LV2LINT] Bug report for <http://open-music-kontrollers.ch/lv2/moony@a1xa1>"; //FIXME
+						char *body = app.mail;
+
+						CURL *curl = curl_easy_init();
+						if(curl)
+						{
+							char *subj_esc = curl_easy_escape(curl, subj, strlen(subj));
+							if(subj_esc)
+							{
+								char *body_esc = curl_easy_escape(curl, body, strlen(body));
+								if(body_esc)
+								{
+									char *mail = NULL;
+									if(asprintf(&mail, "xdg-open '%s?subject=%s&body=%s'", to, subj_esc, body_esc) != -1)
+									{
+										system(mail);
+										free(mail);
+									}
+
+									free(body_esc);
+								}
+
+								free(subj_esc);
+							}
+
+							curl_easy_cleanup(curl);
+						}
+
+						free(app.mail);
+						app.mail = NULL;
+					}
+#endif
 				}
 				else
 				{
@@ -1068,8 +1116,33 @@ main(int argc, char **argv)
 int
 lv2lint_vprintf(app_t *app, const char *fmt, va_list args)
 {
+#ifdef ENABLE_ONLINE_TESTS
+	if(app->mailto)
+	{
+		va_list aq;
+		char *buf = NULL;
+		int len;
+
+		va_copy(aq, args);
+
+		if( (len = vasprintf(&buf, fmt, aq)) != -1)
+		{
+			len += strlen(app->mail);
+			app->mail = realloc(app->mail, len + 1);
+
+			if(app->mail)
+			{
+				app->mail = strncat(app->mail, buf, len + 1);
+			}
+
+			free(buf);
+		}
+
+		va_end(aq);
+	}
+#endif
+
 	vfprintf(stdout, fmt, args);
-	//FIXME mail
 
 	return 0;
 }

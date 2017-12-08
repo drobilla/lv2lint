@@ -113,6 +113,8 @@ struct _app_t {
 	char **urn;
 #ifdef ENABLE_ONLINE_TESTS
 	bool offline;
+	char *mail;
+	bool mailto;
 #endif
 	struct {
 		LilvNode *rdfs_label;
