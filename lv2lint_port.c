@@ -20,6 +20,7 @@
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
+#include <lv2/lv2plug.in/ns/ext/morph/morph.h>
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 
 static const ret_t *
@@ -275,6 +276,66 @@ _test_event_port(app_t *app)
 }
 
 static const ret_t *
+_test_morph_port(app_t *app)
+{
+	static const ret_t ret_morph_port_not_found = {
+		LINT_FAIL, "morph port not found", LV2_MORPH__MorphPort},
+	ret_morph_supported_types_not_found = {
+		LINT_FAIL, "supported types for morph port not found", LV2_MORPH__supportsType},
+	ret_morph_supported_types_not_enough = {
+		LINT_FAIL, "not enough supported types found", LV2_MORPH__supportsType},
+	ret_morph_default_not_found = {
+		LINT_FAIL, "default port type not found", LV2_MORPH__MorphPort};
+
+	LilvNodes *morph_supported_types = lilv_port_get(app->plugin, app->port,
+		app->uris.morph_supportsType);
+	const unsigned n_morph_supported_types = morph_supported_types
+		? lilv_nodes_size(morph_supported_types)
+		: 0;
+
+	const bool is_morph_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.morph_MorphPort);
+	const bool is_auto_morph_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.morph_AutoMorphPort);
+	const bool is_any_morph_port = is_morph_port || is_auto_morph_port;
+
+	const bool is_control_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.lv2_ControlPort);
+	const bool is_audio_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.lv2_AudioPort);
+	const bool is_cv_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.lv2_CVPort);
+	const bool is_atom_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.atom_AtomPort);
+	const bool is_event_port = lilv_port_is_a(app->plugin, app->port,
+		app->uris.event_EventPort);
+
+	const ret_t *ret = NULL;
+
+	if(is_any_morph_port || n_morph_supported_types)
+	{
+		if(!is_any_morph_port)
+		{
+			ret = &ret_morph_port_not_found;;
+		}
+		else if(!n_morph_supported_types)
+		{
+			ret = &ret_morph_supported_types_not_found;
+		}
+		else if(n_morph_supported_types < 2)
+		{
+			ret = &ret_morph_supported_types_not_enough;;
+		}
+		else if(!is_control_port || !is_audio_port || !is_cv_port || !is_atom_port || !is_event_port)
+		{
+			ret = &ret_morph_default_not_found;
+		}
+	}
+
+	return ret;
+}
+
+static const ret_t *
 _test_comment(app_t *app)
 {
 	static const ret_t ret_comment_not_found = {
@@ -338,6 +399,7 @@ static const test_t tests [] = {
 	{"Maximum         ", _test_maximum},
 	{"Range           ", _test_range},
 	{"Event Port      ", _test_event_port},
+	{"Morph Port      ", _test_morph_port},
 	{"Comment         ", _test_comment},
 	{"Group           ", _test_group},
 };

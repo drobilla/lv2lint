@@ -134,6 +134,8 @@ struct _app_t {
 		LilvNode *lv2_default;
 		LilvNode *lv2_ControlPort;
 		LilvNode *lv2_CVPort;
+		LilvNode *lv2_AudioPort;
+		LilvNode *lv2_OutputPort;
 		LilvNode *lv2_InputPort;
 		LilvNode *lv2_integer;
 		LilvNode *lv2_toggled;
@@ -148,6 +150,7 @@ struct _app_t {
 		LilvNode *lv2_inPlaceBroken;
 		LilvNode *lv2_hardRTCapable;
 
+		LilvNode *atom_AtomPort;
 		LilvNode *atom_Bool;
 		LilvNode *atom_Int;
 		LilvNode *atom_Long;
@@ -229,6 +232,10 @@ struct _app_t {
 		LilvNode *ui_updateRate;
 
 		LilvNode *ext_Widget;
+
+		LilvNode *morph_MorphPort;
+		LilvNode *morph_AutoMorphPort;
+		LilvNode *morph_supportsType;
 	} uris;
 };
 

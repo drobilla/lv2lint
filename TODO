@@ -11,7 +11,7 @@
 	* Warn about it, if possible
 
 * event
-	* Fail if used, as it is deprecated
+	* DONE
 
 * instance-access
 	* DONE
@@ -26,8 +26,7 @@
 	* Check whether plugin requires urid:map
 
 * morph
-	* Warn about it, as not widely supported
-	* Implement it
+	* Implement dynamic part of it
 
 * options
 	* Implement dynamic options handling

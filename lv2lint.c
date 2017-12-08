@@ -31,6 +31,7 @@
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
+#include <lv2/lv2plug.in/ns/ext/morph/morph.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/instance-access/instance-access.h>
 #include <lv2/lv2plug.in/ns/ext/parameters/parameters.h>
@@ -97,6 +98,8 @@ _map_uris(app_t *app)
 	app->uris.lv2_default = lilv_new_uri(app->world, LV2_CORE__default);
 	app->uris.lv2_ControlPort = lilv_new_uri(app->world, LV2_CORE__ControlPort);
 	app->uris.lv2_CVPort = lilv_new_uri(app->world, LV2_CORE__CVPort);
+	app->uris.lv2_AudioPort = lilv_new_uri(app->world, LV2_CORE__AudioPort);
+	app->uris.lv2_OutputPort = lilv_new_uri(app->world, LV2_CORE__OutputPort);
 	app->uris.lv2_InputPort = lilv_new_uri(app->world, LV2_CORE__InputPort);
 	app->uris.lv2_integer = lilv_new_uri(app->world, LV2_CORE__integer);
 	app->uris.lv2_toggled = lilv_new_uri(app->world, LV2_CORE__toggled);
@@ -111,6 +114,7 @@ _map_uris(app_t *app)
 	app->uris.lv2_inPlaceBroken = lilv_new_uri(app->world, LV2_CORE__inPlaceBroken);
 	app->uris.lv2_hardRTCapable = lilv_new_uri(app->world, LV2_CORE__hardRTCapable);
 
+	app->uris.atom_AtomPort = lilv_new_uri(app->world, LV2_ATOM__AtomPort);
 	app->uris.atom_Bool = lilv_new_uri(app->world, LV2_ATOM__Bool);
 	app->uris.atom_Int = lilv_new_uri(app->world, LV2_ATOM__Int);
 	app->uris.atom_Long = lilv_new_uri(app->world, LV2_ATOM__Long);
@@ -192,6 +196,10 @@ _map_uris(app_t *app)
 	app->uris.ui_updateRate = lilv_new_uri(app->world, LV2_UI__updateRate);
 
 	app->uris.ext_Widget = lilv_new_uri(app->world, LV2_EXTERNAL_UI__Widget);
+
+	app->uris.morph_MorphPort = lilv_new_uri(app->world, LV2_MORPH__MorphPort);
+	app->uris.morph_AutoMorphPort = lilv_new_uri(app->world, LV2_MORPH__AutoMorphPort);
+	app->uris.morph_supportsType = lilv_new_uri(app->world, LV2_MORPH__supportsType);
 }
 
 static void
@@ -216,6 +224,8 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.lv2_default);
 	lilv_node_free(app->uris.lv2_ControlPort);
 	lilv_node_free(app->uris.lv2_CVPort);
+	lilv_node_free(app->uris.lv2_AudioPort);
+	lilv_node_free(app->uris.lv2_OutputPort);
 	lilv_node_free(app->uris.lv2_InputPort);
 	lilv_node_free(app->uris.lv2_integer);
 	lilv_node_free(app->uris.lv2_toggled);
@@ -230,6 +240,7 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.lv2_inPlaceBroken);
 	lilv_node_free(app->uris.lv2_hardRTCapable);
 
+	lilv_node_free(app->uris.atom_AtomPort);
 	lilv_node_free(app->uris.atom_Bool);
 	lilv_node_free(app->uris.atom_Int);
 	lilv_node_free(app->uris.atom_Long);
@@ -311,6 +322,10 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.ui_updateRate);
 
 	lilv_node_free(app->uris.ext_Widget);
+
+	lilv_node_free(app->uris.morph_MorphPort);
+	lilv_node_free(app->uris.morph_AutoMorphPort);
+	lilv_node_free(app->uris.morph_supportsType);
 }
 
 static LV2_URID
