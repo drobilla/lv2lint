@@ -1008,7 +1008,7 @@ main(int argc, char **argv)
 					}
 
 					const bool atty = isatty(1);
-					fprintf(stdout, "%s<%s>%s\n",
+					lv2lint_printf(&app, "%s<%s>%s\n",
 						colors[atty][ANSI_COLOR_BOLD],
 						lilv_node_as_uri(lilv_plugin_get_uri(app.plugin)),
 						colors[atty][ANSI_COLOR_RESET]);
@@ -1061,6 +1061,29 @@ main(int argc, char **argv)
 	_free_urids(&app);
 
 	lilv_world_free(app.world);
+
+	return ret;
+}
+
+int
+lv2lint_vprintf(app_t *app, const char *fmt, va_list args)
+{
+	vfprintf(stdout, fmt, args);
+	//FIXME mail
+
+	return 0;
+}
+
+int
+lv2lint_printf(app_t *app, const char *fmt, ...)
+{
+	va_list args;
+
+	va_start(args, fmt);
+
+	const int ret = lv2lint_vprintf(app, fmt, args);
+
+	va_end(args);
 
 	return ret;
 }

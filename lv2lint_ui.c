@@ -463,7 +463,7 @@ test_ui(app_t *app)
 
 	if(msg)
 	{
-		fprintf(stdout, "  %s<%s>%s\n",
+		lv2lint_printf(app, "  %s<%s>%s\n",
 			colors[atty][ANSI_COLOR_BOLD],
 			lilv_node_as_uri(lilv_ui_get_uri(app->ui)),
 			colors[atty][ANSI_COLOR_RESET]);
@@ -492,17 +492,17 @@ test_ui(app_t *app)
 				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
-						fprintf(stdout, "    [%sFAIL%s]  %s=> %s <%s>\n",
+						lv2lint_printf(app, "    [%sFAIL%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_RED], colors[atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_WARN:
-						fprintf(stdout, "    [%sWARN%s]  %s=> %s <%s>\n",
+						lv2lint_printf(app, "    [%sWARN%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_YELLOW], colors[atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_NOTE:
-						fprintf(stdout, "    [%sNOTE%s]  %s=> %s <%s>\n",
+						lv2lint_printf(app, "    [%sNOTE%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_CYAN], colors[atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
@@ -517,7 +517,7 @@ test_ui(app_t *app)
 			else
 			{
 				/*
-				fprintf(stdout, "    [%sPASS%s]  %s\n",
+				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
 					colors[atty][ANSI_COLOR_GREEN], colors[atty][ANSI_COLOR_RESET],
 					test->id);
 				*/

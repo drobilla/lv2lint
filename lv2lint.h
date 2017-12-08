@@ -269,4 +269,10 @@ bool
 test_visibility(const char *path, const char *description);
 #endif
 
+int
+lv2lint_vprintf(app_t *app, const char *fmt, va_list args);
+
+int
+lv2lint_printf(app_t *app, const char *fmt, ...);
+
 #endif

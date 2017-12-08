@@ -428,7 +428,7 @@ test_port(app_t *app)
 
 	if(msg)
 	{
-		fprintf(stdout, "  %s{%d : %s}%s\n",
+		lv2lint_printf(app, "  %s{%d : %s}%s\n",
 			colors[atty][ANSI_COLOR_BOLD],
 			lilv_port_get_index(app->plugin, app->port),
 			lilv_node_as_string(lilv_port_get_symbol(app->plugin, app->port)),
@@ -458,17 +458,17 @@ test_port(app_t *app)
 				switch(ret->lint & app->show)
 				{
 					case LINT_FAIL:
-						fprintf(stdout, "    [%sFAIL%s]  %s=> %s <%s>\n",
+						lv2lint_printf(app, "    [%sFAIL%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_RED], colors[atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_WARN:
-						fprintf(stdout, "    [%sWARN%s]  %s=> %s <%s>\n",
+						lv2lint_printf(app, "    [%sWARN%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_YELLOW], colors[atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_NOTE:
-						fprintf(stdout, "    [%sNOTE%s]  %s=> %s <%s>\n",
+						lv2lint_printf(app, "    [%sNOTE%s]  %s=> %s <%s>\n",
 							colors[atty][ANSI_COLOR_CYAN], colors[atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
@@ -483,7 +483,7 @@ test_port(app_t *app)
 			else
 			{
 				/*
-				fprintf(stdout, "    [%sPASS%s]  %s\n",
+				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
 					colors[atty][ANSI_COLOR_GREEN], colors[atty][ANSI_COLOR_RESET],
 					test->id);
 				*/
