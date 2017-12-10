@@ -1086,7 +1086,6 @@ static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
 bool
 test_plugin(app_t *app)
 {
-	const bool atty = isatty(1);
 	bool flag = true;
 	bool msg = false;
 	res_t rets [tests_n];
@@ -1130,17 +1129,17 @@ test_plugin(app_t *app)
 				{
 					case LINT_FAIL:
 						lv2lint_printf(app, "    [%sFAIL%s]  %s=> %s <%s>\n",
-							colors[atty][ANSI_COLOR_RED], colors[atty][ANSI_COLOR_RESET],
+							colors[app->atty][ANSI_COLOR_RED], colors[app->atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_WARN:
 						lv2lint_printf(app, "    [%sWARN%s]  %s=> %s <%s>\n",
-							colors[atty][ANSI_COLOR_YELLOW], colors[atty][ANSI_COLOR_RESET],
+							colors[app->atty][ANSI_COLOR_YELLOW], colors[app->atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 					case LINT_NOTE:
 						lv2lint_printf(app, "    [%sNOTE%s]  %s=> %s <%s>\n",
-							colors[atty][ANSI_COLOR_CYAN], colors[atty][ANSI_COLOR_RESET],
+							colors[app->atty][ANSI_COLOR_CYAN], colors[app->atty][ANSI_COLOR_RESET],
 							test->id, repl ? repl : ret->msg, ret->url);
 						break;
 				}
@@ -1155,7 +1154,7 @@ test_plugin(app_t *app)
 			{
 				/*
 				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
-					colors[atty][ANSI_COLOR_GREEN], colors[atty][ANSI_COLOR_RESET],
+					colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
 					test->id);
 				*/
 			}

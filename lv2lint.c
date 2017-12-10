@@ -621,6 +621,7 @@ int
 main(int argc, char **argv)
 {
 	static app_t app;
+	app.atty = isatty(1);
 	app.show = LINT_FAIL; // always report failed tests
 	app.mask = LINT_FAIL; // always fail at failed tests
 
@@ -651,6 +652,7 @@ main(int argc, char **argv)
 				break;
 			case 'm':
 				app.mailto = true;
+				app.atty = false;
 				break;
 #endif
 			case 'S':
@@ -1018,11 +1020,10 @@ main(int argc, char **argv)
 					}
 #endif
 
-					const bool atty = isatty(1);
 					lv2lint_printf(&app, "%s<%s>%s\n",
-						colors[atty][ANSI_COLOR_BOLD],
+						colors[app.atty][ANSI_COLOR_BOLD],
 						lilv_node_as_uri(lilv_plugin_get_uri(app.plugin)),
-						colors[atty][ANSI_COLOR_RESET]);
+						colors[app.atty][ANSI_COLOR_RESET]);
 
 					app.instance = lilv_plugin_instantiate(app.plugin, param_sample_rate, features);
 
