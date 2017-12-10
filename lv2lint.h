@@ -63,7 +63,8 @@ typedef const ret_t *(*test_cb_t)(app_t *app);
 enum _lint_t {
 	LINT_NOTE     = (1 << 1),
 	LINT_WARN     = (1 << 2),
-	LINT_FAIL     = (1 << 3)
+	LINT_FAIL     = (1 << 3),
+	LINT_PASS     = (1 << 4)
 };
 
 struct _urid_t {

@@ -295,7 +295,9 @@ test_parameter(app_t *app)
 			msg = true;
 	}
 
-	if(msg)
+	const bool show_passes = LINT_PASS & app->show;
+
+	if(msg || show_passes)
 	{
 		lv2lint_printf(app, "  %s<%s>%s\n",
 			colors[app->atty][ANSI_COLOR_BOLD],
@@ -348,13 +350,11 @@ test_parameter(app_t *app)
 				if(flag)
 					flag = (ret->lint & app->mask) ? false : true;
 			}
-			else
+			else if(show_passes)
 			{
-				/*
 				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
 					colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
 					test->id);
-				*/
 			}
 		}
 	}

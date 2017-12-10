@@ -490,15 +490,15 @@ _usage(char **argv)
 		"   %s [OPTIONS] {PLUGIN_URI}*\n"
 		"\n"
 		"OPTIONS\n"
-		"   [-v]                 print version information\n"
-		"   [-h]                 print usage information\n"
+		"   [-v]                     print version information\n"
+		"   [-h]                     print usage information\n"
 #ifdef ENABLE_ONLINE_TESTS
-		"   [-o]                 run in offline mode\n"
-		"   [-m]                 create mail to plugin author\n"
+		"   [-o]                     run in offline mode\n"
+		"   [-m]                     create mail to plugin author\n"
 #endif
 
-		"   [-S] warn|note       show warnings and/or notes\n"
-		"   [-E] warn|note       treat warnings and/or notes as errors\n\n"
+		"   [-S] warn|note|pass|all  show warnings, notes, passes or all\n"
+		"   [-E] warn|note|all       treat warnings, notes or all as errors\n\n"
 		, argv[0]);
 }
 
@@ -664,6 +664,14 @@ main(int argc, char **argv)
 				{
 					app.show |= LINT_NOTE;
 				}
+				else if(!strcmp(optarg, "pass"))
+				{
+					app.show |= LINT_PASS;
+				}
+				else if(!strcmp(optarg, "all"))
+				{
+					app.show |= LINT_WARN | LINT_NOTE | LINT_PASS;
+				}
 				break;
 			case 'E':
 				if(!strcmp(optarg, "warn"))
@@ -675,6 +683,11 @@ main(int argc, char **argv)
 				{
 					app.show |= LINT_NOTE;
 					app.mask |= LINT_NOTE;
+				}
+				else if(!strcmp(optarg, "all"))
+				{
+					app.show |= LINT_WARN | LINT_NOTE;
+					app.mask |= LINT_WARN | LINT_NOTE;
 				}
 				break;
 			case '?':
