@@ -378,71 +378,66 @@ test_ui(app_t *app)
 	void *lib = NULL;
 	const LV2UI_Descriptor *descriptor = NULL;
 
+	const LilvNode *ui_uri_node = lilv_ui_get_uri(app->ui);
+	const LilvNode *ui_binary_node = lilv_ui_get_binary_uri(app->ui);
+
+	const char *ui_uri = lilv_node_as_uri(ui_uri_node);
+	const char *ui_binary_uri = lilv_node_as_uri(ui_binary_node);
+	char *ui_binary_path = lilv_file_uri_parse(ui_binary_uri, NULL);
+
+	dlerror();
+
+	lib = dlopen(ui_binary_path, RTLD_NOW);
+	if(!lib)
 	{
-		const LilvNode *ui_uri_node = lilv_ui_get_uri(app->ui);
-		const LilvNode *ui_binary_node = lilv_ui_get_binary_uri(app->ui);
-
-		const char *ui_uri = lilv_node_as_uri(ui_uri_node);
-		const char *ui_binary_uri = lilv_node_as_uri(ui_binary_node);
-		char *ui_binary_path = lilv_file_uri_parse(ui_binary_uri, NULL);
-
-		dlerror();
-
-		lib = dlopen(ui_binary_path, RTLD_NOW);
-		if(!lib)
-		{
-			fprintf(stderr, "Unable to open UI library %s (%s)\n", ui_binary_path, dlerror());
-			return -1;
-		}
-
-		// Get discovery function
-#ifdef _WIN32
-		LV2UI_DescriptorFunction df = GetProcAddress(lib, "lv2ui_descriptor");
-#else
-		LV2UI_DescriptorFunction df = dlsym(lib, "lv2ui_descriptor");
-#endif
-		if(!df)
-		{
-			fprintf(stderr, "Broken LV2 UI %s (no lv2ui_descriptor symbol found)\n", ui_binary_path);
-			dlclose(lib);
-			return -1;
-		}
-
-		// Get UI descriptor
-		for(uint32_t i = 0; ; i++)
-		{
-			const LV2UI_Descriptor *ld = df(i);
-			if(!ld)
-			{
-				break; // sentinel
-			}
-			else if(!strcmp(ld->URI, ui_uri))
-			{
-				descriptor = ld;
-				break;
-			}
-		}
-
-		if(!descriptor)
-		{
-			fprintf(stderr, "Failed to find descriptor for <%s> in %s\n", ui_uri, ui_binary_path);
-			dlclose(lib);
-			return -1;
-		}
-
-		if(ui_binary_path)
-			lilv_free(ui_binary_path);
-
-		app->ui_idle_iface = descriptor->extension_data
-			? descriptor->extension_data(LV2_UI__idleInterface)
-			: NULL;
-		app->ui_show_iface = descriptor->extension_data
-			? descriptor->extension_data(LV2_UI__showInterface)
-			: NULL;
-		app->ui_resize_iface = descriptor->extension_data
-			? descriptor->extension_data(LV2_UI__resize)
-			: NULL;
+		fprintf(stderr, "Unable to open UI library %s (%s)\n", ui_binary_path, dlerror());
+		goto jump;
 	}
+
+	// Get discovery function
+#ifdef _WIN32
+	LV2UI_DescriptorFunction df = GetProcAddress(lib, "lv2ui_descriptor");
+#else
+	LV2UI_DescriptorFunction df = dlsym(lib, "lv2ui_descriptor");
+#endif
+	if(!df)
+	{
+		fprintf(stderr, "Broken LV2 UI %s (no lv2ui_descriptor symbol found)\n", ui_binary_path);
+		dlclose(lib);
+		goto jump;
+	}
+
+	// Get UI descriptor
+	for(uint32_t i = 0; ; i++)
+	{
+		const LV2UI_Descriptor *ld = df(i);
+		if(!ld)
+		{
+			break; // sentinel
+		}
+		else if(!strcmp(ld->URI, ui_uri))
+		{
+			descriptor = ld;
+			break;
+		}
+	}
+
+	if(!descriptor)
+	{
+		fprintf(stderr, "Failed to find descriptor for <%s> in %s\n", ui_uri, ui_binary_path);
+		dlclose(lib);
+		goto jump;
+	}
+
+	app->ui_idle_iface = descriptor->extension_data
+		? descriptor->extension_data(LV2_UI__idleInterface)
+		: NULL;
+	app->ui_show_iface = descriptor->extension_data
+		? descriptor->extension_data(LV2_UI__showInterface)
+		: NULL;
+	app->ui_resize_iface = descriptor->extension_data
+		? descriptor->extension_data(LV2_UI__resize)
+		: NULL;
 
 	for(unsigned i=0; i<tests_n; i++)
 	{
@@ -522,6 +517,12 @@ test_ui(app_t *app)
 				*/
 			}
 		}
+	}
+
+jump:
+	if(ui_binary_path)
+	{
+		lilv_free(ui_binary_path);
 	}
 
 	if(lib)

@@ -997,6 +997,8 @@ main(int argc, char **argv)
 									//FIXME unknown option
 								}
 							}
+
+							lilv_nodes_free(required_options);
 						}
 
 						// handle bufsz:boundedBlockLength feature which activates options itself
@@ -1037,8 +1039,57 @@ main(int argc, char **argv)
 
 					if(!test_plugin(&app))
 					{
+#ifdef ENABLE_ONLINE_TESTS // only print mailto strings if errors were encountered
+						if(app.mailto && app.mail)
+						{
+							char *subj;
+							if(asprintf(&subj, "[LV2LINT] Bug report for <%s>", plugin_uri) != -1)
+							{
+								CURL *curl = curl_easy_init();
+								if(curl)
+								{
+									char *subj_esc = curl_easy_escape(curl, subj, strlen(subj));
+									if(subj_esc)
+									{
+										char *body_esc = curl_easy_escape(curl, app.mail, strlen(app.mail));
+										if(body_esc)
+										{
+											LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
+											if(email_node)
+											{
+												if(lilv_node_is_uri(email_node))
+												{
+													fprintf(stdout, "%s?subject=%s&body=%s\n",
+														lilv_node_as_uri(email_node), subj_esc, body_esc);
+												}
+
+												lilv_node_free(email_node);
+											}
+
+											free(body_esc);
+										}
+
+										free(subj_esc);
+									}
+
+									curl_easy_cleanup(curl);
+								}
+
+								free(subj);
+							}
+						}
+#endif
+
 						ret += 1;
 					}
+
+#ifdef ENABLE_ONLINE_TESTS
+					if(app.mail)
+					{
+						free(app.mail);
+						app.mail = NULL;
+					}
+#endif
 
 					if(app.instance)
 					{
@@ -1052,42 +1103,6 @@ main(int argc, char **argv)
 
 					app.plugin = NULL;
 
-#ifdef ENABLE_ONLINE_TESTS
-					if(app.mailto && app.mail)
-					{
-						const char *to = "mailto:dev@open-music-kontrollers.ch"; //FIXME
-						const char *subj= "[LV2LINT] Bug report for <http://open-music-kontrollers.ch/lv2/moony@a1xa1>"; //FIXME
-						char *body = app.mail;
-
-						CURL *curl = curl_easy_init();
-						if(curl)
-						{
-							char *subj_esc = curl_easy_escape(curl, subj, strlen(subj));
-							if(subj_esc)
-							{
-								char *body_esc = curl_easy_escape(curl, body, strlen(body));
-								if(body_esc)
-								{
-									char *mail = NULL;
-									if(asprintf(&mail, "xdg-open '%s?subject=%s&body=%s'", to, subj_esc, body_esc) != -1)
-									{
-										system(mail);
-										free(mail);
-									}
-
-									free(body_esc);
-								}
-
-								free(subj_esc);
-							}
-
-							curl_easy_cleanup(curl);
-						}
-
-						free(app.mail);
-						app.mail = NULL;
-					}
-#endif
 				}
 				else
 				{
@@ -1120,13 +1135,10 @@ lv2lint_vprintf(app_t *app, const char *fmt, va_list args)
 #ifdef ENABLE_ONLINE_TESTS
 	if(app->mailto)
 	{
-		va_list aq;
 		char *buf = NULL;
 		int len;
 
-		va_copy(aq, args);
-
-		if( (len = vasprintf(&buf, fmt, aq)) != -1)
+		if( (len = vasprintf(&buf, fmt, args)) != -1)
 		{
 			len += strlen(app->mail);
 			app->mail = realloc(app->mail, len + 1);
@@ -1138,12 +1150,12 @@ lv2lint_vprintf(app_t *app, const char *fmt, va_list args)
 
 			free(buf);
 		}
-
-		va_end(aq);
 	}
+	else
 #endif
-
-	vfprintf(stdout, fmt, args);
+	{
+		vfprintf(stdout, fmt, args);
+	}
 
 	return 0;
 }
