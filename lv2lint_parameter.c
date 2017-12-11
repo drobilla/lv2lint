@@ -18,6 +18,7 @@
 #include <lv2lint.h>
 
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include <lv2/lv2plug.in/ns/extensions/units/units.h>
 
 static const ret_t *
 _test_label(app_t *app)
@@ -267,10 +268,40 @@ _test_range(app_t *app)
 	return ret;
 }
 
+static const ret_t *
+_test_unit(app_t *app)
+{
+	static const ret_t ret_units_unit_not_found = {
+		LINT_NOTE, "units:unit not found", LV2_UNITS__unit},
+	ret_units_unit_not_a_uri = {
+		LINT_FAIL, "units_unit not a URI", LV2_UNITS__unit};
+
+	const ret_t *ret = NULL;
+
+
+	LilvNode *unit = lilv_world_get(app->world, app->parameter, app->uris.units_unit, NULL);
+	if(unit)
+	{
+		if(!lilv_node_is_uri(unit))
+		{
+			ret = &ret_units_unit_not_a_uri;
+		}
+
+		lilv_node_free(unit);
+	}
+	else
+	{
+		ret = &ret_units_unit_not_found;
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Label           ", _test_label},
 	{"Comment         ", _test_comment},
 	{"Range           ", _test_range},
+	{"Unit            ", _test_unit},
 	//TODO scalePoint
 };
 
