@@ -493,7 +493,7 @@ _usage(char **argv)
 		"   [-v]                     print version information\n"
 		"   [-h]                     print usage information\n"
 #ifdef ENABLE_ONLINE_TESTS
-		"   [-o]                     run in offline mode\n"
+		"   [-o]                     run in online mode\n"
 		"   [-m]                     create mail to plugin author\n"
 #endif
 
@@ -648,7 +648,7 @@ main(int argc, char **argv)
 				return 0;
 #ifdef ENABLE_ONLINE_TESTS
 			case 'o':
-				app.offline = true;
+				app.online = true;
 				break;
 			case 'm':
 				app.mailto = true;

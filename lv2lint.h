@@ -114,7 +114,7 @@ struct _app_t {
 	char **urn;
 	bool atty;
 #ifdef ENABLE_ONLINE_TESTS
-	bool offline;
+	bool online;
 	char *mail;
 	bool mailto;
 #endif
