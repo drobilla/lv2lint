@@ -245,6 +245,8 @@ struct _app_t {
 		LilvNode *morph_MorphPort;
 		LilvNode *morph_AutoMorphPort;
 		LilvNode *morph_supportsType;
+
+		LilvNode *units_unit;
 	} uris;
 };
 

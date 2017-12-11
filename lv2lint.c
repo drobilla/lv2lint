@@ -42,6 +42,7 @@
 #include <lv2/lv2plug.in/ns/ext/data-access/data-access.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
+#include <lv2/lv2plug.in/ns/extensions/units/units.h>
 
 #ifdef ENABLE_ELF_TESTS
 #	include <fcntl.h>
@@ -196,6 +197,8 @@ _map_uris(app_t *app)
 	app->uris.morph_MorphPort = lilv_new_uri(app->world, LV2_MORPH__MorphPort);
 	app->uris.morph_AutoMorphPort = lilv_new_uri(app->world, LV2_MORPH__AutoMorphPort);
 	app->uris.morph_supportsType = lilv_new_uri(app->world, LV2_MORPH__supportsType);
+
+	app->uris.units_unit = lilv_new_uri(app->world, LV2_UNITS__unit);
 }
 
 static void
@@ -322,6 +325,8 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.morph_MorphPort);
 	lilv_node_free(app->uris.morph_AutoMorphPort);
 	lilv_node_free(app->uris.morph_supportsType);
+
+	lilv_node_free(app->uris.units_unit);
 }
 
 static LV2_URID

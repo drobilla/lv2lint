@@ -22,6 +22,7 @@
 #include <lv2/lv2plug.in/ns/ext/event/event.h>
 #include <lv2/lv2plug.in/ns/ext/morph/morph.h>
 #include <lv2/lv2plug.in/ns/ext/port-groups/port-groups.h>
+#include <lv2/lv2plug.in/ns/extensions/units/units.h>
 
 static const ret_t *
 _test_class(app_t *app)
@@ -391,6 +392,39 @@ _test_group(app_t *app)
 	return ret;
 }
 
+static const ret_t *
+_test_unit(app_t *app)
+{
+	static const ret_t ret_units_unit_not_found = {
+		LINT_NOTE, "units:unit not found", LV2_UNITS__unit},
+	ret_units_unit_not_a_uri = {
+		LINT_FAIL, "units_unit not a URI", LV2_UNITS__unit};
+
+	const ret_t *ret = NULL;
+
+
+	if(  lilv_port_is_a(app->plugin, app->port, app->uris.lv2_ControlPort)
+		|| lilv_port_is_a(app->plugin, app->port, app->uris.lv2_CVPort) )
+	{
+		LilvNode *unit = lilv_port_get(app->plugin, app->port, app->uris.units_unit);
+		if(unit)
+		{
+			if(!lilv_node_is_uri(unit))
+			{
+				ret = &ret_units_unit_not_a_uri;
+			}
+
+			lilv_node_free(unit);
+		}
+		else
+		{
+			ret = &ret_units_unit_not_found;
+		}
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Class           ", _test_class},
 	{"PortProperties  ", _test_properties},
@@ -402,6 +436,7 @@ static const test_t tests [] = {
 	{"Morph Port      ", _test_morph_port},
 	{"Comment         ", _test_comment},
 	{"Group           ", _test_group},
+	{"Units           ", _test_unit},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
