@@ -34,6 +34,10 @@
 #include <kx.lv2/lv2_programs.h>
 #include <kx.lv2/lv2_rtmempool.h>
 
+#ifdef ENABLE_ONLINE_TESTS
+#	include <curl/curl.h>
+#endif
+
 typedef enum _ansi_color_t ansi_color_t;
 
 enum _ansi_color_t {
@@ -117,6 +121,7 @@ struct _app_t {
 	bool online;
 	char *mail;
 	bool mailto;
+	CURL *curl;
 #endif
 	struct {
 		LilvNode *rdfs_label;
@@ -265,7 +270,7 @@ bool
 is_url(const char *uri);
 
 bool
-test_url(const char *url);
+test_url(app_t *app, const char *url);
 #endif
 
 #ifdef ENABLE_ELF_TESTS

@@ -154,7 +154,7 @@ _test_license(app_t *app)
 #ifdef ENABLE_ONLINE_TESTS
 			else if(is_url(uri))
 			{
-				const bool url_exists = !app->online || test_url(uri);
+				const bool url_exists = !app->online || test_url(app, uri);
 
 				if(!url_exists)
 				{
@@ -277,7 +277,7 @@ _test_author_homepage(app_t *app)
 #ifdef ENABLE_ONLINE_TESTS
 			else if(is_url(uri))
 			{
-				const bool url_exists = !app->online || test_url(uri);
+				const bool url_exists = !app->online || test_url(app, uri);
 
 				if(!url_exists)
 				{
@@ -1033,7 +1033,7 @@ _test_plugin_url(app_t *app)
 
 	if(is_url(uri))
 	{
-		const bool url_exists = !app->online || test_url(uri);
+		const bool url_exists = !app->online || test_url(app, uri);
 
 		if(!url_exists)
 		{

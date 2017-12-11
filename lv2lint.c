@@ -43,10 +43,6 @@
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
-#ifdef ENABLE_ONLINE_TESTS
-#	include <curl/curl.h>
-#endif
-
 #ifdef ENABLE_ELF_TESTS
 #	include <fcntl.h>
 #	include <libelf.h>
@@ -520,28 +516,22 @@ is_url(const char *uri)
 }
 
 bool
-test_url(const char *url)
+test_url(app_t *app, const char *url)
 {
-	CURL *curl = curl_easy_init();
-	if(curl)
+	curl_easy_setopt(app->curl, CURLOPT_URL, url);
+	curl_easy_setopt(app->curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(app->curl, CURLOPT_NOBODY, 1);
+	curl_easy_setopt(app->curl, CURLOPT_CONNECTTIMEOUT, 10L); // secs
+	curl_easy_setopt(app->curl, CURLOPT_TIMEOUT, 20L); //secs
+
+	const CURLcode resp = curl_easy_perform(app->curl);
+
+	long http_code;
+	curl_easy_getinfo(app->curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+	if( (resp == CURLE_OK) && (http_code == 200) )
 	{
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L); // secs
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 20L); //secs
-
-		const CURLcode resp = curl_easy_perform(curl);
-
-		long http_code;
-		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-
-		curl_easy_cleanup(curl);
-
-		if( (resp == CURLE_OK) && (http_code == 200) )
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -708,6 +698,12 @@ main(int argc, char **argv)
 		_usage(argv);
 		return -1;
 	}
+
+#ifdef ENABLE_ONLINE_TESTS
+	app.curl = curl_easy_init();
+	if(!app.curl)
+		return -1;
+#endif
 
 	app.world = lilv_world_new();
 	if(!app.world)
@@ -1058,34 +1054,28 @@ main(int argc, char **argv)
 							char *subj;
 							if(asprintf(&subj, "[LV2LINT] Bug report for <%s>", plugin_uri) != -1)
 							{
-								CURL *curl = curl_easy_init();
-								if(curl)
+								char *subj_esc = curl_easy_escape(app.curl, subj, strlen(subj));
+								if(subj_esc)
 								{
-									char *subj_esc = curl_easy_escape(curl, subj, strlen(subj));
-									if(subj_esc)
+									char *body_esc = curl_easy_escape(app.curl, app.mail, strlen(app.mail));
+									if(body_esc)
 									{
-										char *body_esc = curl_easy_escape(curl, app.mail, strlen(app.mail));
-										if(body_esc)
+										LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
+										if(email_node)
 										{
-											LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
-											if(email_node)
+											if(lilv_node_is_uri(email_node))
 											{
-												if(lilv_node_is_uri(email_node))
-												{
-													fprintf(stdout, "%s?subject=%s&body=%s\n",
-														lilv_node_as_uri(email_node), subj_esc, body_esc);
-												}
-
-												lilv_node_free(email_node);
+												fprintf(stdout, "%s?subject=%s&body=%s\n",
+													lilv_node_as_uri(email_node), subj_esc, body_esc);
 											}
 
-											free(body_esc);
+											lilv_node_free(email_node);
 										}
 
-										free(subj_esc);
+										free(body_esc);
 									}
 
-									curl_easy_cleanup(curl);
+									free(subj_esc);
 								}
 
 								free(subj);
@@ -1138,6 +1128,10 @@ main(int argc, char **argv)
 	_free_urids(&app);
 
 	lilv_world_free(app.world);
+
+#ifdef ENABLE_ONLINE_TESTS
+	curl_easy_cleanup(app.curl);
+#endif
 
 	return ret;
 }
