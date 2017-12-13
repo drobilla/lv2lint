@@ -101,6 +101,8 @@ struct _app_t {
 	const LilvPort *port;
 	const LilvNode *parameter;
 	const LilvUI *ui;
+	LilvNodes *writables;
+	LilvNodes *readables;
 	const LV2_Worker_Interface *work_iface;
 	const LV2_Inline_Display_Interface *idisp_iface;
 	const LV2_State_Interface *state_iface;
@@ -195,6 +197,7 @@ struct _app_t {
 
 		LilvNode *patch_writable;
 		LilvNode *patch_readable;
+		LilvNode *patch_Message;
 
 		LilvNode *pg_group;
 

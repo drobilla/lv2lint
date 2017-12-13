@@ -1045,6 +1045,65 @@ _test_plugin_url(app_t *app)
 }
 #endif
 
+static const ret_t *
+_test_patch(app_t *app)
+{
+	static const ret_t ret_patch_no_patch_message_support_on_output = {
+		LINT_FAIL, "no patch:Message support on any output", LV2_PATCH__Message},
+	ret_patch_no_patch_message_support_on_input = {
+		LINT_FAIL, "no patch:Message support on any input", LV2_PATCH__Message},
+	ret_patch_no_parameters_found = {
+		LINT_FAIL, "no patch:writable/readable parameters found", LV2_PATCH__writable};
+
+	const ret_t *ret = NULL;
+
+	const unsigned n_writables = app->writables
+		? lilv_nodes_size(app->writables) : 0;
+	const unsigned n_readables = app->readables
+		? lilv_nodes_size(app->readables) : 0;
+	const unsigned n_parameters = n_writables + n_readables;
+
+	unsigned n_patch_message_input = 0;
+	unsigned n_patch_message_output = 0;
+
+	const uint32_t num_ports = lilv_plugin_get_num_ports(app->plugin);
+	for(unsigned i=0; i<num_ports; i++)
+	{
+		const LilvPort *port = lilv_plugin_get_port_by_index(app->plugin, i);
+
+		if(  lilv_port_is_a(app->plugin, port, app->uris.atom_AtomPort)
+			&& lilv_port_supports_event(app->plugin, port, app->uris.patch_Message) )
+		{
+			if(lilv_port_is_a(app->plugin, port, app->uris.lv2_InputPort))
+			{
+				n_patch_message_input += 1;
+			}
+			else if(lilv_port_is_a(app->plugin, port, app->uris.lv2_OutputPort))
+			{
+				n_patch_message_output += 1;
+			}
+		}
+	}
+
+	if(n_parameters + n_patch_message_input + n_patch_message_output)
+	{
+		if(n_parameters == 0)
+		{
+			ret = &ret_patch_no_parameters_found;
+		}
+		else if(n_patch_message_input == 0)
+		{
+			ret = &ret_patch_no_patch_message_support_on_input;
+		}
+		else if(n_patch_message_output == 0)
+		{
+			ret = &ret_patch_no_patch_message_support_on_output;
+		}
+	}
+
+	return ret;
+}
+
 static const test_t tests [] = {
 	{"Instantiation   ", _test_instantiation},
 #ifdef ENABLE_ELF_TESTS
@@ -1079,6 +1138,7 @@ static const test_t tests [] = {
 #ifdef ENABLE_ONLINE_TESTS
 	{"Plugin URL      ", _test_plugin_url},
 #endif
+	{"Patch           ", _test_patch},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
@@ -1089,6 +1149,9 @@ test_plugin(app_t *app)
 	bool flag = true;
 	bool msg = false;
 	res_t rets [tests_n];
+
+	app->writables = lilv_plugin_get_value(app->plugin, app->uris.patch_writable);
+	app->readables = lilv_plugin_get_value(app->plugin, app->uris.patch_readable);
 
 	for(unsigned i=0; i<tests_n; i++)
 	{
@@ -1180,14 +1243,13 @@ test_plugin(app_t *app)
 			flag = port_flag;
 	}
 
-	LilvNodes *writables = lilv_plugin_get_value(app->plugin, app->uris.patch_writable);
-	if(writables)
+	if(app->writables)
 	{
-		LILV_FOREACH(nodes, itr, writables)
+		LILV_FOREACH(nodes, itr, app->writables)
 		{
 			bool param_flag = true;
 
-			app->parameter = lilv_nodes_get(writables, itr);
+			app->parameter = lilv_nodes_get(app->writables, itr);
 			if(app->parameter)
 			{
 				if(!test_parameter(app))
@@ -1201,17 +1263,17 @@ test_plugin(app_t *app)
 				flag = param_flag;
 		}
 
-		lilv_nodes_free(writables);
+		lilv_nodes_free(app->writables);
+		app->writables = NULL;
 	}
 
-	LilvNodes *readables = lilv_plugin_get_value(app->plugin, app->uris.patch_readable);
-	if(readables)
+	if(app->readables)
 	{
-		LILV_FOREACH(nodes, itr, readables)
+		LILV_FOREACH(nodes, itr, app->readables)
 		{
 			bool param_flag = true;
 
-			app->parameter = lilv_nodes_get(readables, itr);
+			app->parameter = lilv_nodes_get(app->readables, itr);
 			if(app->parameter)
 			{
 				if(!test_parameter(app))
@@ -1225,7 +1287,8 @@ test_plugin(app_t *app)
 				flag = param_flag;
 		}
 
-		lilv_nodes_free(readables);
+		lilv_nodes_free(app->readables);
+		app->readables = NULL;
 	}
 
 	LilvUIs *uis = lilv_plugin_get_uis(app->plugin);

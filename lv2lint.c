@@ -147,6 +147,7 @@ _map_uris(app_t *app)
 
 	app->uris.patch_writable = lilv_new_uri(app->world, LV2_PATCH__writable);
 	app->uris.patch_readable = lilv_new_uri(app->world, LV2_PATCH__readable);
+	app->uris.patch_Message = lilv_new_uri(app->world, LV2_PATCH__Message);
 
 	app->uris.pg_group = lilv_new_uri(app->world, LV2_PORT_GROUPS__group);
 
@@ -275,6 +276,7 @@ _unmap_uris(app_t *app)
 
 	lilv_node_free(app->uris.patch_writable);
 	lilv_node_free(app->uris.patch_readable);
+	lilv_node_free(app->uris.patch_Message);
 
 	lilv_node_free(app->uris.pg_group);
 

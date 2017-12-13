@@ -35,7 +35,6 @@
 	* TODO
 
 * patch
-	* Check whether plugin supports patch:Message if it has some patch:writable/readables
 	* Check whether plugin properly handles patch:Get/Set/Put messages
 	* Check whether plugin requires urid:map
 
