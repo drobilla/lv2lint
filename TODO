@@ -1,5 +1,6 @@
 * atom
 	* Check whether plugin requires urid:map
+	* Check for lv2:control port designations
 
 * buf-size
 	* DONE
