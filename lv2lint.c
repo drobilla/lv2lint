@@ -817,7 +817,7 @@ main(int argc, char **argv)
 		.value =NULL
 	};
 
-	const unsigned MAX_OPTS = 7;
+#define MAX_OPTS  7
 	LV2_Options_Option opts [MAX_OPTS];
 
 	const LV2_Feature feat_map = {
@@ -901,7 +901,7 @@ main(int argc, char **argv)
 				app.plugin = lilv_plugins_get_by_uri(plugins, plugin_uri_node);
 				if(app.plugin)
 				{
-					const int MAX_FEATURES = 20;
+#define MAX_FEATURES 20
 					const LV2_Feature *features [MAX_FEATURES];
 					bool requires_bounded_block_length = false;
 

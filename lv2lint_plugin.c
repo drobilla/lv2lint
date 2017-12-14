@@ -1148,7 +1148,9 @@ test_plugin(app_t *app)
 {
 	bool flag = true;
 	bool msg = false;
-	res_t rets [tests_n];
+	res_t *rets = alloca(tests_n * sizeof(res_t));
+	if(!rets)
+		return flag;
 
 	app->writables = lilv_plugin_get_value(app->plugin, app->uris.patch_writable);
 	app->readables = lilv_plugin_get_value(app->plugin, app->uris.patch_readable);

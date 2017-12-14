@@ -312,7 +312,9 @@ test_parameter(app_t *app)
 {
 	bool flag = true;
 	bool msg = false;
-	res_t rets [tests_n];
+	res_t *rets = alloca(tests_n * sizeof(res_t));
+	if(!rets)
+		return flag;
 
 	for(unsigned i=0; i<tests_n; i++)
 	{

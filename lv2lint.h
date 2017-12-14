@@ -38,9 +38,7 @@
 #	include <curl/curl.h>
 #endif
 
-typedef enum _ansi_color_t ansi_color_t;
-
-enum _ansi_color_t {
+typedef enum _ansi_color_t {
 	ANSI_COLOR_BOLD,
 	ANSI_COLOR_RED,
 	ANSI_COLOR_GREEN,
@@ -51,11 +49,10 @@ enum _ansi_color_t {
 	ANSI_COLOR_RESET,
 
 	ANSI_COLOR_MAX
-};
+} ansi_color_t;
 
 const char *colors [2][ANSI_COLOR_MAX];
 
-typedef enum _lint_t lint_t;
 typedef union _var_t var_t;
 typedef struct _urid_t urid_t;
 typedef struct _app_t app_t;
@@ -64,12 +61,12 @@ typedef struct _ret_t ret_t;
 typedef struct _res_t res_t;
 typedef const ret_t *(*test_cb_t)(app_t *app);
 
-enum _lint_t {
+typedef enum _lint_t {
 	LINT_NOTE     = (1 << 1),
 	LINT_WARN     = (1 << 2),
 	LINT_FAIL     = (1 << 3),
 	LINT_PASS     = (1 << 4)
-};
+} lint_t;
 
 struct _urid_t {
 	char *uri;

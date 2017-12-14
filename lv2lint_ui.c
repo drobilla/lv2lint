@@ -373,7 +373,9 @@ test_ui(app_t *app)
 {
 	bool flag = true;
 	bool msg = false;
-	res_t rets [tests_n];
+	res_t *rets = alloca(tests_n * sizeof(res_t));
+	if(!rets)
+		return flag;
 
 	void *lib = NULL;
 	const LV2UI_Descriptor *descriptor = NULL;
@@ -398,7 +400,7 @@ test_ui(app_t *app)
 #ifdef _WIN32
 	LV2UI_DescriptorFunction df = GetProcAddress(lib, "lv2ui_descriptor");
 #else
-	LV2UI_DescriptorFunction df = dlsym(lib, "lv2ui_descriptor");
+	LV2UI_DescriptorFunction df = (LV2UI_DescriptorFunction)dlsym(lib, "lv2ui_descriptor");
 #endif
 	if(!df)
 	{
