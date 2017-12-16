@@ -39,7 +39,12 @@ static const ret_t *
 _test_symbols(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
+		.lnt = LINT_FAIL,
+		.msg = "binary exports invalid globally visible symbols",
+		.uri = LV2_CORE__binary,
+		.dsc = "plugin UI binaries must not export any globally visible symbols\n"
+		       "but lv2ui_descriptor. You may well have forgotten to compile\n"
+					 "with -fvisibility=hidden."}; //FIXME actually print me
 
 	const ret_t *ret = NULL;
 
@@ -350,19 +355,19 @@ _test_ui_url(app_t *app)
 
 static const test_t tests [] = {
 #ifdef ENABLE_ELF_TESTS
-	{"Symbols         ", _test_symbols},
+	{"Symbols",          _test_symbols},
 #endif
-	{"Instance Access ", _test_instance_access},
-	{"Data Access     ", _test_data_access},
-	{"Mixed DSP/UI    ", _test_mixed},
-	//{"UI Binary       ", _test_binary}, FIXME lilv does not support lv2:binary for UIs, yet
-	{"UI SO Name      ", _test_resident},
-	{"Idle Interface  ", _test_idle_interface},
-	{"Show Interface  ", _test_show_interface},
+	{"Instance Access",  _test_instance_access},
+	{"Data Access",      _test_data_access},
+	{"Mixed DSP/UI",     _test_mixed},
+	//{"UI Binary",        _test_binary}, FIXME lilv does not support lv2:binary for UIs, yet
+	{"UI SO Name",       _test_resident},
+	{"Idle Interface",   _test_idle_interface},
+	{"Show Interface",   _test_show_interface},
 	{"Resize Interface", _test_resize_interface},
-	{"Toolkit         ", _test_toolkit},
+	{"Toolkit",          _test_toolkit},
 #ifdef ENABLE_ONLINE_TESTS
-	{"UI URL          ", _test_ui_url},
+	{"UI URL",           _test_ui_url},
 #endif
 };
 
@@ -449,7 +454,7 @@ test_ui(app_t *app)
 		res->urn = NULL;
 		app->urn = &res->urn;
 		res->ret = test->cb(app);
-		if(res->ret && (res->ret->lint & app->show) )
+		if(res->ret && (res->ret->lnt & app->show) )
 			msg = true;
 	}
 
@@ -470,54 +475,8 @@ test_ui(app_t *app)
 		{
 			const test_t *test = &tests[i];
 			res_t *res = &rets[i];
-			const ret_t *ret = res->ret;
 
-			if(ret)
-			{
-				char *repl = NULL;
-
-				if(res->urn)
-				{
-					if(strstr(ret->msg, "%s"))
-					{
-						if(asprintf(&repl, ret->msg, res->urn) == -1)
-							repl = NULL;
-					}
-
-					free(res->urn);
-				}
-
-				switch(ret->lint & app->show)
-				{
-					case LINT_FAIL:
-						lv2lint_printf(app, "    [%sFAIL%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_RED], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-					case LINT_WARN:
-						lv2lint_printf(app, "    [%sWARN%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_YELLOW], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-					case LINT_NOTE:
-						lv2lint_printf(app, "    [%sNOTE%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_CYAN], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-				}
-
-				if(repl)
-					free(repl);
-
-				if(flag)
-					flag = (ret->lint & app->mask) ? false : true;
-			}
-			else if(show_passes)
-			{
-				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
-					colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
-					test->id);
-			}
+			lv2lint_report(app, test, res, show_passes, &flag);
 		}
 	}
 

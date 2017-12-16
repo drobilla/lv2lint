@@ -1059,7 +1059,7 @@ main(int argc, char **argv)
 						if(app.mailto && app.mail)
 						{
 							char *subj;
-							if(asprintf(&subj, "[LV2LINT] Bug report for <%s>", plugin_uri) != -1)
+							if(asprintf(&subj, "[%s "LV2LINT_VERSION"] Report for <%s>", argv[0], plugin_uri) != -1)
 							{
 								char *subj_esc = curl_easy_escape(app.curl, subj, strlen(subj));
 								if(subj_esc)
@@ -1068,21 +1068,22 @@ main(int argc, char **argv)
 									if(body_esc)
 									{
 										LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
+										const char *email = email && lilv_node_is_uri(email_node)
+											? lilv_node_as_uri(email_node)
+											: "mailto:unknown@example.com";
+
+										fprintf(stdout, "%s?subject=%s&body=%s\n",
+											email, subj_esc, body_esc);
+
 										if(email_node)
 										{
-											if(lilv_node_is_uri(email_node))
-											{
-												fprintf(stdout, "%s?subject=%s&body=%s\n",
-													lilv_node_as_uri(email_node), subj_esc, body_esc);
-											}
-
 											lilv_node_free(email_node);
 										}
 
-										free(body_esc);
+										curl_free(body_esc);
 									}
 
-									free(subj_esc);
+									curl_free(subj_esc);
 								}
 
 								free(subj);
@@ -1186,4 +1187,63 @@ lv2lint_printf(app_t *app, const char *fmt, ...)
 	va_end(args);
 
 	return ret;
+}
+
+void
+lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, bool *flag)
+{
+	const ret_t *ret = res->ret;
+
+	if(ret)
+	{
+		char *repl = NULL;
+
+		if(res->urn)
+		{
+			if(strstr(ret->msg, "%s"))
+			{
+				if(asprintf(&repl, ret->msg, res->urn) == -1)
+					repl = NULL;
+			}
+
+			free(res->urn);
+		}
+
+		switch(ret->lnt & app->show)
+		{
+			case LINT_FAIL:
+				lv2lint_printf(app, "    [%sFAIL%s]  %s\n"
+														"              %s\n"
+														"              <%s>\n",
+					colors[app->atty][ANSI_COLOR_RED], colors[app->atty][ANSI_COLOR_RESET],
+					test->id, repl ? repl : ret->msg, ret->uri);
+				break;
+			case LINT_WARN:
+				lv2lint_printf(app, "    [%sWARN%s]  %s\n"
+														"              %s\n"
+														"              <%s>\n",
+					colors[app->atty][ANSI_COLOR_YELLOW], colors[app->atty][ANSI_COLOR_RESET],
+					test->id, repl ? repl : ret->msg, ret->uri);
+				break;
+			case LINT_NOTE:
+				lv2lint_printf(app, "    [%sNOTE%s]  %s\n"
+														"              %s\n"
+														"              <%s>\n",
+					colors[app->atty][ANSI_COLOR_CYAN], colors[app->atty][ANSI_COLOR_RESET],
+					test->id, repl ? repl : ret->msg, ret->uri);
+				break;
+		}
+
+		if(repl)
+			free(repl);
+
+		if(flag && *flag)
+			*flag = (ret->lnt & app->mask) ? false : true;
+	}
+	else if(show_passes)
+	{
+		lv2lint_printf(app, "    [%sPASS%s]  %s\n",
+			colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
+			test->id);
+	}
 }

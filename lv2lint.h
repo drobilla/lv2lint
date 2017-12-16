@@ -73,9 +73,10 @@ struct _urid_t {
 };
 
 struct _ret_t {
-	lint_t lint;
+	lint_t lnt;
 	const char *msg;
-	const char *url;
+	const char *uri;
+	const char *dsc;
 };
 
 struct _res_t {
@@ -285,5 +286,8 @@ lv2lint_vprintf(app_t *app, const char *fmt, va_list args);
 
 int
 lv2lint_printf(app_t *app, const char *fmt, ...);
+
+void
+lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, bool *flag);
 
 #endif

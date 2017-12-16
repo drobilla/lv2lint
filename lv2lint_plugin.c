@@ -1105,40 +1105,40 @@ _test_patch(app_t *app)
 }
 
 static const test_t tests [] = {
-	{"Instantiation   ", _test_instantiation},
+	{"Instantiation",   _test_instantiation},
 #ifdef ENABLE_ELF_TESTS
-	{"Symbols         ", _test_symbols},
+	{"Symbols",         _test_symbols},
 #endif
-	{"Verification    ", _test_verification},
-	{"Name            ", _test_name},
-	{"License         ", _test_license},
-	{"Author Name     ", _test_author_name},
-	{"Author Email    ", _test_author_email},
-	{"Author Homepage ", _test_author_homepage},
-	{"Version Minor   ", _test_version_minor},
-	{"Version Micro   ", _test_version_micro},
-	{"Project         ", _test_project},
-	{"Class           ", _test_class},
-	{"Features        ", _test_features},
-	{"Extension Data  ", _test_extensions},
-	{"Worker          ", _test_worker},
-	{"Options Iface   ", _test_options_iface},
-	{"Options Feature ", _test_options_feature},
-	{"URI-Map         ", _test_uri_map},
-	{"State           ", _test_state},
-	{"Comment         ", _test_comment},
-	{"Shortdesc       ", _test_shortdesc},
-	{"Inline Display  ", _test_idisp},
-	{"Hard RT Capable ", _test_hard_rt_capable},
-	{"In Place Broken ", _test_in_place_broken},
-	{"Is Live         ", _test_is_live},
-	//{"Bounded Block   ", _test_bounded_block_length}, //TODO check for opts:opt
-	{"Fixed Block     ", _test_fixed_block_length},
-	{"PowerOf2 Block  ", _test_power_of_2_block_length},
+	{"Verification",    _test_verification},
+	{"Name",            _test_name},
+	{"License",         _test_license},
+	{"Author Name",     _test_author_name},
+	{"Author Email",    _test_author_email},
+	{"Author Homepage", _test_author_homepage},
+	{"Version Minor",   _test_version_minor},
+	{"Version Micro",   _test_version_micro},
+	{"Project",         _test_project},
+	{"Class",           _test_class},
+	{"Features",        _test_features},
+	{"Extension Data",  _test_extensions},
+	{"Worker",          _test_worker},
+	{"Options Iface",   _test_options_iface},
+	{"Options Feature", _test_options_feature},
+	{"URI-Map",         _test_uri_map},
+	{"State",           _test_state},
+	{"Comment",         _test_comment},
+	{"Shortdesc",       _test_shortdesc},
+	{"Inline Display",  _test_idisp},
+	{"Hard RT Capable", _test_hard_rt_capable},
+	{"In Place Broken", _test_in_place_broken},
+	{"Is Live",         _test_is_live},
+	//{"Bounded Block",   _test_bounded_block_length}, //TODO check for opts:opt
+	{"Fixed Block",     _test_fixed_block_length},
+	{"PowerOf2 Block",  _test_power_of_2_block_length},
 #ifdef ENABLE_ONLINE_TESTS
-	{"Plugin URL      ", _test_plugin_url},
+	{"Plugin URL",      _test_plugin_url},
 #endif
-	{"Patch           ", _test_patch},
+	{"Patch",           _test_patch},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
@@ -1163,7 +1163,7 @@ test_plugin(app_t *app)
 		res->urn = NULL;
 		app->urn = &res->urn;
 		res->ret = test->cb(app);
-		if(res->ret && (res->ret->lint & app->show) )
+		if(res->ret && (res->ret->lnt & app->show) )
 			msg = true;
 	}
 
@@ -1175,54 +1175,8 @@ test_plugin(app_t *app)
 		{
 			const test_t *test = &tests[i];
 			res_t *res = &rets[i];
-			const ret_t *ret = res->ret;
 
-			if(ret)
-			{
-				char *repl = NULL;
-
-				if(res->urn)
-				{
-					if(strstr(ret->msg, "%s"))
-					{
-						if(asprintf(&repl, ret->msg, res->urn) == -1)
-							repl = NULL;
-					}
-
-					free(res->urn);
-				}
-
-				switch(ret->lint & app->show)
-				{
-					case LINT_FAIL:
-						lv2lint_printf(app, "    [%sFAIL%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_RED], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-					case LINT_WARN:
-						lv2lint_printf(app, "    [%sWARN%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_YELLOW], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-					case LINT_NOTE:
-						lv2lint_printf(app, "    [%sNOTE%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_CYAN], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-				}
-
-				if(repl)
-					free(repl);
-
-				if(flag)
-					flag = (ret->lint & app->mask) ? false : true;
-			}
-			else if(show_passes)
-			{
-				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
-					colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
-					test->id);
-			}
+			lv2lint_report(app, test, res, show_passes, &flag);
 		}
 	}
 

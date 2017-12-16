@@ -426,17 +426,17 @@ _test_unit(app_t *app)
 }
 
 static const test_t tests [] = {
-	{"Class           ", _test_class},
-	{"PortProperties  ", _test_properties},
-	{"Default         ", _test_default},
-	{"Minimum         ", _test_minimum},
-	{"Maximum         ", _test_maximum},
-	{"Range           ", _test_range},
-	{"Event Port      ", _test_event_port},
-	{"Morph Port      ", _test_morph_port},
-	{"Comment         ", _test_comment},
-	{"Group           ", _test_group},
-	{"Units           ", _test_unit},
+	{"Class",          _test_class},
+	{"PortProperties", _test_properties},
+	{"Default",        _test_default},
+	{"Minimum",        _test_minimum},
+	{"Maximum",        _test_maximum},
+	{"Range",          _test_range},
+	{"Event Port",     _test_event_port},
+	{"Morph Port",     _test_morph_port},
+	{"Comment",        _test_comment},
+	{"Group",          _test_group},
+	{"Units",          _test_unit},
 };
 
 static const unsigned tests_n = sizeof(tests) / sizeof(test_t);
@@ -458,7 +458,7 @@ test_port(app_t *app)
 		res->urn = NULL;
 		app->urn = &res->urn;
 		res->ret = test->cb(app);
-		if(res->ret && (res->ret->lint & app->show) )
+		if(res->ret && (res->ret->lnt & app->show) )
 			msg = true;
 	}
 
@@ -476,54 +476,8 @@ test_port(app_t *app)
 		{
 			const test_t *test = &tests[i];
 			res_t *res = &rets[i];
-			const ret_t *ret = res->ret;
 
-			if(ret)
-			{
-				char *repl = NULL;
-
-				if(res->urn)
-				{
-					if(strstr(ret->msg, "%s"))
-					{
-						if(asprintf(&repl, ret->msg, res->urn) == -1)
-							repl = NULL;
-					}
-
-					free(res->urn);
-				}
-
-				switch(ret->lint & app->show)
-				{
-					case LINT_FAIL:
-						lv2lint_printf(app, "    [%sFAIL%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_RED], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-					case LINT_WARN:
-						lv2lint_printf(app, "    [%sWARN%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_YELLOW], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-					case LINT_NOTE:
-						lv2lint_printf(app, "    [%sNOTE%s]  %s=> %s <%s>\n",
-							colors[app->atty][ANSI_COLOR_CYAN], colors[app->atty][ANSI_COLOR_RESET],
-							test->id, repl ? repl : ret->msg, ret->url);
-						break;
-				}
-
-				if(repl)
-					free(repl);
-
-				if(flag)
-					flag = (ret->lint & app->mask) ? false : true;
-			}
-			else if(show_passes)
-			{
-				lv2lint_printf(app, "    [%sPASS%s]  %s\n",
-					colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
-					test->id);
-			}
+			lv2lint_report(app, test, res, show_passes, &flag);
 		}
 	}
 
