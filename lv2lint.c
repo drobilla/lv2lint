@@ -200,6 +200,7 @@ _map_uris(app_t *app)
 	app->uris.morph_supportsType = lilv_new_uri(app->world, LV2_MORPH__supportsType);
 
 	app->uris.units_unit = lilv_new_uri(app->world, LV2_UNITS__unit);
+	app->uris.units_Unit = lilv_new_uri(app->world, LV2_UNITS__Unit);
 }
 
 static void
@@ -329,6 +330,7 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.morph_supportsType);
 
 	lilv_node_free(app->uris.units_unit);
+	lilv_node_free(app->uris.units_Unit);
 }
 
 static LV2_URID

@@ -248,6 +248,7 @@ struct _app_t {
 		LilvNode *morph_supportsType;
 
 		LilvNode *units_unit;
+		LilvNode *units_Unit;
 	} uris;
 };
 

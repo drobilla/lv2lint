@@ -397,8 +397,8 @@ _test_unit(app_t *app)
 {
 	static const ret_t ret_units_unit_not_found = {
 		LINT_NOTE, "units:unit not found", LV2_UNITS__unit},
-	ret_units_unit_not_a_uri = {
-		LINT_FAIL, "units_unit not a URI", LV2_UNITS__unit};
+	ret_units_unit_not_a_uri_or_object = {
+		LINT_FAIL, "units_unit not a URI or object", LV2_UNITS__unit};
 
 	const ret_t *ret = NULL;
 
@@ -409,9 +409,10 @@ _test_unit(app_t *app)
 		LilvNode *unit = lilv_port_get(app->plugin, app->port, app->uris.units_unit);
 		if(unit)
 		{
-			if(!lilv_node_is_uri(unit))
+			if(  !lilv_node_is_uri(unit)
+				&& !lilv_world_ask(app->world, unit, app->uris.rdf_type, app->uris.units_Unit) )
 			{
-				ret = &ret_units_unit_not_a_uri;
+				ret = &ret_units_unit_not_a_uri_or_object;
 			}
 
 			lilv_node_free(unit);
