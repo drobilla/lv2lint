@@ -110,6 +110,7 @@ _map_uris(app_t *app)
 	app->uris.lv2_isLive = lilv_new_uri(app->world, LV2_CORE__isLive);
 	app->uris.lv2_inPlaceBroken = lilv_new_uri(app->world, LV2_CORE__inPlaceBroken);
 	app->uris.lv2_hardRTCapable = lilv_new_uri(app->world, LV2_CORE__hardRTCapable);
+	app->uris.lv2_documentation = lilv_new_uri(app->world, LV2_CORE__documentation);
 
 	app->uris.atom_AtomPort = lilv_new_uri(app->world, LV2_ATOM__AtomPort);
 	app->uris.atom_Bool = lilv_new_uri(app->world, LV2_ATOM__Bool);
@@ -240,6 +241,7 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.lv2_isLive);
 	lilv_node_free(app->uris.lv2_inPlaceBroken);
 	lilv_node_free(app->uris.lv2_hardRTCapable);
+	lilv_node_free(app->uris.lv2_documentation);
 
 	lilv_node_free(app->uris.atom_AtomPort);
 	lilv_node_free(app->uris.atom_Bool);
@@ -1211,6 +1213,24 @@ lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, boo
 			free(res->urn);
 		}
 
+		const char *docu = ret->dsc;
+		LilvNode *docu_node = NULL;
+
+		if(!docu)
+		{
+			LilvNode *subj_node = ret->uri ? lilv_new_uri(app->world, ret->uri) : NULL;
+			if(subj_node)
+			{
+				docu_node = lilv_world_get(app->world, subj_node, app->uris.lv2_documentation, NULL);
+				if(docu_node)
+				{
+					docu = lilv_node_as_string(docu_node);
+				}
+
+				lilv_node_free(subj_node);
+			}
+		}
+
 		switch(ret->lnt & app->show)
 		{
 			case LINT_FAIL:
@@ -1235,6 +1255,9 @@ lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, boo
 					test->id, repl ? repl : ret->msg, ret->uri);
 				break;
 		}
+
+		if(docu_node)
+			lilv_node_free(docu_node);
 
 		if(repl)
 			free(repl);

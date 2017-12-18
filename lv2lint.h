@@ -158,6 +158,7 @@ struct _app_t {
 		LilvNode *lv2_isLive;
 		LilvNode *lv2_inPlaceBroken;
 		LilvNode *lv2_hardRTCapable;
+		LilvNode *lv2_documentation;
 
 		LilvNode *atom_AtomPort;
 		LilvNode *atom_Bool;

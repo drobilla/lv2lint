@@ -46,7 +46,7 @@ static const ret_t *
 _test_symbols(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_FAIL, "binary exports invalid globally visible symbols", LV2_CORE__binary};
+		LINT_FAIL, "binary exports superfluous globally visible symbols", LV2_CORE__binary};
 
 	const ret_t *ret = NULL;
 

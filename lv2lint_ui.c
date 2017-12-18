@@ -40,7 +40,7 @@ _test_symbols(app_t *app)
 {
 	static const ret_t ret_symbols = {
 		.lnt = LINT_FAIL,
-		.msg = "binary exports invalid globally visible symbols",
+		.msg = "binary exports superfluous globally visible symbols",
 		.uri = LV2_CORE__binary,
 		.dsc = "plugin UI binaries must not export any globally visible symbols\n"
 		       "but lv2ui_descriptor. You may well have forgotten to compile\n"
