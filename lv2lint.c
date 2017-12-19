@@ -1193,6 +1193,34 @@ lv2lint_printf(app_t *app, const char *fmt, ...)
 	return ret;
 }
 
+static void
+_report_head(app_t *app, const char *label, ansi_color_t col, const test_t *test)
+{
+	lv2lint_printf(app, "    [%s%s%s]  %s\n",
+		colors[app->atty][col], label, colors[app->atty][ANSI_COLOR_RESET], test->id);
+}
+
+static void
+_report_body(app_t *app, const char *label, ansi_color_t col, const test_t *test,
+	const ret_t *ret, const char *repl, char *docu)
+{
+	const char *sep = "\n";
+
+	_report_head(app, label, col, test);
+
+	lv2lint_printf(app, "              %s\n", repl ? repl : ret->msg);
+
+#if 0
+	//FIXME only show if desired
+	for(const char *ptr = strtok(docu, sep); ptr; ptr = strtok(NULL, sep))
+	{
+		lv2lint_printf(app, "                %s\n", ptr);
+	}
+#endif
+
+	lv2lint_printf(app, "              seeAlso: <%s>\n", ret->uri);
+}
+
 void
 lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, bool *flag)
 {
@@ -1213,18 +1241,23 @@ lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, boo
 			free(res->urn);
 		}
 
-		const char *docu = ret->dsc;
-		LilvNode *docu_node = NULL;
+		char *docu = NULL;
 
-		if(!docu)
+		if(ret->dsc)
+		{
+			docu = strdup(ret->dsc);
+		}
+		else
 		{
 			LilvNode *subj_node = ret->uri ? lilv_new_uri(app->world, ret->uri) : NULL;
 			if(subj_node)
 			{
-				docu_node = lilv_world_get(app->world, subj_node, app->uris.lv2_documentation, NULL);
+				LilvNode *docu_node = lilv_world_get(app->world, subj_node, app->uris.lv2_documentation, NULL);
 				if(docu_node)
 				{
-					docu = lilv_node_as_string(docu_node);
+					docu = strdup(lilv_node_as_string(docu_node));
+
+					lilv_node_free(docu_node);
 				}
 
 				lilv_node_free(subj_node);
@@ -1234,41 +1267,33 @@ lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, boo
 		switch(ret->lnt & app->show)
 		{
 			case LINT_FAIL:
-				lv2lint_printf(app, "    [%sFAIL%s]  %s\n"
-														"              %s\n"
-														"              <%s>\n",
-					colors[app->atty][ANSI_COLOR_RED], colors[app->atty][ANSI_COLOR_RESET],
-					test->id, repl ? repl : ret->msg, ret->uri);
+				_report_body(app, "FAIL", ANSI_COLOR_RED, test, ret, repl, docu);
 				break;
 			case LINT_WARN:
-				lv2lint_printf(app, "    [%sWARN%s]  %s\n"
-														"              %s\n"
-														"              <%s>\n",
-					colors[app->atty][ANSI_COLOR_YELLOW], colors[app->atty][ANSI_COLOR_RESET],
-					test->id, repl ? repl : ret->msg, ret->uri);
+				_report_body(app, "WARN", ANSI_COLOR_YELLOW, test, ret, repl, docu);
 				break;
 			case LINT_NOTE:
-				lv2lint_printf(app, "    [%sNOTE%s]  %s\n"
-														"              %s\n"
-														"              <%s>\n",
-					colors[app->atty][ANSI_COLOR_CYAN], colors[app->atty][ANSI_COLOR_RESET],
-					test->id, repl ? repl : ret->msg, ret->uri);
+				_report_body(app, "NOTE", ANSI_COLOR_CYAN, test, ret, repl, docu);
 				break;
 		}
 
-		if(docu_node)
-			lilv_node_free(docu_node);
+		if(docu)
+		{
+			free(docu);
+		}
 
 		if(repl)
+		{
 			free(repl);
+		}
 
 		if(flag && *flag)
+		{
 			*flag = (ret->lnt & app->mask) ? false : true;
+		}
 	}
 	else if(show_passes)
 	{
-		lv2lint_printf(app, "    [%sPASS%s]  %s\n",
-			colors[app->atty][ANSI_COLOR_GREEN], colors[app->atty][ANSI_COLOR_RESET],
-			test->id);
+		_report_head(app, "PASS", ANSI_COLOR_GREEN, test);
 	}
 }
