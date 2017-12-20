@@ -117,6 +117,7 @@ struct _app_t {
 	LV2_URID nurids;
 	char **urn;
 	bool atty;
+	bool debug;
 #ifdef ENABLE_ONLINE_TESTS
 	bool online;
 	char *mail;

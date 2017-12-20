@@ -499,8 +499,9 @@ _usage(char **argv)
 		"OPTIONS\n"
 		"   [-v]                     print version information\n"
 		"   [-h]                     print usage information\n"
+		"   [-d]                     show verbose test item documentation\n"
 #ifdef ENABLE_ONLINE_TESTS
-		"   [-o]                     run in online mode\n"
+		"   [-o]                     run online test items\n"
 		"   [-m]                     create mail to plugin author\n"
 #endif
 
@@ -634,9 +635,9 @@ main(int argc, char **argv)
 
 	int c;
 #ifdef ENABLE_ONLINE_TESTS
-	while( (c = getopt(argc, argv, "vhomS:E:") ) != -1)
+	while( (c = getopt(argc, argv, "vhdomS:E:") ) != -1)
 #else
-	while( (c = getopt(argc, argv, "vhS:E:") ) != -1)
+	while( (c = getopt(argc, argv, "vhdS:E:") ) != -1)
 #endif
 	{
 		switch(c)
@@ -647,6 +648,9 @@ main(int argc, char **argv)
 			case 'h':
 				_usage(argv);
 				return 0;
+			case 'd':
+				app.debug = true;
+				break;
 #ifdef ENABLE_ONLINE_TESTS
 			case 'o':
 				app.online = true;
@@ -1210,13 +1214,13 @@ _report_body(app_t *app, const char *label, ansi_color_t col, const test_t *test
 
 	lv2lint_printf(app, "              %s\n", repl ? repl : ret->msg);
 
-#if 0
-	//FIXME only show if desired
-	for(const char *ptr = strtok(docu, sep); ptr; ptr = strtok(NULL, sep))
+	if(docu)
 	{
-		lv2lint_printf(app, "                %s\n", ptr);
+		for(const char *ptr = strtok(docu, sep); ptr; ptr = strtok(NULL, sep))
+		{
+			lv2lint_printf(app, "                %s\n", ptr);
+		}
 	}
-#endif
 
 	lv2lint_printf(app, "              seeAlso: <%s>\n", ret->uri);
 }
@@ -1243,24 +1247,30 @@ lv2lint_report(app_t *app, const test_t *test, res_t *res, bool show_passes, boo
 
 		char *docu = NULL;
 
-		if(ret->dsc)
+		if(app->debug)
 		{
-			docu = strdup(ret->dsc);
-		}
-		else
-		{
-			LilvNode *subj_node = ret->uri ? lilv_new_uri(app->world, ret->uri) : NULL;
-			if(subj_node)
+			if(ret->dsc)
 			{
-				LilvNode *docu_node = lilv_world_get(app->world, subj_node, app->uris.lv2_documentation, NULL);
-				if(docu_node)
+				docu = strdup(ret->dsc);
+			}
+			else
+			{
+				LilvNode *subj_node = ret->uri ? lilv_new_uri(app->world, ret->uri) : NULL;
+				if(subj_node)
 				{
-					docu = strdup(lilv_node_as_string(docu_node));
+					LilvNode *docu_node = lilv_world_get(app->world, subj_node, app->uris.lv2_documentation, NULL);
+					if(docu_node)
+					{
+						if(lilv_node_is_string(docu_node))
+						{
+							docu = strdup(lilv_node_as_string(docu_node));
+						}
 
-					lilv_node_free(docu_node);
+						lilv_node_free(docu_node);
+					}
+
+					lilv_node_free(subj_node);
 				}
-
-				lilv_node_free(subj_node);
 			}
 		}
 
