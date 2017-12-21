@@ -619,6 +619,13 @@ test_visibility(const char *path, const char *description)
 }
 #endif
 
+static void
+_state_set_value(const char *symbol, void *data,
+	const void *value, uint32_t size, uint32_t type)
+{
+	//FIXME
+}
+
 int
 main(int argc, char **argv)
 {
@@ -1059,6 +1066,26 @@ main(int argc, char **argv)
 						app.idisp_iface = lilv_instance_get_extension_data(app.instance, LV2_INLINEDISPLAY__interface);
 						app.state_iface = lilv_instance_get_extension_data(app.instance, LV2_STATE__interface);
 						app.opts_iface = lilv_instance_get_extension_data(app.instance, LV2_OPTIONS__interface);
+
+						const bool has_load_default = lilv_plugin_has_feature(app.plugin,
+							app.uris.state_loadDefaultState);
+						if(has_load_default)
+						{
+							const LilvNode *pset = lilv_plugin_get_uri(app.plugin);
+
+							lilv_world_load_resource(app.world, pset);
+
+							LilvState *state = lilv_state_new_from_world(app.world, &map, pset);
+							if(state)
+							{
+								lilv_state_restore(state, app.instance, _state_set_value, &app,
+									LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE, NULL); //FIXME features
+
+								lilv_state_free(state);
+							}
+
+							lilv_world_unload_resource(app.world, pset);
+						}
 					}
 
 					if(!test_plugin(&app))
