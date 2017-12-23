@@ -1225,6 +1225,54 @@ lv2lint_printf(app_t *app, const char *fmt, ...)
 }
 
 static void
+_escape_markup(char *docu)
+{
+	char *ptr = docu;
+	char *tag = NULL;
+	char *amp = NULL;
+
+	while(*ptr != '\0')
+	{
+		switch(*ptr)
+		{
+			case '<':
+			{
+				tag = ptr;
+			} break;
+			case '>':
+			{
+				if(tag)
+				{
+					ptr += 1;
+					const size_t len = strlen(ptr) + 1;
+					memmove(tag, ptr, len);
+					ptr = tag - 1;
+					tag = NULL;
+				}
+			} break;
+
+			case '&':
+			{
+				amp = ptr;
+			} break;
+			case ';':
+			{
+				if(amp)
+				{
+					ptr += 1;
+					const size_t len = strlen(ptr) + 1;
+					memmove(amp, ptr, len);
+					ptr = amp - 1;
+					amp = NULL;
+				}
+			} break;
+		}
+
+		ptr += 1;
+	}
+}
+
+static void
 _report_head(app_t *app, const char *label, ansi_color_t col, const test_t *test)
 {
 	lv2lint_printf(app, "    [%s%s%s]  %s\n",
@@ -1243,6 +1291,8 @@ _report_body(app_t *app, const char *label, ansi_color_t col, const test_t *test
 
 	if(docu)
 	{
+		_escape_markup(docu);
+
 		for(const char *ptr = strtok(docu, sep); ptr; ptr = strtok(NULL, sep))
 		{
 			lv2lint_printf(app, "                %s\n", ptr);
