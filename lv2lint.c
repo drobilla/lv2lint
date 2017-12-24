@@ -1227,49 +1227,69 @@ lv2lint_printf(app_t *app, const char *fmt, ...)
 static void
 _escape_markup(char *docu)
 {
-	char *ptr = docu;
-	char *tag = NULL;
-	char *amp = NULL;
+	char *wrp = docu;
+	bool tag = false;
+	bool amp = false;
+	bool sep = false;
 
-	while(*ptr != '\0')
+	for(const char *rdp = docu; *rdp != '\0'; rdp++)
 	{
-		switch(*ptr)
+		switch(*rdp)
 		{
 			case '<':
 			{
-				tag = ptr;
-			} break;
+				tag = true;
+			} continue;
 			case '>':
 			{
 				if(tag)
 				{
-					ptr += 1;
-					const size_t len = strlen(ptr) + 1;
-					memmove(tag, ptr, len);
-					ptr = tag - 1;
-					tag = NULL;
+					tag = false;
+					continue;
 				}
 			} break;
 
 			case '&':
 			{
-				amp = ptr;
-			} break;
+				amp = true;
+			} continue;
 			case ';':
 			{
 				if(amp)
 				{
-					ptr += 1;
-					const size_t len = strlen(ptr) + 1;
-					memmove(amp, ptr, len);
-					ptr = amp - 1;
-					amp = NULL;
+					amp = false;
+					continue;
 				}
+			} break;
+
+			case ' ':
+			{
+				if(sep) // escape double spaces
+				{
+					continue;
+				}
+
+				sep = true;
+			} break;
+
+			default:
+			{
+				sep = false;
 			} break;
 		}
 
-		ptr += 1;
+		if(tag || amp)
+		{
+			continue;
+		}
+
+		if(wrp != rdp)
+		{
+			*wrp++ = *rdp;
+		}
 	}
+
+	*wrp = '\0';
 }
 
 static void
