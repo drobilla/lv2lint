@@ -1283,10 +1283,7 @@ _escape_markup(char *docu)
 			continue;
 		}
 
-		if(wrp != rdp)
-		{
-			*wrp++ = *rdp;
-		}
+		*wrp++ = *rdp;
 	}
 
 	*wrp = '\0';
