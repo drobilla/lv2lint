@@ -418,7 +418,23 @@ _sched(LV2_Worker_Schedule_Handle instance, uint32_t size, const void *data)
 static int
 _vprintf(void *data, LV2_URID type, const char *fmt, va_list args)
 {
-	vfprintf(stderr, fmt, args);
+	char *buf = NULL;
+
+	if(asprintf(&buf, fmt, args) == -1)
+	{
+		buf = NULL;
+	}
+
+	if(buf)
+	{
+		const char *sep = "\n\0";
+		for(char *ptr = strtok(buf, sep); ptr; ptr = strtok(NULL, sep))
+		{
+			fprintf(stderr, "%s\n", ptr);
+		}
+
+		free(buf);
+	}
 
 	return 0;
 }
