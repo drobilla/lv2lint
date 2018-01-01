@@ -1053,7 +1053,7 @@ _test_patch(app_t *app)
 	ret_patch_no_patch_message_support_on_input = {
 		LINT_FAIL, "no patch:Message support on any input", LV2_PATCH__Message},
 	ret_patch_no_parameters_found = {
-		LINT_FAIL, "no patch:writable/readable parameters found", LV2_PATCH__writable};
+		LINT_WARN, "no patch:writable/readable parameters found", LV2_PATCH__writable};
 
 	const ret_t *ret = NULL;
 

@@ -38,6 +38,8 @@
 * patch
 	* Check whether plugin properly handles patch:Get/Set/Put messages
 	* Check whether plugin requires urid:map
+	* Check whether all patch:writables are initialized in state:state with
+		enabled state:loadDefaultState
 
 * port-groups
 	* Check for left/right channels in stereo plugins
