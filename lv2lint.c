@@ -570,6 +570,28 @@ test_url(app_t *app, const char *url)
 bool
 test_visibility(const char *path, const char *description)
 {
+	static const char *whitelist [] = {
+		// C
+		"_init",
+		"_fini",
+		"_edata",
+		"_end",
+		"__bss_start",
+		// Rust
+		"__rdl_alloc",
+		"__rdl_alloc_excess",
+		"__rdl_alloc_zeroed",
+		"__rdl_dealloc",
+		"__rdl_grow_in_place",
+		"__rdl_oom",
+		"__rdl_realloc",
+		"__rdl_realloc_excess",
+		"__rdl_shrink_in_place",
+		"__rdl_usable_size",
+		"rust_eh_personality"
+	};
+	const unsigned n_whitelist = sizeof(whitelist) / sizeof(const char *);
+
 	bool desc = false;
 	unsigned invalid = 0;
 
@@ -591,11 +613,11 @@ test_visibility(const char *path, const char *description)
 
 				if( (shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM) )
 				{
-					/* found a symbol table, go print it. */
+					// found a symbol table
 					Elf_Data *data = elf_getdata(scn, NULL);
 					const unsigned count = shdr.sh_size / shdr.sh_entsize;
 
-					/* print the symbol names */
+					// iterate over symbol names
 					for(unsigned i = 0; i < count; i++)
 					{
 						GElf_Sym sym;
@@ -611,14 +633,23 @@ test_visibility(const char *path, const char *description)
 							{
 								desc = true;
 							}
-							else if(strcmp(name, "_init")
-								&& strcmp(name, "_fini")
-								&& strcmp(name, "_edata")
-								&& strcmp(name, "_end")
-								&& strcmp(name, "__bss_start") )
+							else
 							{
-								//fprintf(stderr, "%s\n", name);
-								invalid++;
+								bool whitelist_match = false;
+
+								for(unsigned j = 0; j < n_whitelist; j++)
+								{
+									if(!strcmp(name, whitelist[j]))
+									{
+										whitelist_match = true;
+										break;
+									}
+								}
+
+								if(!whitelist_match)
+								{
+									invalid++;
+								}
 							}
 						}
 					}
