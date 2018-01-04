@@ -1141,7 +1141,35 @@ main(int argc, char **argv)
 						if(app.mailto && app.mail)
 						{
 							char *subj;
-							if(asprintf(&subj, "[%s "LV2LINT_VERSION"] Report for <%s>", argv[0], plugin_uri) != -1)
+							unsigned minor_version = 0;
+							unsigned micro_version = 0;
+
+							LilvNode *minor_version_nodes = lilv_plugin_get_value(app.plugin , app.uris.lv2_minorVersion);
+							if(minor_version_nodes)
+							{
+								const LilvNode *minor_version_node = lilv_nodes_get_first(minor_version_nodes);
+								if(minor_version_node && lilv_node_is_int(minor_version_node))
+								{
+									minor_version = lilv_node_as_int(minor_version_node);
+								}
+
+								lilv_nodes_free(minor_version_nodes);
+							}
+
+							LilvNode *micro_version_nodes = lilv_plugin_get_value(app.plugin , app.uris.lv2_microVersion);
+							if(micro_version_nodes)
+							{
+								const LilvNode *micro_version_node = lilv_nodes_get_first(micro_version_nodes);
+								if(micro_version_node && lilv_node_is_int(micro_version_node))
+								{
+									micro_version = lilv_node_as_int(micro_version_node);
+								}
+
+								lilv_nodes_free(micro_version_nodes);
+							}
+
+							if(asprintf(&subj, "[%s "LV2LINT_VERSION"] bug report for <%s> version %u.%u",
+								argv[0], plugin_uri, minor_version, micro_version) != -1)
 							{
 								char *subj_esc = curl_easy_escape(app.curl, subj, strlen(subj));
 								if(subj_esc)

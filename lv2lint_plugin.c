@@ -312,7 +312,7 @@ _test_version_minor(app_t *app)
 
 	const ret_t *ret = NULL;
 
-	LilvNode *minor_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_minorVersion);
+	LilvNodes *minor_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_minorVersion);
 	if(minor_version_nodes)
 	{
 		const LilvNode *minor_version_node = lilv_nodes_get_first(minor_version_nodes);
@@ -357,7 +357,7 @@ _test_version_micro(app_t *app)
 
 	const ret_t *ret = NULL;
 
-	LilvNode *micro_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_microVersion);
+	LilvNodes *micro_version_nodes = lilv_plugin_get_value(app->plugin , app->uris.lv2_microVersion);
 	if(micro_version_nodes)
 	{
 		const LilvNode *micro_version_node = lilv_nodes_get_first(micro_version_nodes);
