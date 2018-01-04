@@ -123,6 +123,7 @@ struct _app_t {
 	char *mail;
 	bool mailto;
 	CURL *curl;
+	char *greet;
 #endif
 	struct {
 		LilvNode *rdfs_label;

@@ -519,6 +519,7 @@ _usage(char **argv)
 #ifdef ENABLE_ONLINE_TESTS
 		"   [-o]                     run online test items\n"
 		"   [-m]                     create mail to plugin author\n"
+		"   [-g] GREETER             custom mail greeter\n"
 #endif
 
 		"   [-S] warn|note|pass|all  show warnings, notes, passes or all\n"
@@ -680,6 +681,23 @@ main(int argc, char **argv)
 	app.atty = isatty(1);
 	app.show = LINT_FAIL; // always report failed tests
 	app.mask = LINT_FAIL; // always fail at failed tests
+	app.greet = "Dear LV2 plugin developer\n"
+		"\n"
+		"We would like to congratulate you for your efforts to have created this\n"
+		"awesome plugin for the LV2 ecosytem.\n"
+		"\n"
+		"However, we have found some minor issues where your plugin deviates from\n"
+		"the LV2 plugin specification and/or its best implementation practices.\n"
+		"By fixing those, you can make your plugin more conformant and thus likely\n"
+		"usable in more hosts and with less issues.\n"
+		"\n"
+		"Kindly find below an automatically generated bug report with a summary\n"
+		"of potential issues.\n"
+		"\n"
+		"Yours sincerely\n"
+		"                                 /The inofficial LV2 inquisitorial squad/\n"
+		"\n"
+		"---\n\n";
 
 	fprintf(stderr,
 		"%s "LV2LINT_VERSION"\n"
@@ -689,7 +707,7 @@ main(int argc, char **argv)
 
 	int c;
 #ifdef ENABLE_ONLINE_TESTS
-	while( (c = getopt(argc, argv, "vhdomS:E:") ) != -1)
+	while( (c = getopt(argc, argv, "vhdomg:S:E:") ) != -1)
 #else
 	while( (c = getopt(argc, argv, "vhdS:E:") ) != -1)
 #endif
@@ -712,6 +730,9 @@ main(int argc, char **argv)
 			case 'm':
 				app.mailto = true;
 				app.atty = false;
+				break;
+			case 'g':
+				app.greet = optarg;
 				break;
 #endif
 			case 'S':
@@ -750,7 +771,11 @@ main(int argc, char **argv)
 				}
 				break;
 			case '?':
+#ifdef ENABLE_ONLINE_TESTS
+				if( (optopt == 'S') || (optopt == 'E') || (optopt == 'g') )
+#else
 				if( (optopt == 'S') || (optopt == 'E') )
+#endif
 					fprintf(stderr, "Option `-%c' requires an argument.\n", optopt);
 				else if(isprint(optopt))
 					fprintf(stderr, "Unknown option `-%c'.\n", optopt);
@@ -1174,23 +1199,29 @@ main(int argc, char **argv)
 								char *subj_esc = curl_easy_escape(app.curl, subj, strlen(subj));
 								if(subj_esc)
 								{
-									char *body_esc = curl_easy_escape(app.curl, app.mail, strlen(app.mail));
-									if(body_esc)
+									char *greet_esc = curl_easy_escape(app.curl, app.greet, strlen(app.greet));
+									if(greet_esc)
 									{
-										LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
-										const char *email = email && lilv_node_is_uri(email_node)
-											? lilv_node_as_uri(email_node)
-											: "mailto:unknown@example.com";
-
-										fprintf(stdout, "%s?subject=%s&body=%s\n",
-											email, subj_esc, body_esc);
-
-										if(email_node)
+										char *body_esc = curl_easy_escape(app.curl, app.mail, strlen(app.mail));
+										if(body_esc)
 										{
-											lilv_node_free(email_node);
+											LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
+											const char *email = email && lilv_node_is_uri(email_node)
+												? lilv_node_as_uri(email_node)
+												: "mailto:unknown@example.com";
+
+											fprintf(stdout, "%s?subject=%s&body=%s%s\n",
+												email, subj_esc, greet_esc, body_esc);
+
+											if(email_node)
+											{
+												lilv_node_free(email_node);
+											}
+
+											curl_free(body_esc);
 										}
 
-										curl_free(body_esc);
+										curl_free(greet_esc);
 									}
 
 									curl_free(subj_esc);
