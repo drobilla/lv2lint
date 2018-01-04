@@ -681,6 +681,7 @@ main(int argc, char **argv)
 	app.atty = isatty(1);
 	app.show = LINT_FAIL; // always report failed tests
 	app.mask = LINT_FAIL; // always fail at failed tests
+#ifdef ENABLE_ONLINE_TESTS
 	app.greet = "Dear LV2 plugin developer\n"
 		"\n"
 		"We would like to congratulate you for your efforts to have created this\n"
@@ -698,6 +699,7 @@ main(int argc, char **argv)
 		"                                 /The inofficial LV2 inquisitorial squad/\n"
 		"\n"
 		"---\n\n";
+#endif
 
 	fprintf(stderr,
 		"%s "LV2LINT_VERSION"\n"

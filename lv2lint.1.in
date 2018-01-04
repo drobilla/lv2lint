@@ -50,7 +50,7 @@ Show verbose test item documentation
 @MAN@.HP
 @MAN@\fB\-g\fR GREETER
 @MAN@.IP
-@MAN@Custom mail greter
+@MAN@Custom mail greeter
 
 .HP
 \fB\-S\fR warn|note|pass|all
