@@ -47,6 +47,10 @@ if(ENABLE_ONLINE_TESTS)
 	pkg_search_module(CURL REQUIRED libcurl>=7.0.0)
 	include_directories(${CURL_INCLUDE_DIRS})
 	set(LIBS ${LIBS} ${CURL_LDFLAGS})
+
+	set(MAN "")
+else()
+	set(MAN "./")
 endif()
 
 if(NOT (WIN32 OR APPLE))
@@ -70,13 +74,15 @@ set_target_properties(lv2lint PROPERTIES INTERPROCEDURAL_OPTIMIZATION true) # -f
 target_link_libraries(lv2lint ${LIBS})
 install(TARGETS lv2lint DESTINATION bin)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lv2lint.1.in ${PROJECT_BINARY_DIR}/lv2lint.1)
+
 add_custom_command(
 	OUTPUT ${PROJECT_BINARY_DIR}/lv2lint.1.gz
 	COMMAND ${GZIP} ARGS
-	"-c9" ${CMAKE_CURRENT_SOURCE_DIR}/lv2lint.1
+	"-c9" ${CMAKE_BINARY_DIR}/lv2lint.1
 		">" ${PROJECT_BINARY_DIR}/lv2lint.1.gz
 	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/lv2lint.1)
+		${CMAKE_BINARY_DIR}/lv2lint.1)
 add_custom_target(LV2LINT_MAN_GZ ALL DEPENDS ${PROJECT_BINARY_DIR}/lv2lint.1.gz)
 install(FILES "${PROJECT_BINARY_DIR}/lv2lint.1.gz" DESTINATION share/man/man1)
 

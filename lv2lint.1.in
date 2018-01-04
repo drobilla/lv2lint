@@ -1,4 +1,4 @@
-.TH LV2LINT "1" "Nov 18, 2017"
+.TH LV2LINT "1" "Jan 04, 2018"
 
 .SH NAME
 lv2lint \- an LV2 lintian
@@ -37,15 +37,15 @@ Print usage information
 .IP
 Show verbose test item documentation
 
-.HP
-\fB\-o\fR
-.IP
-Run online test items (valid only if online tests were built in at compile time)
+@MAN@.HP
+@MAN@\fB\-o\fR
+@MAN@.IP
+@MAN@Run online test items
 
-.HP
-\fB\-m\fR
-.IP
-Create mail to plugin author (valid only if online tests were built in at compile time)
+@MAN@.HP
+@MAN@\fB\-m\fR
+@MAN@.IP
+@MAN@Create mail to plugin author
 
 .HP
 \fB\-S\fR warn|note|pass|all
