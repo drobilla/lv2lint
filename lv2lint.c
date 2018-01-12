@@ -415,6 +415,22 @@ _sched(LV2_Worker_Schedule_Handle instance, uint32_t size, const void *data)
 	return status;
 }
 
+#if defined(_WIN32)
+static inline char *
+strsep(char **sp, char *sep)
+{
+	char *p, *s;
+	if(sp == NULL || *sp == NULL || **sp == '\0')
+		return(NULL);
+	s = *sp;
+	p = s + strcspn(s, sep);
+	if(*p != '\0')
+		*p++ = '\0';
+	*sp = p;
+	return(s);
+}
+#endif
+
 static int
 _vprintf(void *data, LV2_URID type, const char *fmt, va_list args)
 {
