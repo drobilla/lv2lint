@@ -428,7 +428,9 @@ _vprintf(void *data, LV2_URID type, const char *fmt, va_list args)
 	if(buf)
 	{
 		const char *sep = "\n\0";
-		for(char *ptr = strtok(buf, sep); ptr; ptr = strtok(NULL, sep))
+		for(char *bufp = buf, *ptr = strsep(&bufp, sep);
+			ptr;
+			ptr = strsep(&bufp, sep) )
 		{
 			fprintf(stderr, "%s\n", ptr);
 		}
@@ -1408,8 +1410,6 @@ static void
 _report_body(app_t *app, const char *label, ansi_color_t col, const test_t *test,
 	const ret_t *ret, const char *repl, char *docu)
 {
-	const char *sep = "\n";
-
 	_report_head(app, label, col, test);
 
 	lv2lint_printf(app, "              %s\n", repl ? repl : ret->msg);
@@ -1418,7 +1418,10 @@ _report_body(app_t *app, const char *label, ansi_color_t col, const test_t *test
 	{
 		_escape_markup(docu);
 
-		for(const char *ptr = strtok(docu, sep); ptr; ptr = strtok(NULL, sep))
+		const char *sep = "\n";
+		for(char *docup = docu, *ptr = strsep(&docup, sep);
+			ptr;
+			ptr = strsep(&docup, sep) )
 		{
 			lv2lint_printf(app, "                %s\n", ptr);
 		}
