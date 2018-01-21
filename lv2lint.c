@@ -683,6 +683,90 @@ test_visibility(const char *path, const char *description)
 
 	return !(!desc || invalid);
 }
+
+bool
+test_shared_libraries(const char *path, const char *const *whitelist,
+	unsigned n_whitelist, const char *const *blacklist, unsigned n_blacklist)
+{
+	unsigned invalid = 0;
+
+	const int fd = open(path, O_RDONLY);
+	if(fd != -1)
+	{
+		elf_version(EV_CURRENT);
+
+		Elf *elf = elf_begin(fd, ELF_C_READ, NULL);
+		if(elf)
+		{
+			for(Elf_Scn *scn = elf_nextscn(elf, NULL);
+				scn;
+				scn = elf_nextscn(elf, scn))
+			{
+				GElf_Shdr shdr;
+				memset(&shdr, 0x0, sizeof(GElf_Shdr));
+				gelf_getshdr(scn, &shdr);
+
+				if(shdr.sh_type == SHT_DYNAMIC)
+				{
+					// found a dynamic table
+					Elf_Data *data = elf_getdata(scn, NULL);
+					const unsigned count = shdr.sh_size / shdr.sh_entsize;
+
+					// iterate over linked shared library names
+					for(unsigned i = 0; i < count; i++)
+					{
+						GElf_Dyn dyn;
+						memset(&dyn, 0x0, sizeof(GElf_Dyn));
+						gelf_getdyn(data, i, &dyn);
+
+						if(dyn.d_tag == DT_NEEDED)
+						{
+							const char *name = elf_strptr(elf, shdr.sh_link, dyn.d_un.d_val);
+
+							bool whitelist_match = false;
+							bool blacklist_match = false;
+
+							for(unsigned j = 0; j < n_whitelist; j++)
+							{
+								if(!strncmp(name, whitelist[j], strlen(whitelist[j])))
+								{
+									whitelist_match = true;
+									break;
+								}
+							}
+							for(unsigned j = 0; j < n_blacklist; j++)
+							{
+								if(!strncmp(name, blacklist[j], strlen(blacklist[j])))
+								{
+									blacklist_match = true;
+									break;
+								}
+							}
+
+							if(n_whitelist && !whitelist_match)
+							{
+								invalid++;
+								//fprintf(stderr, "  - %s\n", name);
+							}
+							if(n_blacklist && blacklist_match)
+							{
+								invalid++;
+								//fprintf(stderr, "  - %s\n", name);
+							}
+						}
+						//FIXME
+					}
+
+					break;
+				}
+			}
+			elf_end(elf);
+		}
+		close(fd);
+	}
+
+	return !invalid;
+}
 #endif
 
 static void

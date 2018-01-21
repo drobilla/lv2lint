@@ -71,6 +71,56 @@ _test_symbols(app_t *app)
 
 	return ret;
 }
+
+static const ret_t *
+_test_linking(app_t *app)
+{
+	static const ret_t ret_symbols = {
+		LINT_FAIL, "binary links to non-whitelisted shared library", LV2_CORE__binary},
+	ret_libstdcpp = {
+		LINT_WARN, "binary links to libstdc++, ABI imcompatilities are to be expected", LV2_CORE__binary};
+
+	const ret_t *ret = NULL;
+
+	static const char *whitelist [] = {
+		"libc",
+		"libm",
+		"libstdc++",
+		"libgcc_s"
+	};
+	const unsigned n_whitelist = sizeof(whitelist) / sizeof(const char *);
+
+	static const char *graylist [] = {
+		"libstdc++",
+		"libgcc_s"
+	};
+	const unsigned n_graylist = sizeof(graylist) / sizeof(const char *);
+
+	const LilvNode* node = lilv_plugin_get_library_uri(app->plugin);
+	if(node && lilv_node_is_uri(node))
+	{
+		const char *uri = lilv_node_as_uri(node);
+		if(uri)
+		{
+			char *path = lilv_file_uri_parse(uri, NULL);
+			if(path)
+			{
+				if(!test_shared_libraries(path, whitelist, n_whitelist, NULL, 0))
+				{
+					ret = &ret_symbols;
+				}
+				else if(!test_shared_libraries(path, NULL, 0, graylist, n_graylist))
+				{
+					ret = &ret_libstdcpp;
+				}
+
+				lilv_free(path);
+			}
+		}
+	}
+
+	return ret;
+}
 #endif
 
 static const ret_t *
@@ -1108,6 +1158,7 @@ static const test_t tests [] = {
 	{"Instantiation",   _test_instantiation},
 #ifdef ENABLE_ELF_TESTS
 	{"Symbols",         _test_symbols},
+	{"Linking",         _test_linking},
 #endif
 	{"Verification",    _test_verification},
 	{"Name",            _test_name},
