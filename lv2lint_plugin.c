@@ -76,9 +76,11 @@ static const ret_t *
 _test_linking(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_WARN, "binary links to non-whitelisted shared library", LV2_CORE__binary},
+		LINT_WARN, "binary links to non-whitelisted shared library", LV2_CORE__binary,
+		"The ideal plugin dynamically links maximally to libc and libm."},
 	ret_libstdcpp = {
-		LINT_WARN, "binary links to libstdc++, ABI imcompatilities are to be expected", LV2_CORE__binary};
+		LINT_WARN, "binary links to libstdc++", LV2_CORE__binary,
+		"C++ ABI incompatibilities between host and plugin are to be expected."};
 
 	const ret_t *ret = NULL;
 
