@@ -76,7 +76,7 @@ static const ret_t *
 _test_linking(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_FAIL, "binary links to non-whitelisted shared library", LV2_CORE__binary},
+		LINT_WARN, "binary links to non-whitelisted shared library", LV2_CORE__binary},
 	ret_libstdcpp = {
 		LINT_WARN, "binary links to libstdc++, ABI imcompatilities are to be expected", LV2_CORE__binary};
 
