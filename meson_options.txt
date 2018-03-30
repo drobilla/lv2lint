@@ -1,0 +1,2 @@
+option('online-tests', type : 'boolean', value : false)
+option('elf-tests', type : 'boolean', value : false)

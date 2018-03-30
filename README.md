@@ -19,17 +19,16 @@
 
 ### Build / install
 
-	git clone https://gitlab.com/OpenMusicKontrollers/lv2lint.git
+	git clone https://git.open-music-kontrollers.ch/lv2/lv2lint
 	cd lv2lint
-	mkdir build
+	meson -Donline-tests=true -Delf-tests=true build
 	cd build
-	cmake -DCMAKE_BUILD_TYPE="Release" ..
-	make
-	sudo make install
+	ninja
+	sudo ninja install
 
 ### Usage
 
-	lv2lint -Swarn -Snote http://lv2plug.in/plugins/eg-scope#Stereo
+	lv2lint -d -o -Swarn -Snote http://lv2plug.in/plugins/eg-scope#Stereo
 
 ### License
 
