@@ -1414,6 +1414,8 @@ lv2lint_vprintf(app_t *app, const char *fmt, va_list args)
 		}
 	}
 	else
+#else
+	(void)app;
 #endif
 	{
 		vfprintf(stdout, fmt, args);

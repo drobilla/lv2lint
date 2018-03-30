@@ -185,10 +185,12 @@ _test_license(app_t *app)
 		LINT_WARN, "doap:license not found", LV2_CORE__Plugin, NULL},
 	ret_license_not_a_uri = {
 		LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license", NULL},
-	ret_license_empty = {
-		LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license", NULL},
+#ifdef ENABLE_ONLINE_TESTS
 	ret_license_not_existing = {
-		LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license", NULL};
+		LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license", NULL},
+#endif
+	ret_license_empty = {
+		LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -308,10 +310,12 @@ _test_author_homepage(app_t *app)
 		LINT_WARN, "foaf:homepage not found", LV2_CORE__project, NULL},
 	ret_homepage_not_a_uri = {
 		LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage", NULL},
-	ret_homepage_empty = {
-		LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage", NULL},
+#ifdef ENABLE_ONLINE_TESTS
 	ret_homepage_not_existing = {
-		LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage", NULL};
+		LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage", NULL},
+#endif
+	ret_homepage_empty = {
+		LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage", NULL};
 
 	const ret_t *ret = NULL;
 
