@@ -411,9 +411,8 @@ test_ui(app_t *app)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #ifdef _WIN32
-	LV2UI_DescriptorFunction df = GetProcAddress(lib, "lv2ui_descriptor");
+	LV2UI_DescriptorFunction df = (LV2UI_DescriptorFunction)GetProcAddress(lib, "lv2ui_descriptor");
 #else
-	//LV2UI_DescriptorFunction df = (LV2UI_DescriptorFunction)dlsym(lib, "lv2ui_descriptor");
 	LV2UI_DescriptorFunction df = (LV2UI_DescriptorFunction)dlsym(lib, "lv2ui_descriptor");
 #endif
 #pragma GCC diagnostic pop
