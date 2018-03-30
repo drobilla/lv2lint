@@ -417,7 +417,7 @@ _sched(LV2_Worker_Schedule_Handle instance, uint32_t size, const void *data)
 
 #if defined(_WIN32)
 static inline char *
-strsep(char **sp, char *sep)
+strsep(char **sp, const char *sep)
 {
 	char *p, *s;
 	if(sp == NULL || *sp == NULL || **sp == '\0')
