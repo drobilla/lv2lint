@@ -24,11 +24,11 @@ static const ret_t *
 _test_label(app_t *app)
 {
 	static const ret_t ret_label_not_found = {
-		LINT_FAIL, "rdfs:label not found", LV2_CORE_PREFIX"Parameter"},
+		LINT_FAIL, "rdfs:label not found", LV2_CORE_PREFIX"Parameter", NULL},
 	ret_label_not_a_string = {
-		LINT_FAIL, "rdfs:label not a string", LILV_NS_DOAP"label"},
+		LINT_FAIL, "rdfs:label not a string", LILV_NS_DOAP"label", NULL},
 	ret_label_empty = {
-		LINT_FAIL, "rdfs:label empty", LILV_NS_DOAP"label"};
+		LINT_FAIL, "rdfs:label empty", LILV_NS_DOAP"label", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -62,11 +62,11 @@ static const ret_t *
 _test_comment(app_t *app)
 {
 	static const ret_t ret_comment_not_found = {
-		LINT_NOTE, "rdfs:comment not found", LV2_CORE_PREFIX"Parameter"},
+		LINT_NOTE, "rdfs:comment not found", LV2_CORE_PREFIX"Parameter", NULL},
 	ret_comment_not_a_string = {
-		LINT_FAIL, "rdfs:comment not a string", LILV_NS_DOAP"comment"},
+		LINT_FAIL, "rdfs:comment not a string", LILV_NS_DOAP"comment", NULL},
 	ret_comment_empty = {
-		LINT_FAIL, "rdfs:comment empty", LILV_NS_DOAP"comment"};
+		LINT_FAIL, "rdfs:comment empty", LILV_NS_DOAP"comment", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -99,27 +99,27 @@ static const ret_t *
 _test_range(app_t *app)
 {
 	static const ret_t ret_range_not_found = {
-		LINT_FAIL, "rdfs:range not found", LV2_CORE_PREFIX"Parameter"},
+		LINT_FAIL, "rdfs:range not found", LV2_CORE_PREFIX"Parameter", NULL},
 	ret_range_not_a_uri = {
-		LINT_FAIL, "rdfs:range not a URI", LILV_NS_DOAP"range"},
+		LINT_FAIL, "rdfs:range not a URI", LILV_NS_DOAP"range", NULL},
 	ret_range_not_an_atom = {
-		LINT_WARN, "rdfs:range not an lv2:Atom", LV2_ATOM__Atom},
+		LINT_WARN, "rdfs:range not an lv2:Atom", LV2_ATOM__Atom, NULL},
 	ret_range_empty = {
-		LINT_FAIL, "rdfs:range empty", LILV_NS_DOAP"range"},
+		LINT_FAIL, "rdfs:range empty", LILV_NS_DOAP"range", NULL},
 	ret_range_minimum_not_found = {
-		LINT_WARN, "lv2:minimum not found", LV2_CORE__minimum},
+		LINT_WARN, "lv2:minimum not found", LV2_CORE__minimum, NULL},
 	ret_range_minimum_not_an_int = {
-		LINT_FAIL, "lv2:minimum not an integer", LV2_CORE__minimum},
+		LINT_FAIL, "lv2:minimum not an integer", LV2_CORE__minimum, NULL},
 	ret_range_minimum_not_a_float = {
-		LINT_FAIL, "lv2:minimum not a float", LV2_CORE__minimum},
+		LINT_FAIL, "lv2:minimum not a float", LV2_CORE__minimum, NULL},
 	ret_range_maximum_not_found = {
-		LINT_WARN, "lv2:maximum not found", LV2_CORE__maximum},
+		LINT_WARN, "lv2:maximum not found", LV2_CORE__maximum, NULL},
 	ret_range_maximum_not_an_int = {
-		LINT_FAIL, "lv2:maximum not an integer", LV2_CORE__maximum},
+		LINT_FAIL, "lv2:maximum not an integer", LV2_CORE__maximum, NULL},
 	ret_range_maximum_not_a_float = {
-		LINT_FAIL, "lv2:maximum not a float", LV2_CORE__maximum},
+		LINT_FAIL, "lv2:maximum not a float", LV2_CORE__maximum, NULL},
 	ret_range_invalid = {
-		LINT_FAIL, "range invalid (min <= max)", LV2_CORE_PREFIX"Parameter"};
+		LINT_FAIL, "range invalid (min <= max)", LV2_CORE_PREFIX"Parameter", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -272,9 +272,9 @@ static const ret_t *
 _test_unit(app_t *app)
 {
 	static const ret_t ret_units_unit_not_found = {
-		LINT_NOTE, "units:unit not found", LV2_UNITS__unit},
+		LINT_NOTE, "units:unit not found", LV2_UNITS__unit, NULL},
 	ret_units_unit_not_a_uri_or_object = {
-		LINT_FAIL, "units_unit not a URI or object", LV2_UNITS__unit};
+		LINT_FAIL, "units_unit not a URI or object", LV2_UNITS__unit, NULL};
 
 	const ret_t *ret = NULL;
 

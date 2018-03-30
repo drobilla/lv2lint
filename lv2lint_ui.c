@@ -75,7 +75,7 @@ static const ret_t *
 _test_instance_access(app_t *app)
 {
 	static const ret_t ret_instance_access_discouraged = {
-		LINT_WARN, "usage of instance-access is highly discouraged", LV2_INSTANCE_ACCESS_URI};
+		LINT_WARN, "usage of instance-access is highly discouraged", LV2_INSTANCE_ACCESS_URI, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -96,7 +96,7 @@ static const ret_t *
 _test_data_access(app_t *app)
 {
 	static const ret_t ret_data_access_discouraged = {
-		LINT_WARN, "usage of data-access is highly discouraged", LV2_DATA_ACCESS_URI};
+		LINT_WARN, "usage of data-access is highly discouraged", LV2_DATA_ACCESS_URI, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -117,7 +117,7 @@ static const ret_t *
 _test_mixed(app_t *app)
 {
 	static const ret_t ret_mixed_discouraged = {
-		LINT_WARN, "mixing DSP and UI code in same binary is discouraged", LV2_UI_PREFIX};
+		LINT_WARN, "mixing DSP and UI code in same binary is discouraged", LV2_UI_PREFIX, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -132,11 +132,12 @@ _test_mixed(app_t *app)
 	return ret;
 }
 
+#if 0 //FIXME
 static const ret_t *
 _test_binary(app_t *app)
 {
 	static const ret_t ret_binary_deprecated = {
-		LINT_FAIL, "ui:binary is deprecated, use lv2:binary instead", LV2_UI__binary};
+		LINT_FAIL, "ui:binary is deprecated, use lv2:binary instead", LV2_UI__binary, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -150,12 +151,13 @@ _test_binary(app_t *app)
 
 	return ret;
 }
+#endif
 
 static const ret_t *
 _test_resident(app_t *app)
 {
 	static const ret_t ret_resident_deprecated = {
-		LINT_FAIL, "ui:makeSONameResident is deprecated", LV2_UI_PREFIX"makeSONameResident"};
+		LINT_FAIL, "ui:makeSONameResident is deprecated", LV2_UI_PREFIX"makeSONameResident", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -174,11 +176,11 @@ static const ret_t *
 _test_idle_interface(app_t *app)
 {
 	static const ret_t ret_idle_feature_missing = {
-		LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface},
+		LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface, NULL},
 	ret_idle_extension_missing = {
-		LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface},
+		LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface, NULL},
 	ret_idle_extension_not_returned = {
-		LINT_FAIL, "ui:idleInterface not returned by 'extention_data'", LV2_UI__idleInterface};
+		LINT_FAIL, "ui:idleInterface not returned by 'extention_data'", LV2_UI__idleInterface, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -209,9 +211,9 @@ static const ret_t *
 _test_show_interface(app_t *app)
 {
 	static const ret_t ret_show_extension_missing =	{
-		LINT_FAIL, "lv2:extensionData ui:showInterface missing", LV2_UI__showInterface},
+		LINT_FAIL, "lv2:extensionData ui:showInterface missing", LV2_UI__showInterface, NULL},
 	ret_show_extension_not_returned = {
-		LINT_FAIL, "ui:showInterface not returned by 'extention_data'", LV2_UI__showInterface};
+		LINT_FAIL, "ui:showInterface not returned by 'extention_data'", LV2_UI__showInterface, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -234,9 +236,9 @@ static const ret_t *
 _test_resize_interface(app_t *app)
 {
 	static const ret_t ret_resize_missing = {
-		LINT_FAIL, "lv2:extensionData ui:resize missing", LV2_UI__resize},
+		LINT_FAIL, "lv2:extensionData ui:resize missing", LV2_UI__resize, NULL},
 	ret_resize_not_returned = {
-		LINT_FAIL, "ui:resize not returned by 'extention_data'", LV2_UI__resize};
+		LINT_FAIL, "ui:resize not returned by 'extention_data'", LV2_UI__resize, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -259,15 +261,15 @@ static const ret_t *
 _test_toolkit(app_t *app)
 {
 	static const ret_t ret_toolkit_invalid = {
-		LINT_FAIL, "UI toolkit not given", LV2_UI__ui},
+		LINT_FAIL, "UI toolkit not given", LV2_UI__ui, NULL},
 	ret_toolkit_show_interface = {
-		LINT_WARN, "usage of external UI is discouraged", LV2_UI__showInterface},
+		LINT_WARN, "usage of external UI is discouraged", LV2_UI__showInterface, NULL},
 	ret_toolkit_external = {
-		LINT_WARN, "usage of external UI is discouraged", LV2_EXTERNAL_UI__Widget},
+		LINT_WARN, "usage of external UI is discouraged", LV2_EXTERNAL_UI__Widget, NULL},
 	ret_toolkit_unknown = {
-		LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui},
+		LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui, NULL},
 	ret_toolkit_non_native = {
-		LINT_WARN, "usage of non-native toolkit <%s> is dicouraged", LV2_UI__ui};
+		LINT_WARN, "usage of non-native toolkit <%s> is dicouraged", LV2_UI__ui, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -275,9 +277,13 @@ _test_toolkit(app_t *app)
 	LilvNode *ui_class_node = lilv_world_get(app->world, ui_uri_node, app->uris.rdf_type, NULL);
 	LilvNodes *ui_class_nodes = lilv_world_find_nodes(app->world, NULL, app->uris.rdfs_subClassOf, app->uris.ui_UI);
 
-	const bool is_x11_ui = lilv_ui_is_a(app->ui, app->uris.ui_X11UI);
+#if defined(_WIN32)
 	const bool is_windows_ui = lilv_ui_is_a(app->ui, app->uris.ui_WindowsUI);
+#elif defined(__APPLE__)
 	const bool is_cocoa_ui = lilv_ui_is_a(app->ui, app->uris.ui_CocoaUI);
+#else
+	const bool is_x11_ui = lilv_ui_is_a(app->ui, app->uris.ui_X11UI);
+#endif
 
 	const bool has_show_extension = lilv_world_ask(app->world,
 		lilv_ui_get_uri(app->ui), app->uris.lv2_extensionData, app->uris.ui_showInterface);
@@ -333,7 +339,7 @@ static const ret_t *
 _test_ui_url(app_t *app)
 {
 	static const ret_t ret_ui_url_not_existing = {
-		LINT_WARN, "UI Web URL does not exist", LV2_UI__UI};
+		LINT_WARN, "UI Web URL does not exist", LV2_UI__UI, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -402,11 +408,16 @@ test_ui(app_t *app)
 	}
 
 	// Get discovery function
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #ifdef _WIN32
+	void *func_ptr = 
 	LV2UI_DescriptorFunction df = GetProcAddress(lib, "lv2ui_descriptor");
 #else
+	//LV2UI_DescriptorFunction df = (LV2UI_DescriptorFunction)dlsym(lib, "lv2ui_descriptor");
 	LV2UI_DescriptorFunction df = (LV2UI_DescriptorFunction)dlsym(lib, "lv2ui_descriptor");
 #endif
+#pragma GCC diagnostic pop
 	if(!df)
 	{
 		fprintf(stderr, "Broken LV2 UI %s (no lv2ui_descriptor symbol found)\n", ui_binary_path);

@@ -38,6 +38,8 @@
 #	include <curl/curl.h>
 #endif
 
+#define __unused __attribute__((unused))
+
 typedef enum _ansi_color_t {
 	ANSI_COLOR_BOLD,
 	ANSI_COLOR_RED,

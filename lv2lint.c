@@ -432,7 +432,8 @@ strsep(char **sp, char *sep)
 #endif
 
 static int
-_vprintf(void *data, LV2_URID type, const char *fmt, va_list args)
+_vprintf(void *data __unused, LV2_URID type __unused, const char *fmt,
+	va_list args)
 {
 	char *buf = NULL;
 
@@ -471,7 +472,7 @@ _printf(void *data, LV2_URID type, const char *fmt, ...)
 }
 
 static char *
-_mkpath(LV2_State_Make_Path_Handle instance, const char *abstract_path)
+_mkpath(LV2_State_Make_Path_Handle instance __unused, const char *abstract_path)
 {
 	char *absolute_path = NULL;
 
@@ -482,7 +483,8 @@ _mkpath(LV2_State_Make_Path_Handle instance, const char *abstract_path)
 }
 
 static LV2_Resize_Port_Status
-_resize(LV2_Resize_Port_Feature_Data instance, uint32_t index, size_t size)
+_resize(LV2_Resize_Port_Feature_Data instance __unused, uint32_t index __unused,
+	size_t size __unused)
 {
 	return LV2_RESIZE_PORT_SUCCESS;
 }
@@ -770,8 +772,8 @@ test_shared_libraries(const char *path, const char *const *whitelist,
 #endif
 
 static void
-_state_set_value(const char *symbol, void *data,
-	const void *value, uint32_t size, uint32_t type)
+_state_set_value(const char *symbol __unused, void *data __unused,
+	const void *value __unused, uint32_t size __unused, uint32_t type __unused)
 {
 	//FIXME
 }

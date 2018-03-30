@@ -29,7 +29,7 @@ static const ret_t *
 _test_instantiation(app_t *app)
 {
 	static const ret_t ret_instantiation = {
-		LINT_FAIL, "failed to instantiate", LV2_CORE_URI};
+		LINT_FAIL, "failed to instantiate", LV2_CORE_URI, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -46,7 +46,7 @@ static const ret_t *
 _test_symbols(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_FAIL, "binary exports superfluous globally visible symbols", LV2_CORE__binary};
+		LINT_FAIL, "binary exports superfluous globally visible symbols", LV2_CORE__binary, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -129,7 +129,7 @@ static const ret_t *
 _test_verification(app_t *app)
 {
 	static const ret_t ret_verification = {
-		LINT_FAIL, "failed", LV2_CORE_URI};
+		LINT_FAIL, "failed", LV2_CORE_URI, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -145,11 +145,11 @@ static const ret_t *
 _test_name(app_t *app)
 {
 	static const ret_t ret_name_not_found = {
-		LINT_FAIL, "doap:name not found", LV2_CORE__Plugin},
+		LINT_FAIL, "doap:name not found", LV2_CORE__Plugin, NULL},
 	ret_name_not_a_string = {
-		LINT_FAIL, "doap:name not a string", LILV_NS_DOAP"name"},
+		LINT_FAIL, "doap:name not a string", LILV_NS_DOAP"name", NULL},
 	ret_name_empty = {
-		LINT_FAIL, "doap:name empty", LILV_NS_DOAP"name"};
+		LINT_FAIL, "doap:name empty", LILV_NS_DOAP"name", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -182,13 +182,13 @@ static const ret_t *
 _test_license(app_t *app)
 {
 	static const ret_t ret_license_not_found = {
-		LINT_WARN, "doap:license not found", LV2_CORE__Plugin},
+		LINT_WARN, "doap:license not found", LV2_CORE__Plugin, NULL},
 	ret_license_not_a_uri = {
-		LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license"},
+		LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license", NULL},
 	ret_license_empty = {
-		LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license"},
+		LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license", NULL},
 	ret_license_not_existing = {
-		LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license"};
+		LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -233,11 +233,11 @@ static const ret_t *
 _test_author_name(app_t *app)
 {
 	static const ret_t ret_author_not_found = {
-		LINT_WARN, "foaf:name not found", LV2_CORE__project},
+		LINT_WARN, "foaf:name not found", LV2_CORE__project, NULL},
 	ret_author_not_a_string = {
-		LINT_FAIL, "foaf:name not an string", LILV_NS_FOAF"name"},
+		LINT_FAIL, "foaf:name not an string", LILV_NS_FOAF"name", NULL},
 	ret_author_empty = {
-		LINT_FAIL, "foaf:name empty", LILV_NS_FOAF"name"};
+		LINT_FAIL, "foaf:name empty", LILV_NS_FOAF"name", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -269,11 +269,11 @@ static const ret_t *
 _test_author_email(app_t *app)
 {
 	static const ret_t ret_email_not_found = {
-		LINT_WARN, "foaf:email not found", LV2_CORE__project},
+		LINT_WARN, "foaf:email not found", LV2_CORE__project, NULL},
 	ret_email_not_a_uri = {
-		LINT_FAIL, "foaf:email not an URI", LILV_NS_FOAF"email"},
+		LINT_FAIL, "foaf:email not an URI", LILV_NS_FOAF"email", NULL},
 	ret_email_empty = {
-		LINT_FAIL, "foaf:email empty", LILV_NS_FOAF"email"};
+		LINT_FAIL, "foaf:email empty", LILV_NS_FOAF"email", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -305,13 +305,13 @@ static const ret_t *
 _test_author_homepage(app_t *app)
 {
 	static const ret_t ret_homepage_not_found = {
-		LINT_WARN, "foaf:homepage not found", LV2_CORE__project},
+		LINT_WARN, "foaf:homepage not found", LV2_CORE__project, NULL},
 	ret_homepage_not_a_uri = {
-		LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage"},
+		LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage", NULL},
 	ret_homepage_empty = {
-		LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage"},
+		LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage", NULL},
 	ret_homepage_not_existing = {
-		LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage"};
+		LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -356,11 +356,11 @@ static const ret_t *
 _test_version_minor(app_t *app)
 {
 	static const ret_t ret_version_minor_not_found = {
-		LINT_FAIL, "lv2:minorVersion not found", LV2_CORE__minorVersion},
+		LINT_FAIL, "lv2:minorVersion not found", LV2_CORE__minorVersion, NULL},
 	ret_version_minor_not_an_int = {
-		LINT_FAIL, "lv2:minorVersion not an integer", LV2_CORE__minorVersion},
+		LINT_FAIL, "lv2:minorVersion not an integer", LV2_CORE__minorVersion, NULL},
 	ret_version_minor_unstable = {
-		LINT_NOTE, "lv2:minorVersion denotes an unstable version", LV2_CORE__minorVersion};
+		LINT_NOTE, "lv2:minorVersion denotes an unstable version", LV2_CORE__minorVersion, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -401,11 +401,11 @@ static const ret_t *
 _test_version_micro(app_t *app)
 {
 	static const ret_t ret_version_micro_not_found = {
-		LINT_FAIL, "lv2:microVersion not found", LV2_CORE__microVersion},
+		LINT_FAIL, "lv2:microVersion not found", LV2_CORE__microVersion, NULL},
 	ret_version_micro_not_an_int = {
-		LINT_FAIL, "lv2:microVersion not an integer", LV2_CORE__microVersion},
+		LINT_FAIL, "lv2:microVersion not an integer", LV2_CORE__microVersion, NULL},
 	ret_version_micro_unstable = {
-		LINT_NOTE, "lv2:microVersion denotes an unstable version", LV2_CORE__microVersion};
+		LINT_NOTE, "lv2:microVersion denotes an unstable version", LV2_CORE__microVersion, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -442,6 +442,7 @@ _test_version_micro(app_t *app)
 	return ret;
 }
 
+#if 0 //FIXME
 static const ret_t * 
 _test_extension_data(app_t *app)
 {
@@ -465,18 +466,19 @@ _test_extension_data(app_t *app)
 
 	return ret;
 }
+#endif
 
 static const ret_t *
 _test_project(app_t *app)
 {
 	static const ret_t ret_project_not_found = {
-		LINT_NOTE, "lv2:project not found", LV2_CORE__project},
+		LINT_NOTE, "lv2:project not found", LV2_CORE__project, NULL},
 	ret_project_name_not_found = {
-		LINT_WARN, "lv2:project doap:name not found", LV2_CORE__project},
+		LINT_WARN, "lv2:project doap:name not found", LV2_CORE__project, NULL},
 	ret_project_name_not_a_string = {
-		LINT_FAIL, "lv2:project doap:name not a string", LILV_NS_DOAP"name"},
+		LINT_FAIL, "lv2:project doap:name not a string", LILV_NS_DOAP"name", NULL},
 	ret_project_name_empty = {
-		LINT_FAIL, "lv2:project doap:name empty", LILV_NS_DOAP"name"};
+		LINT_FAIL, "lv2:project doap:name empty", LILV_NS_DOAP"name", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -550,11 +552,11 @@ static const ret_t *
 _test_class(app_t *app)
 {
 	static const ret_t ret_class_not_found = {
-		LINT_FAIL, "lv2:class not found", LV2_CORE__Plugin},
+		LINT_FAIL, "lv2:class not found", LV2_CORE__Plugin, NULL},
 	ret_class_is_base_class = {
-		LINT_WARN, "lv2:class is base class", LV2_CORE__Plugin},
+		LINT_WARN, "lv2:class is base class", LV2_CORE__Plugin, NULL},
 	ret_class_not_valid = {
-		LINT_FAIL, "lv2:class <%s> not valid", LV2_CORE__Plugin};
+		LINT_FAIL, "lv2:class <%s> not valid", LV2_CORE__Plugin, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -584,7 +586,7 @@ static const ret_t *
 _test_features(app_t *app)
 {
 	static const ret_t ret_features_not_valid = {
-		LINT_FAIL, "lv2:[optional|required]Feature <%s> not valid", LV2_CORE__Feature};
+		LINT_FAIL, "lv2:[optional|required]Feature <%s> not valid", LV2_CORE__Feature, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -620,7 +622,7 @@ static const ret_t *
 _test_extensions(app_t *app)
 {
 	static const ret_t ret_extensions_not_valid = {
-		LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData};
+		LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -656,17 +658,17 @@ static const ret_t *
 _test_worker(app_t *app)
 {
 	static const ret_t ret_worker_schedule_not_found = {
-		LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule},
+		LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule, NULL},
 	ret_worker_interface_not_found = {
-		LINT_FAIL, "work:interface not defined", LV2_WORKER__interface},
+		LINT_FAIL, "work:interface not defined", LV2_WORKER__interface, NULL},
 	ret_worker_interface_not_returned = {
-		LINT_FAIL, "work:interface not returned by 'extention_data'", LV2_WORKER__interface},
+		LINT_FAIL, "work:interface not returned by 'extention_data'", LV2_WORKER__interface, NULL},
 	ret_worker_work_not_found = {
-		LINT_FAIL, "work:interface has no 'work' function", LV2_WORKER__interface},
+		LINT_FAIL, "work:interface has no 'work' function", LV2_WORKER__interface, NULL},
 	ret_worker_work_response_not_found = {
-		LINT_FAIL, "work:interface has no 'work_response' function", LV2_WORKER__interface},
+		LINT_FAIL, "work:interface has no 'work_response' function", LV2_WORKER__interface, NULL},
 	ret_worker_end_run_not_found = {
-		LINT_NOTE, "work:interface has no 'end_run' function", LV2_WORKER__interface};
+		LINT_NOTE, "work:interface has no 'end_run' function", LV2_WORKER__interface, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -708,13 +710,13 @@ static const ret_t *
 _test_options_iface(app_t *app)
 {
 	static const ret_t ret_options_interface_not_found = {
-		LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface},
+		LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface, NULL},
 	ret_options_interface_not_returned = {
-		LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface},
+		LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface, NULL},
 	ret_options_get_not_found = {
-		LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface},
+		LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface, NULL},
 	ret_options_set_not_found = {
-		LINT_FAIL, "opts:interface has no 'set' function", LV2_OPTIONS__interface};
+		LINT_FAIL, "opts:interface has no 'set' function", LV2_OPTIONS__interface, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -747,11 +749,11 @@ static const ret_t *
 _test_options_feature(app_t *app)
 {
 	static const ret_t ret_options_options_not_found = {
-		LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options},
+		LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options, NULL},
 	ret_options_supported_not_found = {
-		LINT_WARN, "opts:{required,supported} options not defined", LV2_OPTIONS__supportedOption},
+		LINT_WARN, "opts:{required,supported} options not defined", LV2_OPTIONS__supportedOption, NULL},
 	ret_options_required_found = {
-		LINT_WARN, "opts:required options defined", LV2_OPTIONS__requiredOption};
+		LINT_WARN, "opts:required options defined", LV2_OPTIONS__requiredOption, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -796,7 +798,7 @@ static const ret_t *
 _test_uri_map(app_t *app)
 {
 	static const ret_t ret_uri_map_deprecated = {
-		LINT_FAIL, "uri-map is deprecated, use urid:map instead", LV2_URI_MAP_URI};
+		LINT_FAIL, "uri-map is deprecated, use urid:map instead", LV2_URI_MAP_URI, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -812,17 +814,17 @@ static const ret_t *
 _test_state(app_t *app)
 {
 	static const ret_t ret_state_load_default_not_found = {
-		LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState},
+		LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState, NULL},
 	ret_state_interface_not_found = {
-		LINT_FAIL, "state:interface not defined", LV2_STATE__interface},
+		LINT_FAIL, "state:interface not defined", LV2_STATE__interface, NULL},
 	ret_state_state_not_found = {
-		LINT_WARN, "state:state not defined", LV2_STATE__state},
+		LINT_WARN, "state:state not defined", LV2_STATE__state, NULL},
 	ret_state_interface_not_returned = {
-		LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface},
+		LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface, NULL},
 	ret_state_save_not_found = {
-		LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface},
+		LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface, NULL},
 	ret_state_restore_not_found = {
-		LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface};
+		LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -870,11 +872,11 @@ static const ret_t *
 _test_comment(app_t *app)
 {
 	static const ret_t ret_comment_not_found = {
-		LINT_NOTE, "rdfs:comment or doap:description not found", LV2_CORE__Plugin},
+		LINT_NOTE, "rdfs:comment or doap:description not found", LV2_CORE__Plugin, NULL},
 	ret_comment_not_a_string = {
-		LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment"},
+		LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment", NULL},
 	ret_description_not_a_string = {
-		LINT_FAIL, "doap:description not a string", LILV_NS_DOAP"description"};
+		LINT_FAIL, "doap:description not a string", LILV_NS_DOAP"description", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -915,9 +917,9 @@ static const ret_t *
 _test_shortdesc(app_t *app)
 {
 	static const ret_t ret_shortdesc_not_found = {
-		LINT_NOTE, "doap:shortdesc not found", LILV_NS_DOAP"shortdesc"},
+		LINT_NOTE, "doap:shortdesc not found", LILV_NS_DOAP"shortdesc", NULL},
 	ret_shortdesc_not_a_string = {
-		LINT_FAIL, "doap:shortdesc not a string", LILV_NS_DOAP"shortdesc"};
+		LINT_FAIL, "doap:shortdesc not a string", LILV_NS_DOAP"shortdesc", NULL};
 
 	const ret_t *ret = NULL;
 
@@ -944,13 +946,13 @@ static const ret_t *
 _test_idisp(app_t *app)
 {
 	static const ret_t ret_idisp_queue_draw_not_found = {
-		LINT_FAIL, "idisp:queue_draw not defined", LV2_INLINEDISPLAY__queue_draw},
+		LINT_FAIL, "idisp:queue_draw not defined", LV2_INLINEDISPLAY__queue_draw, NULL},
 	ret_idisp_interface_not_found = {
-		LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface},
+		LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface, NULL},
 	ret_idisp_interface_not_returned = {
-		LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface},
+		LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface, NULL},
 	ret_idisp_render_not_found = {
-		LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface};
+		LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -984,7 +986,7 @@ static const ret_t *
 _test_hard_rt_capable(app_t *app)
 {
 	static const ret_t ret_hard_rt_capable_not_found = {
-		LINT_WARN, "not advertized as real-time safe", LV2_CORE__hardRTCapable};
+		LINT_WARN, "not advertized as real-time safe", LV2_CORE__hardRTCapable, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -1002,7 +1004,7 @@ static const ret_t *
 _test_in_place_broken(app_t *app)
 {
 	static const ret_t ret_in_place_broken_found = {
-		LINT_WARN, "cannot process audio/CV in-place", LV2_CORE__inPlaceBroken};
+		LINT_WARN, "cannot process audio/CV in-place", LV2_CORE__inPlaceBroken, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -1020,7 +1022,7 @@ static const ret_t *
 _test_is_live(app_t *app)
 {
 	static const ret_t ret_is_live_not_found = {
-		LINT_NOTE, "not meant for live usage", LV2_CORE__isLive};
+		LINT_NOTE, "not meant for live usage", LV2_CORE__isLive, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -1038,7 +1040,7 @@ static const ret_t *
 _test_fixed_block_length(app_t *app)
 {
 	static const ret_t ret_fixed_block_length_found = {
-		LINT_WARN, "requiring a fixed block length is highly discouraged", LV2_BUF_SIZE__fixedBlockLength};
+		LINT_WARN, "requiring a fixed block length is highly discouraged", LV2_BUF_SIZE__fixedBlockLength, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -1057,7 +1059,7 @@ static const ret_t *
 _test_power_of_2_block_length(app_t *app)
 {
 	static const ret_t ret_power_of_2_block_length_found = {
-		LINT_WARN, "requiring a power of 2 block length is highly discouraged", LV2_BUF_SIZE__powerOf2BlockLength};
+		LINT_WARN, "requiring a power of 2 block length is highly discouraged", LV2_BUF_SIZE__powerOf2BlockLength, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -1077,7 +1079,7 @@ static const ret_t *
 _test_plugin_url(app_t *app)
 {
 	static const ret_t ret_plugin_url_not_existing = {
-		LINT_WARN, "Plugin Web URL does not exist", LV2_CORE__Plugin};
+		LINT_WARN, "Plugin Web URL does not exist", LV2_CORE__Plugin, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -1101,11 +1103,11 @@ static const ret_t *
 _test_patch(app_t *app)
 {
 	static const ret_t ret_patch_no_patch_message_support_on_output = {
-		LINT_FAIL, "no patch:Message support on any output", LV2_PATCH__Message},
+		LINT_FAIL, "no patch:Message support on any output", LV2_PATCH__Message, NULL},
 	ret_patch_no_patch_message_support_on_input = {
-		LINT_FAIL, "no patch:Message support on any input", LV2_PATCH__Message},
+		LINT_FAIL, "no patch:Message support on any input", LV2_PATCH__Message, NULL},
 	ret_patch_no_parameters_found = {
-		LINT_WARN, "no patch:writable/readable parameters found", LV2_PATCH__writable};
+		LINT_WARN, "no patch:writable/readable parameters found", LV2_PATCH__writable, NULL};
 
 	const ret_t *ret = NULL;
 
