@@ -60,12 +60,12 @@ _test_symbols(app_t *app)
 				char *symbols = NULL;
 				if(!test_visibility(path, "lv2ui_descriptor", &symbols))
 				{
-					if(symbols)
-					{
-						*app->urn = strdup(symbols);
-						free(symbols);
-					}
+					*app->urn = symbols;
 					ret = &ret_symbols;
+				}
+				else if(symbols)
+				{
+					free(symbols);
 				}
 
 				lilv_free(path);
