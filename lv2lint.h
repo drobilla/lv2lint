@@ -284,11 +284,12 @@ test_url(app_t *app, const char *url);
 
 #ifdef ENABLE_ELF_TESTS
 bool
-test_visibility(const char *path, const char *description);
+test_visibility(const char *path, const char *description, char **symbols);
 
 bool
 test_shared_libraries(const char *path, const char *const *whitelist,
-	unsigned n_whitelist, const char *const *blacklist, unsigned n_blacklist);
+	unsigned n_whitelist, const char *const *blacklist, unsigned n_blacklist,
+	char **libraries);
 #endif
 
 int

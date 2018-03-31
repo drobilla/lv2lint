@@ -588,8 +588,29 @@ test_url(app_t *app, const char *url)
 #endif
 
 #ifdef ENABLE_ELF_TESTS
+static void
+_append_to(char **dst, const char *src)
+{
+	static const char *prefix = "\n                * ";
+
+	if(*dst)
+	{
+		const size_t sz = strlen(*dst) + strlen(prefix) + strlen(src) + 1;
+		*dst = realloc(*dst, sz);
+		strcat(*dst, prefix);
+		strcat(*dst, src);
+	}
+	else
+	{
+		const size_t sz = strlen(src) + strlen(prefix) + 1;
+		*dst = malloc(sz);
+		strcpy(*dst, prefix);
+		strcat(*dst, src);
+	}
+}
+
 bool
-test_visibility(const char *path, const char *description)
+test_visibility(const char *path, const char *description, char **symbols)
 {
 	static const char *whitelist [] = {
 		// C
@@ -669,6 +690,7 @@ test_visibility(const char *path, const char *description)
 
 								if(!whitelist_match)
 								{
+									_append_to(symbols, name);
 									invalid++;
 								}
 							}
@@ -688,7 +710,8 @@ test_visibility(const char *path, const char *description)
 
 bool
 test_shared_libraries(const char *path, const char *const *whitelist,
-	unsigned n_whitelist, const char *const *blacklist, unsigned n_blacklist)
+	unsigned n_whitelist, const char *const *blacklist, unsigned n_blacklist,
+	char **libraries)
 {
 	unsigned invalid = 0;
 
@@ -747,13 +770,13 @@ test_shared_libraries(const char *path, const char *const *whitelist,
 
 							if(n_whitelist && !whitelist_match)
 							{
+								_append_to(libraries, name);
 								invalid++;
-								//fprintf(stderr, "  - %s\n", name);
 							}
 							if(n_blacklist && blacklist_match)
 							{
+								_append_to(libraries, name);
 								invalid++;
-								//fprintf(stderr, "  - %s\n", name);
 							}
 						}
 						//FIXME

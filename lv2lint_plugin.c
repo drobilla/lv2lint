@@ -46,7 +46,7 @@ static const ret_t *
 _test_symbols(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_FAIL, "binary exports superfluous globally visible symbols", LV2_CORE__binary, NULL};
+		LINT_FAIL, "binary exports superfluous globally visible symbols: %s", LV2_CORE__binary, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -59,9 +59,15 @@ _test_symbols(app_t *app)
 			char *path = lilv_file_uri_parse(uri, NULL);
 			if(path)
 			{
-				if(!test_visibility(path, "lv2_descriptor"))
+				char *symbols = NULL;
+				if(!test_visibility(path, "lv2_descriptor", &symbols))
 				{
+					*app->urn = symbols;
 					ret = &ret_symbols;
+				}
+				else if(symbols)
+				{
+					free(symbols);
 				}
 
 				lilv_free(path);
@@ -76,10 +82,10 @@ static const ret_t *
 _test_linking(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_WARN, "binary links to non-whitelisted shared library", LV2_CORE__binary,
+		LINT_WARN, "binary links to non-whitelisted shared libraries: %s", LV2_CORE__binary,
 		"The ideal plugin dynamically links maximally to libc and libm."},
 	ret_libstdcpp = {
-		LINT_WARN, "binary links to libstdc++", LV2_CORE__binary,
+		LINT_WARN, "binary links to C++ libraries: %s", LV2_CORE__binary,
 		"C++ ABI incompatibilities between host and plugin are to be expected."};
 
 	const ret_t *ret = NULL;
@@ -107,13 +113,20 @@ _test_linking(app_t *app)
 			char *path = lilv_file_uri_parse(uri, NULL);
 			if(path)
 			{
-				if(!test_shared_libraries(path, whitelist, n_whitelist, NULL, 0))
+				char *libraries = NULL;
+				if(!test_shared_libraries(path, whitelist, n_whitelist, NULL, 0, &libraries))
 				{
+					*app->urn = libraries;
 					ret = &ret_symbols;
 				}
-				else if(!test_shared_libraries(path, NULL, 0, graylist, n_graylist))
+				else if(!test_shared_libraries(path, NULL, 0, graylist, n_graylist, &libraries))
 				{
+					*app->urn = libraries;
 					ret = &ret_libstdcpp;
+				}
+				else if(libraries)
+				{
+					free(libraries);
 				}
 
 				lilv_free(path);
