@@ -18,7 +18,8 @@ cc = meson.get_compiler('c')
 
 m_dep = cc.find_library('m')
 lv2_dep = dependency('lv2', version : '>=1.14.0')
-lilv_dep = dependency('lilv-0', version : '>=0.24.0')
+lilv_dep = dependency('lilv-0', version : '>=0.24.0',
+	static : meson.is_cross_build())
 curl_dep = dependency('libcurl', required: false)
 elf_dep = dependency('libelf', required: false)
 
@@ -45,4 +46,4 @@ executable('lv2lint',
 configure_file(input : 'lv2lint.1.in', output : 'lv2lint.1',
 	configuration : conf_data)
 
-install_man(meson.current_build_dir()+'/lv2lint.1')
+install_man(join_paths(meson.current_build_dir(), 'lv2lint.1'))
