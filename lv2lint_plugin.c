@@ -93,6 +93,7 @@ _test_linking(app_t *app)
 	static const char *whitelist [] = {
 		"libc",
 		"libm",
+		"librt",
 		"libstdc++",
 		"libgcc_s"
 	};
