@@ -101,11 +101,15 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 	static const ret_t ret_num_not_found = {
 		LINT_WARN, "number not found", LV2_CORE__Port, NULL},
 	ret_num_not_an_int = {
-		LINT_WARN, "number not an integer", LV2_CORE__default, NULL},
+		LINT_NOTE, "number not an integer", LV2_CORE__default, NULL},
 	ret_num_not_a_float = {
-		LINT_WARN, "number no a float", LV2_CORE__default, NULL},
+		LINT_NOTE, "number not a float", LV2_CORE__default, NULL},
 	ret_num_not_a_bool = {
-		LINT_WARN, "number not a bool", LV2_CORE__default, NULL};
+		LINT_NOTE, "number not a bool", LV2_CORE__default, NULL},
+	ret_num_not_a_whole_value = {
+		LINT_WARN, "number has no whole value", LV2_CORE__default, NULL},
+	ret_num_not_a_boolean_value = {
+		LINT_WARN, "number has no boolean value", LV2_CORE__default, NULL};
 
 	const ret_t *ret = NULL;
 
@@ -126,38 +130,56 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 
 		if(is_integer)
 		{
-			if(  lilv_node_is_int(node)
-				|| (lilv_node_is_float(node)
-					&& (rintf(lilv_node_as_float(node)) == lilv_node_as_float(node))) )
+			if(lilv_node_is_int(node))
 			{
 				// OK
 			}
-			else
+			else if(lilv_node_is_float(node))
+			{
+				if(rintf(lilv_node_as_float(node)) == lilv_node_as_float(node))
+				{
+					ret = &ret_num_not_an_int;
+				}
+				else
+				{
+					ret = &ret_num_not_a_whole_value;
+				}
+			}
+			else // bool
 			{
 				ret = &ret_num_not_an_int;
 			}
 		}
 		else if(is_toggled)
 		{
-			if(  lilv_node_is_bool(node)
-				|| (lilv_node_is_int(node)
-					&& ((lilv_node_as_int(node) == 0) || (lilv_node_as_int(node) == 1)))
-				|| (lilv_node_is_float(node)
-					&& ((lilv_node_as_float(node) == 0.f) || (lilv_node_as_float(node) == 1.f))) )
+			if(lilv_node_is_int(node))
+			{
+				if( (lilv_node_as_int(node) == 0) || (lilv_node_as_int(node) == 1) )
+				{
+					ret = &ret_num_not_a_bool;
+				}
+				else
+				{
+					ret = &ret_num_not_a_boolean_value;
+				}
+			}
+			else if(lilv_node_is_float(node))
+			{
+				if( (lilv_node_as_float(node) == 0.f) || (lilv_node_as_float(node) == 1.f) )
+				{
+					ret = &ret_num_not_a_bool;
+				}
+				else
+				{
+					ret = &ret_num_not_a_boolean_value;
+				}
+			}
+			else // bool
 			{
 				// OK
 			}
-			else
-			{
-				ret = &ret_num_not_a_bool;
-			}
 		}
-		else if( lilv_node_is_float(node)
-					|| lilv_node_is_int(node) )
-		{
-			// OK
-		}
-		else
+		else if(!lilv_node_is_float(node))
 		{
 			ret = &ret_num_not_a_float;
 		}
