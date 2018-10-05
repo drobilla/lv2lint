@@ -53,6 +53,11 @@ Show verbose test item documentation
 @MAN@Custom mail greeter
 
 .HP
+\fB\-I\fR INCLUDE_DIR
+.IP
+Apart from default LV2 plugin install paths, use include directory to search for plugins
+
+.HP
 \fB\-S\fR warn|note|pass|all
 .IP
 Apart from errors alone, also show warnings (warn), notes (note), passes (pass) or all (all) on console

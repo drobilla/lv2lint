@@ -536,6 +536,7 @@ _usage(char **argv)
 		"   [-v]                     print version information\n"
 		"   [-h]                     print usage information\n"
 		"   [-d]                     show verbose test item documentation\n"
+		"   [-I] INCLUDE_DIR         use include directory to search for plugins\n"
 #ifdef ENABLE_ONLINE_TESTS
 		"   [-o]                     run online test items\n"
 		"   [-m]                     create mail to plugin author\n"
@@ -808,6 +809,8 @@ main(int argc, char **argv)
 	app.atty = isatty(1);
 	app.show = LINT_FAIL; // always report failed tests
 	app.mask = LINT_FAIL; // always fail at failed tests
+	const char *include_dir = NULL;
+	LilvNode *bundle_node = NULL;
 #ifdef ENABLE_ONLINE_TESTS
 	app.greet = "Dear LV2 plugin developer\n"
 		"\n"
@@ -836,9 +839,9 @@ main(int argc, char **argv)
 
 	int c;
 #ifdef ENABLE_ONLINE_TESTS
-	while( (c = getopt(argc, argv, "vhdomg:S:E:") ) != -1)
+	while( (c = getopt(argc, argv, "vhdomg:S:E:I:") ) != -1)
 #else
-	while( (c = getopt(argc, argv, "vhdS:E:") ) != -1)
+	while( (c = getopt(argc, argv, "vhdS:E:I:") ) != -1)
 #endif
 	{
 		switch(c)
@@ -851,6 +854,9 @@ main(int argc, char **argv)
 				return 0;
 			case 'd':
 				app.debug = true;
+				break;
+			case 'I':
+				include_dir = optarg;
 				break;
 #ifdef ENABLE_ONLINE_TESTS
 			case 'o':
@@ -935,6 +941,17 @@ main(int argc, char **argv)
 	_map_uris(&app);
 
 	lilv_world_load_all(app.world);
+
+	if(include_dir)
+	{
+		bundle_node = lilv_new_file_uri(app.world, NULL, include_dir);
+	}
+
+	if(bundle_node)
+	{
+		lilv_world_load_bundle(app.world, bundle_node);
+		lilv_world_load_resource(app.world, bundle_node);
+	}
 
 	LV2_URID_Map map = {
 		.handle = &app,
@@ -1404,6 +1421,13 @@ main(int argc, char **argv)
 
 	_unmap_uris(&app);
 	_free_urids(&app);
+
+	if(bundle_node)
+	{
+		lilv_world_unload_resource(app.world, bundle_node);
+		lilv_world_unload_bundle(app.world, bundle_node);
+		lilv_node_free(bundle_node);
+	}
 
 	lilv_world_free(app.world);
 
