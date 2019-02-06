@@ -489,6 +489,8 @@ _resize(LV2_Resize_Port_Feature_Data instance __unused, uint32_t index __unused,
 	return LV2_RESIZE_PORT_SUCCESS;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 static uint32_t
 _uri_to_id(LV2_URI_Map_Callback_Data instance, const char *map, const char *uri)
 {
@@ -497,6 +499,7 @@ _uri_to_id(LV2_URI_Map_Callback_Data instance, const char *map, const char *uri)
 
 	return _map(app, uri);
 }
+#pragma GCC diagnostic pop
 
 static void
 _queue_draw(LV2_Inline_Display_Handle instance)
@@ -978,10 +981,13 @@ main(int argc, char **argv)
 		.data = &app,
 		.resize = _resize
 	};
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	LV2_URI_Map_Feature urimap = {
 		.callback_data = &app,
 		.uri_to_id = _uri_to_id
 	};
+#pragma GCC diagnostic pop
 	LV2_Inline_Display queue_draw = {
 		.handle = &app,
 		.queue_draw = _queue_draw
