@@ -694,7 +694,12 @@ test_visibility(const char *path, const char *description, char **symbols)
 
 								if(!whitelist_match)
 								{
-									_append_to(symbols, name);
+									if(invalid <= 10)
+									{
+										_append_to(symbols, (invalid == 10)
+											? "... there is more, but the rest is being truncated"
+											: name);
+									}
 									invalid++;
 								}
 							}
