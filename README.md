@@ -17,6 +17,13 @@
 * [libcurl](https://curl.haxx.se/libcurl/) (The multiprotocol file transfer library)
 * [libelf](http://www.mr511.de/software/) (ELF object file access library)
 
+lv2lint can optionally test your plugin URIs for existence. If you want that,
+you need to enable it at compile time (-Donline-tests=true) and link to libcurl.
+
+lv2lint can optionally test your plugin symbol visibility and link dependencies.
+If you want that, you need to enable it at compile time (-Delf-tests=true) and
+link to libelf.
+
 ### Build / install
 
 	git clone https://git.open-music-kontrollers.ch/lv2/lv2lint
