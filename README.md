@@ -35,7 +35,7 @@ link to libelf.
 
 ### Usage
 
-	lv2lint -d -o -Swarn -Snote http://lv2plug.in/plugins/eg-scope#Stereo
+	lv2lint -d -Swarn -Snote http://lv2plug.in/plugins/eg-scope#Stereo
 
 ### License
 
