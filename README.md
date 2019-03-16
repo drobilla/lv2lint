@@ -10,12 +10,12 @@
 #### Mandatory
 
 * [LV2](http://lv2plug.in/) (LV2 Plugin Standard)
-* [lilv](http://drobilla.net/software/lilv/) (LV2 plugin host library)
+* [lilv](https://drobilla.net/software/lilv/) (LV2 plugin host library)
 
 #### Optional
 
 * [libcurl](https://curl.haxx.se/libcurl/) (The multiprotocol file transfer library)
-* [libelf](http://www.mr511.de/software/) (ELF object file access library)
+* [libelf](https://sourceware.org/elfutils/) (ELF object file access library)
 
 lv2lint can optionally test your plugin URIs for existence. If you want that,
 you need to enable it at compile time (-Donline-tests=true) and link to libcurl.
