@@ -2,7 +2,7 @@ project('lv2lint', 'c', default_options : [
 	'buildtype=release',
 	'warning_level=3',
 	'werror=true',
-	'b_lto=true',
+	'b_lto=false',
 	'c_std=c11'])
 
 online_tests = get_option('online-tests')
