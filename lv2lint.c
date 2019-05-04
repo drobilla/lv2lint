@@ -1363,7 +1363,7 @@ main(int argc, char **argv)
 										if(body_esc)
 										{
 											LilvNode *email_node = lilv_plugin_get_author_email(app.plugin);
-											const char *email = email && lilv_node_is_uri(email_node)
+											const char *email = email_node && lilv_node_is_uri(email_node)
 												? lilv_node_as_uri(email_node)
 												: "mailto:unknown@example.com";
 
