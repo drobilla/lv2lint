@@ -460,32 +460,6 @@ _test_version_micro(app_t *app)
 	return ret;
 }
 
-#if 0 //FIXME
-static const ret_t * 
-_test_extension_data(app_t *app)
-{
-	const ret_t *ret = NULL;
-
-	LilvNode *extension_data_nodes = lilv_plugin_get_extension_data(app->plugin);
-	if(extension_data_nodes)
-	{
-		LILV_FOREACH(nodes, itr, extension_data_nodes)
-		{
-			const LilvNode *extension_data_node = lilv_nodes_get(extension_data_nodes, itr);
-			if(extension_data_node)
-			{
-				// check with lilv_instanace_get_extension_data
-			}
-		}
-		//FIXME flag = true; //FIXME
-
-		lilv_nodes_free(extension_data_nodes);
-	}
-
-	return ret;
-}
-#endif
-
 static const ret_t *
 _test_project(app_t *app)
 {
@@ -640,9 +614,23 @@ static const ret_t *
 _test_extensions(app_t *app)
 {
 	static const ret_t ret_extensions_not_valid = {
-		LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData, NULL};
+		LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData, NULL},
+	ret_extensions_data_not_valid = {
+		LINT_FAIL, "extension data for <%s> not returned", LV2_CORE__ExtensionData, NULL},
+	ret_extensions_data_not_null = {
+		LINT_FAIL, "extension data for <%s> not NULL", LV2_CORE__ExtensionData, NULL};
 
 	const ret_t *ret = NULL;
+
+	{
+		const char *uri = "http://open-music-kontrollers.ch/lv2/lv2lint#dummy";
+		const void *ext = lilv_instance_get_extension_data(app->instance, uri);
+		if(ext)
+		{
+			*app->urn = strdup(uri);
+			ret = &ret_extensions_data_not_null;
+		}
+	}
 
 	LilvNodes *extensions = lilv_world_find_nodes(app->world,
 		NULL, app->uris.rdf_type, app->uris.lv2_ExtensionData);
@@ -659,6 +647,15 @@ _test_extensions(app_t *app)
 				{
 					*app->urn = strdup(lilv_node_as_uri(node));
 					ret = &ret_extensions_not_valid;
+					break;
+				}
+
+				const char *uri = lilv_node_as_uri(node);
+				const void *ext = lilv_instance_get_extension_data(app->instance, uri);
+				if(!ext)
+				{
+					*app->urn = strdup(uri);
+					ret = &ret_extensions_data_not_valid;
 					break;
 				}
 			}
