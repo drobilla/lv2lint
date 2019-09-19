@@ -292,6 +292,9 @@ _test_license(app_t *app)
 	return ret;
 }
 
+#define FOAF_DSC "You likely have not defined an lv2:project with " \
+	"a valid foaf:maintainer or your plugin is not a subclass of doap:project."
+
 static const ret_t * 
 _test_author_name(app_t *app)
 {
@@ -299,22 +302,19 @@ _test_author_name(app_t *app)
 		.lnt = LINT_WARN,
 		.msg = "foaf:name not found",
 		.uri = LV2_CORE__project,
-		.dsc = "You likely have not defined an lv2:project with a valid "
-			"foaf:maintainer or your plugin is not a subclass of doap:project."
+		.dsc = FOAF_DSC
 	},
 	ret_author_not_a_string = {
 		.lnt = LINT_FAIL,
 		.msg = "foaf:name not an string",
 		.uri = LILV_NS_FOAF"name",
-		.dsc = "You likely have not defined an lv2:project with a valid "
-			"foaf:maintainer or your plugin is not a subclass of doap:project."
+		.dsc = FOAF_DSC
 	},
 	ret_author_empty = {
 		.lnt = LINT_FAIL,
 		.msg = "foaf:name empty",
 		.uri = LILV_NS_FOAF"name",
-		.dsc = "You likely have not defined an lv2:project with a valid "
-			"foaf:maintainer or your plugin is not a subclass of doap:project."
+		.dsc = FOAF_DSC
 	};
 
 	const ret_t *ret = NULL;
@@ -347,11 +347,23 @@ static const ret_t *
 _test_author_email(app_t *app)
 {
 	static const ret_t ret_email_not_found = {
-		LINT_WARN, "foaf:email not found", LV2_CORE__project, NULL},
+		.lnt = LINT_WARN,
+		.msg = "foaf:email not found",
+		.uri = LV2_CORE__project, 
+		.dsc = FOAF_DSC
+	},
 	ret_email_not_a_uri = {
-		LINT_FAIL, "foaf:email not an URI", LILV_NS_FOAF"email", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "foaf:email not an URI",
+		.uri = LILV_NS_FOAF"email",
+		.dsc = FOAF_DSC
+	},
 	ret_email_empty = {
-		LINT_FAIL, "foaf:email empty", LILV_NS_FOAF"email", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "foaf:email empty",
+		.uri = LILV_NS_FOAF"email",
+		.dsc = FOAF_DSC
+	};
 
 	const ret_t *ret = NULL;
 
@@ -383,15 +395,31 @@ static const ret_t *
 _test_author_homepage(app_t *app)
 {
 	static const ret_t ret_homepage_not_found = {
-		LINT_WARN, "foaf:homepage not found", LV2_CORE__project, NULL},
+		.lnt = LINT_WARN,
+		.msg = "foaf:homepage not found",
+		.uri = LV2_CORE__project,
+		.dsc = FOAF_DSC
+	},
 	ret_homepage_not_a_uri = {
-		LINT_FAIL, "foaf:homepage not an URI", LILV_NS_FOAF"homepage", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "foaf:homepage not an URI",
+		.uri = LILV_NS_FOAF"homepage",
+		.dsc = FOAF_DSC
+	},
 #ifdef ENABLE_ONLINE_TESTS
 	ret_homepage_not_existing = {
-		LINT_WARN, "foaf:homepage Web URL does not exist", LILV_NS_FOAF"homepage", NULL},
+		.lnt = LINT_WARN,
+		.msg = "foaf:homepage Web URL does not exist",
+		.uri = LILV_NS_FOAF"homepage",
+		.dsc = FOAF_DSC
+	},
 #endif
 	ret_homepage_empty = {
-		LINT_FAIL, "foaf:homepage empty", LILV_NS_FOAF"homepage", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "foaf:homepage empty",
+		.uri = LILV_NS_FOAF"homepage",
+		.dsc = FOAF_DSC
+	};
 
 	const ret_t *ret = NULL;
 
@@ -436,11 +464,23 @@ static const ret_t *
 _test_version_minor(app_t *app)
 {
 	static const ret_t ret_version_minor_not_found = {
-		LINT_FAIL, "lv2:minorVersion not found", LV2_CORE__minorVersion, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:minorVersion not found",
+		.uri = LV2_CORE__minorVersion,
+		.dsc = NULL
+	},
 	ret_version_minor_not_an_int = {
-		LINT_FAIL, "lv2:minorVersion not an integer", LV2_CORE__minorVersion, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:minorVersion not an integer",
+		.uri = LV2_CORE__minorVersion,
+		.dsc = NULL
+	},
 	ret_version_minor_unstable = {
-		LINT_NOTE, "lv2:minorVersion denotes an unstable version", LV2_CORE__minorVersion, NULL};
+		.lnt = LINT_NOTE,
+		.msg = "lv2:minorVersion denotes an unstable version",
+		.uri = LV2_CORE__minorVersion,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -481,11 +521,23 @@ static const ret_t *
 _test_version_micro(app_t *app)
 {
 	static const ret_t ret_version_micro_not_found = {
-		LINT_FAIL, "lv2:microVersion not found", LV2_CORE__microVersion, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:microVersion not found",
+		.uri = LV2_CORE__microVersion,
+		.dsc = NULL
+	},
 	ret_version_micro_not_an_int = {
-		LINT_FAIL, "lv2:microVersion not an integer", LV2_CORE__microVersion, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:microVersion not an integer",
+		.uri = LV2_CORE__microVersion,
+		.dsc = NULL
+	},
 	ret_version_micro_unstable = {
-		LINT_NOTE, "lv2:microVersion denotes an unstable version", LV2_CORE__microVersion, NULL};
+		.lnt = LINT_NOTE,
+		.msg = "lv2:microVersion denotes an unstable version",
+		.uri = LV2_CORE__microVersion,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -526,13 +578,29 @@ static const ret_t *
 _test_project(app_t *app)
 {
 	static const ret_t ret_project_not_found = {
-		LINT_NOTE, "lv2:project not found", LV2_CORE__project, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "lv2:project not found",
+		.uri = LV2_CORE__project,
+		.dsc = NULL
+	},
 	ret_project_name_not_found = {
-		LINT_WARN, "lv2:project doap:name not found", LV2_CORE__project, NULL},
+		.lnt = LINT_WARN,
+		.msg = "lv2:project doap:name not found",
+		.uri = LV2_CORE__project,
+		.dsc = NULL
+	},
 	ret_project_name_not_a_string = {
-		LINT_FAIL, "lv2:project doap:name not a string", LILV_NS_DOAP"name", NULL},
+		.lnt = LINT_FAIL, 
+		.msg = "lv2:project doap:name not a string",
+		.uri = LILV_NS_DOAP"name",
+		.dsc = NULL
+	},
 	ret_project_name_empty = {
-		LINT_FAIL, "lv2:project doap:name empty", LILV_NS_DOAP"name", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "lv2:project doap:name empty",
+		.uri = LILV_NS_DOAP"name",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -581,7 +649,9 @@ static inline bool
 _test_class_match(const LilvPluginClass *base, const LilvPluginClass *class)
 {
 	if(_test_class_equals(base, class))
+	{
 		return true;
+	}
 
 	bool ret = false;
 	LilvPluginClasses *children= lilv_plugin_class_get_children(base);
@@ -606,11 +676,23 @@ static const ret_t *
 _test_class(app_t *app)
 {
 	static const ret_t ret_class_not_found = {
-		LINT_FAIL, "lv2:class not found", LV2_CORE__Plugin, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:class not found",
+		.uri = LV2_CORE__Plugin,
+		.dsc = NULL
+	},
 	ret_class_is_base_class = {
-		LINT_WARN, "lv2:class is base class", LV2_CORE__Plugin, NULL},
+		.lnt = LINT_WARN,
+		.msg = "lv2:class is base class",
+		.uri = LV2_CORE__Plugin,
+		.dsc = "If you give the plugin a proper class, hosts can better sort them." 
+	},
 	ret_class_not_valid = {
-		LINT_FAIL, "lv2:class <%s> not valid", LV2_CORE__Plugin, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "lv2:class <%s> not valid",
+		.uri = LV2_CORE__Plugin,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -640,7 +722,11 @@ static const ret_t *
 _test_features(app_t *app)
 {
 	static const ret_t ret_features_not_valid = {
-		LINT_FAIL, "lv2:[optional|required]Feature <%s> not valid", LV2_CORE__Feature, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "lv2:[optional|required]Feature <%s> not valid",
+		.uri = LV2_CORE__Feature,
+		.dsc = "Make sure that the lv2:Feature is defined somewhere."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -676,11 +762,25 @@ static const ret_t *
 _test_extensions(app_t *app)
 {
 	static const ret_t ret_extensions_not_valid = {
-		LINT_FAIL, "lv2:extensionData <%s> not valid", LV2_CORE__ExtensionData, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:extensionData <%s> not valid",
+		.uri = LV2_CORE__ExtensionData,
+		.dsc = "Make sure that the lv2:extensionData is defined somewhere."
+	},
 	ret_extensions_data_not_valid = {
-		LINT_FAIL, "extension data for <%s> not returned", LV2_CORE__ExtensionData, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "extension data for <%s> not returned",
+		.uri = LV2_CORE__ExtensionData,
+		.dsc = "You likely do not properly check the URI in your plugin's "
+			"'extension_data' callback or don't have the latter at all."
+	},
 	ret_extensions_data_not_null = {
-		LINT_FAIL, "extension data for <%s> not NULL", LV2_CORE__ExtensionData, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "extension data for <%s> not NULL",
+		.uri = LV2_CORE__ExtensionData,
+		.dsc = "You likely do not properly check the URI in your plugin's "
+			"'extension_data' callback or don't have the latter at all."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -739,17 +839,43 @@ static const ret_t *
 _test_worker(app_t *app)
 {
 	static const ret_t ret_worker_schedule_not_found = {
-		LINT_FAIL, "work:schedule not defined", LV2_WORKER__schedule, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "work:schedule not defined",
+		.uri = LV2_WORKER__schedule,
+		.dsc = "The plugin exposes the worker extension, but does not list this "
+			"lv2:Feature."
+	},
 	ret_worker_interface_not_found = {
-		LINT_FAIL, "work:interface not defined", LV2_WORKER__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "work:interface not defined",
+		.uri = LV2_WORKER__interface,
+		.dsc = "The plugin exposes the worker extension, but does not list this "
+			"lv2:ExtensionData."
+	},
 	ret_worker_interface_not_returned = {
-		LINT_FAIL, "work:interface not returned by 'extention_data'", LV2_WORKER__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "work:interface not returned by 'extention_data'",
+		.uri = LV2_WORKER__interface,
+		.dsc = "The plugin returns no struct in 'extension_data' callback."
+	},
 	ret_worker_work_not_found = {
-		LINT_FAIL, "work:interface has no 'work' function", LV2_WORKER__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "work:interface has no 'work' function",
+		.uri = LV2_WORKER__interface,
+		.dsc = NULL
+	},
 	ret_worker_work_response_not_found = {
-		LINT_FAIL, "work:interface has no 'work_response' function", LV2_WORKER__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "work:interface has no 'work_response' function",
+		.uri = LV2_WORKER__interface,
+		.dsc = NULL
+	},
 	ret_worker_end_run_not_found = {
-		LINT_NOTE, "work:interface has no 'end_run' function", LV2_WORKER__interface, NULL};
+		.lnt = LINT_NOTE,
+		.msg = "work:interface has no 'end_run' function",
+		.uri = LV2_WORKER__interface,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -791,13 +917,30 @@ static const ret_t *
 _test_options_iface(app_t *app)
 {
 	static const ret_t ret_options_interface_not_found = {
-		LINT_FAIL, "opts:interface not defined", LV2_OPTIONS__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "opts:interface not defined",
+		.uri = LV2_OPTIONS__interface,
+		.dsc = "The plugin exposes the options extension, but does not list this "
+			"lv2:Feature."
+	},
 	ret_options_interface_not_returned = {
-		LINT_FAIL, "opts:interface not returned by 'extention_data'", LV2_OPTIONS__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "opts:interface not returned by 'extention_data'",
+		.uri = LV2_OPTIONS__interface,
+		.dsc = "The plugin returns no struct in 'extension_data' callback."
+	},
 	ret_options_get_not_found = {
-		LINT_FAIL, "opts:interface has no 'get' function", LV2_OPTIONS__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "opts:interface has no 'get' function",
+		.uri = LV2_OPTIONS__interface,
+		.dsc = NULL
+	},
 	ret_options_set_not_found = {
-		LINT_FAIL, "opts:interface has no 'set' function", LV2_OPTIONS__interface, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "opts:interface has no 'set' function",
+		.uri = LV2_OPTIONS__interface,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -830,11 +973,25 @@ static const ret_t *
 _test_options_feature(app_t *app)
 {
 	static const ret_t ret_options_options_not_found = {
-		LINT_FAIL, "opts:options not defined", LV2_OPTIONS__options, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "opts:options not defined",
+		.uri = LV2_OPTIONS__options,
+		.dsc = "The plugin exposes the options extension, but does not list this "
+			"lv2:Feature."
+	},
 	ret_options_supported_not_found = {
-		LINT_WARN, "opts:{required,supported} options not defined", LV2_OPTIONS__supportedOption, NULL},
+		.lnt = LINT_WARN,
+		.msg = "opts:{required,supported} options not defined",
+		.uri = LV2_OPTIONS__supportedOption,
+		.dsc = "The plugin exposes the options extension, but does not list any "
+			"required and/or supported options."
+	},
 	ret_options_required_found = {
-		LINT_WARN, "opts:required options defined", LV2_OPTIONS__requiredOption, NULL};
+		.lnt = LINT_WARN,
+		.msg = "opts:required options defined",
+		.uri = LV2_OPTIONS__requiredOption,
+		.dsc = "Not all hosts may provide required options, thus make them optional."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -879,7 +1036,11 @@ static const ret_t *
 _test_uri_map(app_t *app)
 {
 	static const ret_t ret_uri_map_deprecated = {
-		LINT_FAIL, "uri-map is deprecated, use urid:map instead", LV2_URI_MAP_URI, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "uri-map is deprecated, use urid:map instead",
+		.uri = LV2_URI_MAP_URI,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -895,17 +1056,44 @@ static const ret_t *
 _test_state(app_t *app)
 {
 	static const ret_t ret_state_load_default_not_found = {
-		LINT_FAIL, "state:loadDefaultState not defined", LV2_STATE__loadDefaultState, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "state:loadDefaultState not defined",
+		.uri = LV2_STATE__loadDefaultState,
+		.dsc = "The plugin has a default state, but does not list to load it in its "
+			"features."
+	},
 	ret_state_interface_not_found = {
-		LINT_FAIL, "state:interface not defined", LV2_STATE__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "state:interface not defined",
+		.uri = LV2_STATE__interface,
+		.dsc = "The plugin makes use of the state extension, but does not list this "
+			"extension data."
+	},
 	ret_state_state_not_found = {
-		LINT_WARN, "state:state not defined", LV2_STATE__state, NULL},
+		.lnt = LINT_WARN,
+		.msg = "state:state not defined",
+		.uri = LV2_STATE__state,
+		.dsc = "The plugin makes use of the state extension, but does not list "
+			"a default state."
+	},
 	ret_state_interface_not_returned = {
-		LINT_FAIL, "state:interface not returned by 'extension_data'", LV2_STATE__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "state:interface not returned by 'extension_data'",
+		.uri = LV2_STATE__interface,
+		.dsc = NULL
+	},
 	ret_state_save_not_found = {
-		LINT_FAIL, "state:interface has no 'save' function", LV2_STATE__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "state:interface has no 'save' function",
+		.uri = LV2_STATE__interface,
+		.dsc = NULL
+	},
 	ret_state_restore_not_found = {
-		LINT_FAIL, "state:interface has no 'restore' function", LV2_STATE__interface, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "state:interface has no 'restore' function",
+		.uri = LV2_STATE__interface,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -953,11 +1141,23 @@ static const ret_t *
 _test_comment(app_t *app)
 {
 	static const ret_t ret_comment_not_found = {
-		LINT_NOTE, "rdfs:comment or doap:description not found", LV2_CORE__Plugin, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "rdfs:comment or doap:description not found",
+		.uri = LV2_CORE__Plugin,
+		.dsc = NULL
+	},
 	ret_comment_not_a_string = {
-		LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:comment not a string",
+		.uri = LILV_NS_RDFS"comment",
+		.dsc = NULL
+	},
 	ret_description_not_a_string = {
-		LINT_FAIL, "doap:description not a string", LILV_NS_DOAP"description", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "doap:description not a string",
+		.uri = LILV_NS_DOAP"description",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -998,9 +1198,17 @@ static const ret_t *
 _test_shortdesc(app_t *app)
 {
 	static const ret_t ret_shortdesc_not_found = {
-		LINT_NOTE, "doap:shortdesc not found", LILV_NS_DOAP"shortdesc", NULL},
+		.lnt = LINT_NOTE,
+		.msg = "doap:shortdesc not found",
+		.uri = LILV_NS_DOAP"shortdesc",
+		.dsc = NULL
+	},
 	ret_shortdesc_not_a_string = {
-		LINT_FAIL, "doap:shortdesc not a string", LILV_NS_DOAP"shortdesc", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "doap:shortdesc not a string",
+		.uri = LILV_NS_DOAP"shortdesc",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1027,13 +1235,31 @@ static const ret_t *
 _test_idisp(app_t *app)
 {
 	static const ret_t ret_idisp_queue_draw_not_found = {
-		LINT_FAIL, "idisp:queue_draw not defined", LV2_INLINEDISPLAY__queue_draw, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "idisp:queue_draw not defined",
+		.uri = LV2_INLINEDISPLAY__queue_draw,
+		.dsc = "The plugin makes use of the inline display extension, but does not "
+			"list this feature."
+	},
 	ret_idisp_interface_not_found = {
-		LINT_FAIL, "idisp:interface not defined", LV2_INLINEDISPLAY__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "idisp:interface not defined",
+		.uri = LV2_INLINEDISPLAY__interface,
+		.dsc = "The plugin makes use of the inline display extension, but does not "
+			"list this extension data."
+	},
 	ret_idisp_interface_not_returned = {
-		LINT_FAIL, "idisp:interface not returned by 'extention_data'", LV2_INLINEDISPLAY__interface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "idisp:interface not returned by 'extention_data'",
+		.uri = LV2_INLINEDISPLAY__interface,
+		.dsc = NULL
+	},
 	ret_idisp_render_not_found = {
-		LINT_FAIL, "idisp:interface has no 'render' function", LV2_INLINEDISPLAY__interface, NULL};
+		.lnt = LINT_FAIL,
+		.msg ="idisp:interface has no 'render' function",
+		.uri = LV2_INLINEDISPLAY__interface,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1067,7 +1293,12 @@ static const ret_t *
 _test_hard_rt_capable(app_t *app)
 {
 	static const ret_t ret_hard_rt_capable_not_found = {
-		LINT_WARN, "not advertized as real-time safe", LV2_CORE__hardRTCapable, NULL};
+		.lnt = LINT_WARN,
+		.msg = "not advertized as real-time safe",
+		.uri = LV2_CORE__hardRTCapable,
+		.dsc = "If this plugin is meant to be used in a real-time context, you "
+			"should list this feature."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1085,7 +1316,12 @@ static const ret_t *
 _test_in_place_broken(app_t *app)
 {
 	static const ret_t ret_in_place_broken_found = {
-		LINT_WARN, "cannot process audio/CV in-place", LV2_CORE__inPlaceBroken, NULL};
+		.lnt = LINT_WARN,
+		.msg = "cannot process audio/CV in-place",
+		.uri = LV2_CORE__inPlaceBroken,
+		.dsc = "Some hosts only support plugins that are capable of in-place "
+			"processing."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1103,7 +1339,12 @@ static const ret_t *
 _test_is_live(app_t *app)
 {
 	static const ret_t ret_is_live_not_found = {
-		LINT_NOTE, "not meant for live usage", LV2_CORE__isLive, NULL};
+		.lnt = LINT_NOTE,
+		.msg = "not meant for live usage",
+		.uri = LV2_CORE__isLive,
+		.dsc = "If this plugin is meant to be used in a live context, you "
+			"should list this feature."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1121,7 +1362,11 @@ static const ret_t *
 _test_fixed_block_length(app_t *app)
 {
 	static const ret_t ret_fixed_block_length_found = {
-		LINT_WARN, "requiring a fixed block length is highly discouraged", LV2_BUF_SIZE__fixedBlockLength, NULL};
+		.lnt = LINT_WARN,
+		.msg = "requiring a fixed block length is highly discouraged",
+		.uri = LV2_BUF_SIZE__fixedBlockLength,
+		.dsc = "Some hosts do not support fixed block lengths, try to avoid this."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1140,7 +1385,11 @@ static const ret_t *
 _test_power_of_2_block_length(app_t *app)
 {
 	static const ret_t ret_power_of_2_block_length_found = {
-		LINT_WARN, "requiring a power of 2 block length is highly discouraged", LV2_BUF_SIZE__powerOf2BlockLength, NULL};
+		.lnt = LINT_WARN,
+		.msg = "requiring a power of 2 block length is highly discouraged",
+		.uri = LV2_BUF_SIZE__powerOf2BlockLength,
+		.dsc = "Some hosts do not support power of 2 block lengths, tr to avoid this."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1160,7 +1409,12 @@ static const ret_t *
 _test_plugin_url(app_t *app)
 {
 	static const ret_t ret_plugin_url_not_existing = {
-		LINT_WARN, "Plugin Web URL does not exist", LV2_CORE__Plugin, NULL};
+		.lnt = LINT_WARN,
+		.msg = "Plugin Web URL does not exist",
+		.uri = LV2_CORE__Plugin,
+		.dsc = "A plugin URI ideally links to an existing Web page with further "
+			"documentation."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -1184,11 +1438,26 @@ static const ret_t *
 _test_patch(app_t *app)
 {
 	static const ret_t ret_patch_no_patch_message_support_on_output = {
-		LINT_FAIL, "no patch:Message support on any output", LV2_PATCH__Message, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "no patch:Message support on any output",
+		.uri = LV2_PATCH__Message,
+		.dsc = "The plugin lists parameters, but has no output port assigned to "
+			"patch messages."
+	},
 	ret_patch_no_patch_message_support_on_input = {
-		LINT_FAIL, "no patch:Message support on any input", LV2_PATCH__Message, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "no patch:Message support on any input",
+		.uri = LV2_PATCH__Message,
+		.dsc = "The plugin lists parameters, but has no input port assigned to "
+			"patch messages."
+	},
 	ret_patch_no_parameters_found = {
-		LINT_NOTE, "no patch:writable/readable parameters found", LV2_PATCH__writable, NULL};
+		.lnt = LINT_NOTE,
+		.msg = "no patch:writable/readable parameters found",
+		.uri = LV2_PATCH__writable,
+		.dsc = "The plugin lists ports assigned to route patch messages, but has "
+			"no writable or readlable parameters listed."
+	};
 
 	const ret_t *ret = NULL;
 
