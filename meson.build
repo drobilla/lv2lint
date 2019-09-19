@@ -3,7 +3,7 @@ project('lv2lint', 'c', default_options : [
 	'warning_level=3',
 	'werror=false',
 	'b_lto=false',
-	'c_std=c11'])
+	'c_std=gnu11'])
 
 online_tests = get_option('online-tests')
 elf_tests = get_option('elf-tests')
