@@ -1,7 +1,7 @@
 project('lv2lint', 'c', default_options : [
 	'buildtype=release',
 	'warning_level=3',
-	'werror=true',
+	'werror=false',
 	'b_lto=false',
 	'c_std=c11'])
 
