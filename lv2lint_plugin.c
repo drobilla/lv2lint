@@ -29,7 +29,11 @@ static const ret_t *
 _test_instantiation(app_t *app)
 {
 	static const ret_t ret_instantiation = {
-		LINT_FAIL, "failed to instantiate", LV2_CORE_URI, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "failed to instantiate",
+		.uri = LV2_CORE_URI,
+		.dsc = "You likely have forgotten to list all lv2:requiredFeature's."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -46,7 +50,11 @@ static const ret_t *
 _test_symbols(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_FAIL, "binary exports superfluous globally visible symbols: %s", LV2_CORE__binary, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "binary exports superfluous globally visible symbols: %s",
+		.uri = LV2_CORE__binary,
+		.dsc = "You likely miss the -fvisibility=hidden compile flag."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -82,11 +90,18 @@ static const ret_t *
 _test_linking(app_t *app)
 {
 	static const ret_t ret_symbols = {
-		LINT_WARN, "binary links to non-whitelisted shared libraries: %s", LV2_CORE__binary,
-		"The ideal plugin dynamically links maximally to libc and libm."},
+		.lnt = LINT_WARN,
+		.msg = "binary links to non-whitelisted shared libraries: %s",
+		.uri = LV2_CORE__binary,
+		.dsc = "The ideal plugin dynamically links maximally to libc, libm, librt, "
+			"libstdc++, libgcc_s."
+	},
 	ret_libstdcpp = {
-		LINT_WARN, "binary links to C++ libraries: %s", LV2_CORE__binary,
-		"C++ ABI incompatibilities between host and plugin are to be expected."};
+		.lnt = LINT_WARN,
+		.msg = "binary links to C++ libraries: %s",
+		.uri = LV2_CORE__binary,
+		.dsc = "C++ ABI incompatibilities between host and plugin are to be expected."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -143,7 +158,11 @@ static const ret_t *
 _test_verification(app_t *app)
 {
 	static const ret_t ret_verification = {
-		LINT_FAIL, "failed", LV2_CORE_URI, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "failed lilv_plugin_verify",
+		.uri = LV2_CORE_URI,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -159,11 +178,23 @@ static const ret_t *
 _test_name(app_t *app)
 {
 	static const ret_t ret_name_not_found = {
-		LINT_FAIL, "doap:name not found", LV2_CORE__Plugin, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "doap:name not found",
+		.uri = LV2_CORE__Plugin,
+		.dsc = NULL
+	},
 	ret_name_not_a_string = {
-		LINT_FAIL, "doap:name not a string", LILV_NS_DOAP"name", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "doap:name not a string",
+		.uri = LILV_NS_DOAP"name",
+		.dsc = NULL
+	},
 	ret_name_empty = {
-		LINT_FAIL, "doap:name empty", LILV_NS_DOAP"name", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "doap:name empty",
+		.uri = LILV_NS_DOAP"name",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -196,15 +227,31 @@ static const ret_t *
 _test_license(app_t *app)
 {
 	static const ret_t ret_license_not_found = {
-		LINT_WARN, "doap:license not found", LV2_CORE__Plugin, NULL},
+		.lnt = LINT_WARN,
+		.msg = "doap:license not found",
+		.uri = LV2_CORE__Plugin,
+		.dsc = NULL
+	},
 	ret_license_not_a_uri = {
-		LINT_FAIL, "doap:license not a URI", LILV_NS_DOAP"license", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "doap:license not a URI",
+		.uri = LILV_NS_DOAP"license",
+		.dsc = NULL
+	},
 #ifdef ENABLE_ONLINE_TESTS
 	ret_license_not_existing = {
-		LINT_WARN, "doap:license Web URL does not exist", LILV_NS_DOAP"license", NULL},
+		.lnt = LINT_WARN,
+		.msg = "doap:license Web URL does not exist",
+		.uri = LILV_NS_DOAP"license",
+		.dsc = "It is good practice to have some online documentation at given URL."
+	},
 #endif
 	ret_license_empty = {
-		LINT_FAIL, "doap:license empty", LILV_NS_DOAP"license", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "doap:license empty",
+		.uri = LILV_NS_DOAP"license",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -249,11 +296,26 @@ static const ret_t *
 _test_author_name(app_t *app)
 {
 	static const ret_t ret_author_not_found = {
-		LINT_WARN, "foaf:name not found", LV2_CORE__project, NULL},
+		.lnt = LINT_WARN,
+		.msg = "foaf:name not found",
+		.uri = LV2_CORE__project,
+		.dsc = "You likely have not defined an lv2:project with a valid "
+			"foaf:maintainer or your plugin is not a subclass of doap:project."
+	},
 	ret_author_not_a_string = {
-		LINT_FAIL, "foaf:name not an string", LILV_NS_FOAF"name", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "foaf:name not an string",
+		.uri = LILV_NS_FOAF"name",
+		.dsc = "You likely have not defined an lv2:project with a valid "
+			"foaf:maintainer or your plugin is not a subclass of doap:project."
+	},
 	ret_author_empty = {
-		LINT_FAIL, "foaf:name empty", LILV_NS_FOAF"name", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "foaf:name empty",
+		.uri = LILV_NS_FOAF"name",
+		.dsc = "You likely have not defined an lv2:project with a valid "
+			"foaf:maintainer or your plugin is not a subclass of doap:project."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -622,6 +684,7 @@ _test_extensions(app_t *app)
 
 	const ret_t *ret = NULL;
 
+	if(app->instance)
 	{
 		const char *uri = "http://open-music-kontrollers.ch/lv2/lv2lint#dummy";
 		const void *ext = lilv_instance_get_extension_data(app->instance, uri);
@@ -650,13 +713,16 @@ _test_extensions(app_t *app)
 					break;
 				}
 
-				const char *uri = lilv_node_as_uri(node);
-				const void *ext = lilv_instance_get_extension_data(app->instance, uri);
-				if(!ext)
+				if(app->instance)
 				{
-					*app->urn = strdup(uri);
-					ret = &ret_extensions_data_not_valid;
-					break;
+					const char *uri = lilv_node_as_uri(node);
+					const void *ext = lilv_instance_get_extension_data(app->instance, uri);
+					if(!ext)
+					{
+						*app->urn = strdup(uri);
+						ret = &ret_extensions_data_not_valid;
+						break;
+					}
 				}
 			}
 
