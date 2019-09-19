@@ -100,6 +100,7 @@ struct _app_t {
 	LilvWorld *world;
 	const LilvPlugin *plugin;
 	LilvInstance *instance;
+	const LV2UI_Descriptor *descriptor;
 	const LilvPort *port;
 	const LilvNode *parameter;
 	const LilvUI *ui;

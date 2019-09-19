@@ -179,6 +179,29 @@ _test_resident(app_t *app)
 }
 
 static const ret_t *
+_test_extension_data(app_t *app)
+{
+	static const ret_t ret_extensions_data_not_null = {
+		LINT_FAIL, "extension data for <%s> not NULL", LV2_CORE__ExtensionData, NULL};
+
+	const ret_t *ret = NULL;
+
+	{
+		const char *uri = "http://open-music-kontrollers.ch/lv2/lv2lint#dummy";
+		const void *ext = app->descriptor->extension_data
+			? app->descriptor->extension_data(uri)
+			: NULL;
+		if(ext)
+		{
+			*app->urn = strdup(uri);
+			ret = &ret_extensions_data_not_null;
+		}
+	}
+
+	return ret;
+}
+
+static const ret_t *
 _test_idle_interface(app_t *app)
 {
 	static const ret_t ret_idle_feature_missing = {
@@ -374,6 +397,7 @@ static const test_t tests [] = {
 	{"Mixed DSP/UI",     _test_mixed},
 	//{"UI Binary",        _test_binary}, FIXME lilv does not support lv2:binary for UIs, yet
 	{"UI SO Name",       _test_resident},
+	{"Extension Data",   _test_extension_data},
 	{"Idle Interface",   _test_idle_interface},
 	{"Show Interface",   _test_show_interface},
 	{"Resize Interface", _test_resize_interface},
@@ -395,7 +419,7 @@ test_ui(app_t *app)
 		return flag;
 
 	void *lib = NULL;
-	const LV2UI_Descriptor *descriptor = NULL;
+	app->descriptor = NULL;
 
 	const LilvNode *ui_uri_node = lilv_ui_get_uri(app->ui);
 	const LilvNode *ui_binary_node = lilv_ui_get_binary_uri(app->ui);
@@ -439,26 +463,26 @@ test_ui(app_t *app)
 		}
 		else if(!strcmp(ld->URI, ui_uri))
 		{
-			descriptor = ld;
+			app->descriptor = ld;
 			break;
 		}
 	}
 
-	if(!descriptor)
+	if(!app->descriptor)
 	{
 		fprintf(stderr, "Failed to find descriptor for <%s> in %s\n", ui_uri, ui_binary_path);
 		dlclose(lib);
 		goto jump;
 	}
 
-	app->ui_idle_iface = descriptor->extension_data
-		? descriptor->extension_data(LV2_UI__idleInterface)
+	app->ui_idle_iface = app->descriptor->extension_data
+		? app->descriptor->extension_data(LV2_UI__idleInterface)
 		: NULL;
-	app->ui_show_iface = descriptor->extension_data
-		? descriptor->extension_data(LV2_UI__showInterface)
+	app->ui_show_iface = app->descriptor->extension_data
+		? app->descriptor->extension_data(LV2_UI__showInterface)
 		: NULL;
-	app->ui_resize_iface = descriptor->extension_data
-		? descriptor->extension_data(LV2_UI__resize)
+	app->ui_resize_iface = app->descriptor->extension_data
+		? app->descriptor->extension_data(LV2_UI__resize)
 		: NULL;
 
 	for(unsigned i=0; i<tests_n; i++)
