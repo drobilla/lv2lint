@@ -23,6 +23,9 @@ lilv_dep = dependency('lilv-0', version : '>=0.24.0',
 curl_dep = dependency('libcurl', required: false)
 elf_dep = dependency('libelf', required: false)
 
+mapper_inc = include_directories('mapper.lv2')
+incs = [mapper_inc]
+
 if curl_dep.found() and online_tests
 	add_project_arguments('-DENABLE_ONLINE_TESTS', language : 'c')
 	conf_data.set('MAN', '')
@@ -34,12 +37,16 @@ if elf_dep.found() and elf_tests
 	add_project_arguments('-DENABLE_ELF_TESTS', language : 'c')
 endif
 
-executable('lv2lint',
+srcs = [
 	'lv2lint.c',
 	'lv2lint_plugin.c',
 	'lv2lint_port.c',
 	'lv2lint_parameter.c',
-	'lv2lint_ui.c',
+	'lv2lint_ui.c'
+]
+
+executable('lv2lint', srcs,
+	include_directories : incs,
 	dependencies : [m_dep, lv2_dep, lilv_dep, curl_dep, elf_dep],
 	install : true)
 

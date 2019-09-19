@@ -50,6 +50,10 @@
 #	include <gelf.h>
 #endif
 
+#define MAPPER_API static inline
+#define MAPPER_IMPLEMENTATION
+#include <mapper.lv2/mapper.h>
+
 const char *colors [2][ANSI_COLOR_MAX] = {
 	{
 		[ANSI_COLOR_BOLD]    = "",
@@ -335,45 +339,6 @@ _unmap_uris(app_t *app)
 	lilv_node_free(app->uris.units_Unit);
 }
 
-static LV2_URID
-_map(LV2_URID_Map_Handle instance, const char *uri)
-{
-	app_t *app = instance;
-
-	for(unsigned i = 0; i < app->nurids; i++)
-	{
-		urid_t *itm = &app->urids[i];
-
-		if(!strcmp(itm->uri, uri))
-			return i + 1;
-	}
-
-	app->nurids += 1;
-	app->urids = realloc(app->urids, app->nurids*sizeof(urid_t));
-	if(app->urids)
-	{
-		urid_t *itm = &app->urids[app->nurids - 1];
-		itm->uri = strdup(uri);
-		return app->nurids;
-	}
-
-	return 0; // failed
-}
-
-static const char *
-_unmap(LV2_URID_Unmap_Handle instance, LV2_URID urid)
-{
-	app_t *app = instance;
-
-	if( (urid > 0) && (urid <= app->nurids) )
-	{
-		urid_t *itm = &app->urids[urid - 1];
-		return itm->uri;
-	}
-
-	return NULL; // failed
-}
-
 static void
 _free_urids(app_t *app)
 {
@@ -492,12 +457,12 @@ _resize(LV2_Resize_Port_Feature_Data instance __unused, uint32_t index __unused,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 static uint32_t
-_uri_to_id(LV2_URI_Map_Callback_Data instance, const char *map, const char *uri)
+_uri_to_id(LV2_URI_Map_Callback_Data instance,
+	const char *_map __attribute__((unused)), const char *uri)
 {
-	app_t *app = instance;
-	(void)map;
+	LV2_URID_Map *map = instance;
 
-	return _map(app, uri);
+	return map->map(map->handle, uri);
 }
 #pragma GCC diagnostic pop
 
@@ -946,6 +911,10 @@ main(int argc, char **argv)
 	if(!app.world)
 		return -1;
 
+	mapper_t *mapper = mapper_new(8192, 0, NULL, NULL, NULL, NULL);
+	if(!mapper)
+		return -1;
+
 	_map_uris(&app);
 
 	lilv_world_load_all(app.world);
@@ -961,14 +930,8 @@ main(int argc, char **argv)
 		lilv_world_load_resource(app.world, bundle_node);
 	}
 
-	LV2_URID_Map map = {
-		.handle = &app,
-		.map = _map
-	};
-	LV2_URID_Unmap unmap = {
-		.handle = &app,
-		.unmap = _unmap
-	};
+	LV2_URID_Map *map = mapper_get_map(mapper);
+	LV2_URID_Unmap *unmap = mapper_get_unmap(mapper);
 	LV2_Worker_Schedule sched = {
 		.handle = &app,
 		.schedule_work = _sched
@@ -989,7 +952,7 @@ main(int argc, char **argv)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	LV2_URI_Map_Feature urimap = {
-		.callback_data = &app,
+		.callback_data = map,
 		.uri_to_id = _uri_to_id
 	};
 #pragma GCC diagnostic pop
@@ -998,14 +961,14 @@ main(int argc, char **argv)
 		.queue_draw = _queue_draw
 	};
 
-	const LV2_URID atom_Float = map.map(map.handle, LV2_ATOM__Float);
-	const LV2_URID atom_Int = map.map(map.handle, LV2_ATOM__Int);
-	const LV2_URID param_sampleRate = map.map(map.handle, LV2_PARAMETERS__sampleRate);
-	const LV2_URID ui_updateRate = map.map(map.handle, LV2_UI__updateRate);
-	const LV2_URID bufsz_minBlockLength = map.map(map.handle, LV2_BUF_SIZE__minBlockLength);
-	const LV2_URID bufsz_maxBlockLength = map.map(map.handle, LV2_BUF_SIZE__maxBlockLength);
-	const LV2_URID bufsz_nominalBlockLength = map.map(map.handle, LV2_BUF_SIZE_PREFIX"nominalBlockLength");
-	const LV2_URID bufsz_sequenceSize = map.map(map.handle, LV2_BUF_SIZE__sequenceSize);
+	const LV2_URID atom_Float = map->map(map->handle, LV2_ATOM__Float);
+	const LV2_URID atom_Int = map->map(map->handle, LV2_ATOM__Int);
+	const LV2_URID param_sampleRate = map->map(map->handle, LV2_PARAMETERS__sampleRate);
+	const LV2_URID ui_updateRate = map->map(map->handle, LV2_UI__updateRate);
+	const LV2_URID bufsz_minBlockLength = map->map(map->handle, LV2_BUF_SIZE__minBlockLength);
+	const LV2_URID bufsz_maxBlockLength = map->map(map->handle, LV2_BUF_SIZE__maxBlockLength);
+	const LV2_URID bufsz_nominalBlockLength = map->map(map->handle, LV2_BUF_SIZE_PREFIX"nominalBlockLength");
+	const LV2_URID bufsz_sequenceSize = map->map(map->handle, LV2_BUF_SIZE__sequenceSize);
 
 	const float param_sample_rate = 48000.f;
 	const float ui_update_rate = 25.f;
@@ -1066,11 +1029,11 @@ main(int argc, char **argv)
 
 	const LV2_Feature feat_map = {
 		.URI = LV2_URID__map,
-		.data = &map
+		.data = map
 	};
 	const LV2_Feature feat_unmap = {
 		.URI = LV2_URID__unmap,
-		.data = &unmap
+		.data = unmap
 	};
 	const LV2_Feature feat_sched = {
 		.URI = LV2_WORKER__schedule,
@@ -1304,7 +1267,7 @@ main(int argc, char **argv)
 
 							lilv_world_load_resource(app.world, pset);
 
-							LilvState *state = lilv_state_new_from_world(app.world, &map, pset);
+							LilvState *state = lilv_state_new_from_world(app.world, map, pset);
 							if(state)
 							{
 								lilv_state_restore(state, app.instance, _state_set_value, &app,
@@ -1439,6 +1402,8 @@ main(int argc, char **argv)
 		lilv_world_unload_bundle(app.world, bundle_node);
 		lilv_node_free(bundle_node);
 	}
+
+	mapper_free(mapper);
 
 	lilv_world_free(app.world);
 
