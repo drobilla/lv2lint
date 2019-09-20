@@ -225,7 +225,7 @@ _test_name(app_t *app)
 	return ret;
 }
 
-static const ret_t * 
+static const ret_t *
 _test_license(app_t *app)
 {
 	static const ret_t ret_license_not_found = {
@@ -297,7 +297,7 @@ _test_license(app_t *app)
 #define FOAF_DSC "You likely have not defined an lv2:project with " \
 	"a valid foaf:maintainer or your plugin is not a subclass of doap:project."
 
-static const ret_t * 
+static const ret_t *
 _test_author_name(app_t *app)
 {
 	static const ret_t ret_author_not_found = {
@@ -351,7 +351,7 @@ _test_author_email(app_t *app)
 	static const ret_t ret_email_not_found = {
 		.lnt = LINT_WARN,
 		.msg = "foaf:email not found",
-		.uri = LV2_CORE__project, 
+		.uri = LV2_CORE__project,
 		.dsc = FOAF_DSC
 	},
 	ret_email_not_a_uri = {
@@ -462,7 +462,7 @@ _test_author_homepage(app_t *app)
 	return ret;
 }
 
-static const ret_t * 
+static const ret_t *
 _test_version_minor(app_t *app)
 {
 	static const ret_t ret_version_minor_not_found = {
@@ -519,7 +519,7 @@ _test_version_minor(app_t *app)
 	return ret;
 }
 
-static const ret_t * 
+static const ret_t *
 _test_version_micro(app_t *app)
 {
 	static const ret_t ret_version_micro_not_found = {
@@ -592,7 +592,7 @@ _test_project(app_t *app)
 		.dsc = NULL
 	},
 	ret_project_name_not_a_string = {
-		.lnt = LINT_FAIL, 
+		.lnt = LINT_FAIL,
 		.msg = "lv2:project doap:name not a string",
 		.uri = LILV_NS_DOAP"name",
 		.dsc = NULL
@@ -687,7 +687,7 @@ _test_class(app_t *app)
 		.lnt = LINT_WARN,
 		.msg = "lv2:class is base class",
 		.uri = LV2_CORE__Plugin,
-		.dsc = "If you give the plugin a proper class, hosts can better sort them." 
+		.dsc = "If you give the plugin a proper class, hosts can better sort them."
 	},
 	ret_class_not_valid = {
 		.lnt = LINT_FAIL,
