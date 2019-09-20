@@ -55,7 +55,6 @@
 	* Warn about requiring that feature
 
 * state
-	* Actually load default state if requested (finalize)
 	* Provide worker to state reload
 	* Provide path functions to state, instantiate
 	* Check whether all patch:writables are initialized with state:loadDefaultState
@@ -77,6 +76,3 @@
 
 * worker
 	* DONE
-
-* general
-	* escape HTML items in extensive documentation
