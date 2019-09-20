@@ -28,7 +28,11 @@ static const ret_t *
 _test_class(app_t *app)
 {
 	static const ret_t ret_class_not_valid = {
-		LINT_FAIL, "lv2:Port class <%s> not valid", LV2_CORE__Port, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "lv2:Port class <%s> not valid",
+		.uri = LV2_CORE__Port,
+		.dsc = "This port class likely is not defined anywhere."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -62,7 +66,11 @@ static const ret_t *
 _test_properties(app_t *app)
 {
 	static const ret_t ret_properties_not_valid = {
-		LINT_FAIL, "lv2:portProperty <%s> not valid", LV2_CORE__portProperty, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "lv2:portProperty <%s> not valid",
+		.uri = LV2_CORE__portProperty,
+		.dsc = "This property likely is not defined anywhere."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -99,17 +107,41 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 	float *val)
 {
 	static const ret_t ret_num_not_found = {
-		LINT_WARN, "number not found", LV2_CORE__Port, NULL},
+		.lnt = LINT_WARN,
+		.msg = "number not found",
+		.uri = LV2_CORE__Port,
+		.dsc = NULL
+	},
 	ret_num_not_an_int = {
-		LINT_NOTE, "number not an integer", LV2_CORE__default, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "number not an integer",
+		.uri = LV2_CORE__default,
+		.dsc = NULL
+	},
 	ret_num_not_a_float = {
-		LINT_NOTE, "number not a float", LV2_CORE__default, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "number not a float",
+		.uri = LV2_CORE__default,
+		.dsc = NULL
+	},
 	ret_num_not_a_bool = {
-		LINT_NOTE, "number not a bool", LV2_CORE__default, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "number not a bool",
+		.uri = LV2_CORE__default,
+		.dsc = NULL
+	},
 	ret_num_not_a_whole_value = {
-		LINT_WARN, "number has no whole value", LV2_CORE__default, NULL},
+		.lnt = LINT_WARN,
+		.msg = "number has no whole value",
+		.uri = LV2_CORE__default,
+		.dsc = NULL
+	},
 	ret_num_not_a_boolean_value = {
-		LINT_WARN, "number has no boolean value", LV2_CORE__default, NULL};
+		.lnt = LINT_WARN,
+		.msg = "number has no boolean value",
+		.uri = LV2_CORE__default,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -263,7 +295,11 @@ static const ret_t *
 _test_range(app_t *app)
 {
 	static const ret_t ret_range = {
-		LINT_FAIL, "range invalid (min <= default <= max)", LV2_CORE__Port, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "range invalid (min <= default <= max)",
+		.uri = LV2_CORE__Port,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -283,7 +319,11 @@ static const ret_t *
 _test_event_port(app_t *app)
 {
 	static const ret_t ret_event_port_deprecated = {
-		LINT_FAIL, "lv2:EventPort is deprecated, use atom:AtomPort instead", LV2_EVENT__EventPort, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "lv2:EventPort is deprecated, use atom:AtomPort instead",
+		.uri = LV2_EVENT__EventPort,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -299,13 +339,29 @@ static const ret_t *
 _test_morph_port(app_t *app)
 {
 	static const ret_t ret_morph_port_not_found = {
-		LINT_FAIL, "morph port not found", LV2_MORPH__MorphPort, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "morph port not found",
+		.uri = LV2_MORPH__MorphPort,
+		.dsc = NULL
+	},
 	ret_morph_supported_types_not_found = {
-		LINT_FAIL, "supported types for morph port not found", LV2_MORPH__supportsType, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "supported types for morph port not found",
+		.uri = LV2_MORPH__supportsType,
+		.dsc = NULL
+	},
 	ret_morph_supported_types_not_enough = {
-		LINT_FAIL, "not enough supported types found", LV2_MORPH__supportsType, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "not enough supported types found",
+		.uri = LV2_MORPH__supportsType,
+		.dsc = NULL
+	},
 	ret_morph_default_not_found = {
-		LINT_FAIL, "default port type not found", LV2_MORPH__MorphPort, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "default port type not found",
+		.uri = LV2_MORPH__MorphPort,
+		.dsc = NULL
+	};
 
 	LilvNodes *morph_supported_types = lilv_port_get(app->plugin, app->port,
 		app->uris.morph_supportsType);
@@ -359,9 +415,17 @@ static const ret_t *
 _test_comment(app_t *app)
 {
 	static const ret_t ret_comment_not_found = {
-		LINT_NOTE, "rdfs:comment not found", LILV_NS_RDFS"comment", NULL},
+		.lnt = LINT_NOTE,
+		.msg = "rdfs:comment not found",
+		.uri = LILV_NS_RDFS"comment",
+		.dsc = "Adding a description helps the user to better undetstand this port."
+	},
 	ret_comment_not_a_string = {
-		LINT_FAIL, "rdfs:comment not a string", LILV_NS_RDFS"comment", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:comment not a string",
+		.uri = LILV_NS_RDFS"comment",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -387,9 +451,18 @@ static const ret_t *
 _test_group(app_t *app)
 {
 	static const ret_t ret_group_not_found = {
-		LINT_NOTE, "pg:group not found", LV2_PORT_GROUPS__group, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "pg:group not found",
+		.uri = LV2_PORT_GROUPS__group,
+		.dsc = "Subsumming ports into groups helps to draw more comprehensible "
+			"generic UIs."
+	},
 	ret_group_not_a_uri = {
-		LINT_FAIL, "pg:group not a URI", LV2_PORT_GROUPS__group, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "pg:group not a URI",
+		.uri = LV2_PORT_GROUPS__group,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -415,9 +488,17 @@ static const ret_t *
 _test_unit(app_t *app)
 {
 	static const ret_t ret_units_unit_not_found = {
-		LINT_NOTE, "units:unit not found", LV2_UNITS__unit, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "units:unit not found",
+		.uri = LV2_UNITS__unit,
+		.dsc = "Adding units to controls helps the user to put things in perspective."
+	},
 	ret_units_unit_not_a_uri_or_object = {
-		LINT_FAIL, "units_unit not a URI or object", LV2_UNITS__unit, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "units_unit not a URI or object",
+		.uri = LV2_UNITS__unit,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
