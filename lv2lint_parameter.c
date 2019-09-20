@@ -24,11 +24,23 @@ static const ret_t *
 _test_label(app_t *app)
 {
 	static const ret_t ret_label_not_found = {
-		LINT_FAIL, "rdfs:label not found", LV2_CORE_PREFIX"Parameter", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:label not found",
+		.uri = LV2_CORE_PREFIX"Parameter",
+		.dsc = NULL
+	},
 	ret_label_not_a_string = {
-		LINT_FAIL, "rdfs:label not a string", LILV_NS_DOAP"label", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:label not a string",
+		.uri = LILV_NS_DOAP"label",
+		.dsc = NULL
+	},
 	ret_label_empty = {
-		LINT_FAIL, "rdfs:label empty", LILV_NS_DOAP"label", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:label empty",
+		.uri = LILV_NS_DOAP"label",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -62,11 +74,23 @@ static const ret_t *
 _test_comment(app_t *app)
 {
 	static const ret_t ret_comment_not_found = {
-		LINT_NOTE, "rdfs:comment not found", LV2_CORE_PREFIX"Parameter", NULL},
+		.lnt = LINT_NOTE,
+		.msg = "rdfs:comment not found",
+		.uri = LV2_CORE_PREFIX"Parameter",
+		.dsc = "Adding comment helps the user to understand this parameter."
+	},
 	ret_comment_not_a_string = {
-		LINT_FAIL, "rdfs:comment not a string", LILV_NS_DOAP"comment", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:comment not a string",
+		.uri = LILV_NS_DOAP"comment",
+		.dsc = NULL
+	},
 	ret_comment_empty = {
-		LINT_FAIL, "rdfs:comment empty", LILV_NS_DOAP"comment", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:comment empty",
+		.uri = LILV_NS_DOAP"comment",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -99,27 +123,71 @@ static const ret_t *
 _test_range(app_t *app)
 {
 	static const ret_t ret_range_not_found = {
-		LINT_FAIL, "rdfs:range not found", LV2_CORE_PREFIX"Parameter", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:range not found",
+		.uri = LV2_CORE_PREFIX"Parameter",
+		.dsc = NULL
+	},
 	ret_range_not_a_uri = {
-		LINT_FAIL, "rdfs:range not a URI", LILV_NS_DOAP"range", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:range not a URI",
+		.uri = LILV_NS_DOAP"range",
+		.dsc = NULL
+	},
 	ret_range_not_an_atom = {
-		LINT_WARN, "rdfs:range not an lv2:Atom", LV2_ATOM__Atom, NULL},
+		.lnt = LINT_WARN,
+		.msg = "rdfs:range not an lv2:Atom",
+		.uri = LV2_ATOM__Atom,
+		.dsc = NULL
+	},
 	ret_range_empty = {
-		LINT_FAIL, "rdfs:range empty", LILV_NS_DOAP"range", NULL},
+		.lnt = LINT_FAIL,
+		.msg = "rdfs:range empty",
+		.uri = LILV_NS_DOAP"range",
+		.dsc = NULL
+	},
 	ret_range_minimum_not_found = {
-		LINT_WARN, "lv2:minimum not found", LV2_CORE__minimum, NULL},
+		.lnt = LINT_WARN,
+		.msg = "lv2:minimum not found",
+		.uri = LV2_CORE__minimum,
+		.dsc = NULL
+	},
 	ret_range_minimum_not_an_int = {
-		LINT_FAIL, "lv2:minimum not an integer", LV2_CORE__minimum, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:minimum not an integer",
+		.uri = LV2_CORE__minimum,
+		.dsc = NULL
+	},
 	ret_range_minimum_not_a_float = {
-		LINT_FAIL, "lv2:minimum not a float", LV2_CORE__minimum, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:minimum not a float",
+		.uri = LV2_CORE__minimum,
+		.dsc = NULL
+	},
 	ret_range_maximum_not_found = {
-		LINT_WARN, "lv2:maximum not found", LV2_CORE__maximum, NULL},
+		.lnt = LINT_WARN,
+		.msg = "lv2:maximum not found",
+		.uri = LV2_CORE__maximum,
+		.dsc = NULL
+	},
 	ret_range_maximum_not_an_int = {
-		LINT_FAIL, "lv2:maximum not an integer", LV2_CORE__maximum, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:maximum not an integer",
+		.uri = LV2_CORE__maximum,
+		.dsc = NULL
+	},
 	ret_range_maximum_not_a_float = {
-		LINT_FAIL, "lv2:maximum not a float", LV2_CORE__maximum, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:maximum not a float",
+		.uri = LV2_CORE__maximum,
+		.dsc = NULL
+	},
 	ret_range_invalid = {
-		LINT_FAIL, "range invalid (min <= max)", LV2_CORE_PREFIX"Parameter", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "range invalid (min <= max)",
+		.uri = LV2_CORE_PREFIX"Parameter",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -272,9 +340,17 @@ static const ret_t *
 _test_unit(app_t *app)
 {
 	static const ret_t ret_units_unit_not_found = {
-		LINT_NOTE, "units:unit not found", LV2_UNITS__unit, NULL},
+		.lnt = LINT_NOTE,
+		.msg = "units:unit not found",
+		.uri = LV2_UNITS__unit,
+		.dsc = "Adding units to paramters helps the user to put things in perspective."
+	},
 	ret_units_unit_not_a_uri_or_object = {
-		LINT_FAIL, "units_unit not a URI or object", LV2_UNITS__unit, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "units_unit not a URI or object",
+		.uri = LV2_UNITS__unit,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
