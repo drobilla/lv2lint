@@ -53,7 +53,9 @@ _test_symbols(app_t *app)
 		.lnt = LINT_FAIL,
 		.msg = "binary exports superfluous globally visible symbols: %s",
 		.uri = LV2_CORE__binary,
-		.dsc = "You likely miss the -fvisibility=hidden compile flag."
+		.dsc = "Plugin binaries must not export any globally visible symbols "
+			 "but lv2_descriptor. You may well have forgotten to compile "
+			 "with -fvisibility=hidden."
 	};
 
 	const ret_t *ret = NULL;

@@ -42,9 +42,10 @@ _test_symbols(app_t *app)
 		.lnt = LINT_FAIL,
 		.msg = "binary exports superfluous globally visible symbols: %s",
 		.uri = LV2_CORE__binary,
-		.dsc = "plugin UI binaries must not export any globally visible symbols\n"
-		       "but lv2ui_descriptor. You may well have forgotten to compile\n"
-					 "with -fvisibility=hidden."}; //FIXME actually print me
+		.dsc = "Plugin UI binaries must not export any globally visible symbols "
+			"but lv2ui_descriptor. You may well have forgotten to compile "
+			"with -fvisibility=hidden."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -81,7 +82,13 @@ static const ret_t *
 _test_instance_access(app_t *app)
 {
 	static const ret_t ret_instance_access_discouraged = {
-		LINT_WARN, "usage of instance-access is highly discouraged", LV2_INSTANCE_ACCESS_URI, NULL};
+		.lnt = LINT_WARN,
+		.msg = "usage of instance-access is highly discouraged",
+		.uri = LV2_INSTANCE_ACCESS_URI,
+		.dsc = "This plugin cannot be sandboxed ans it cannot be run in a separate "
+			"process or on a different machine. Please adhere to good practices and "
+			"apply the recommended MVC (model-view-control) method."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -102,7 +109,13 @@ static const ret_t *
 _test_data_access(app_t *app)
 {
 	static const ret_t ret_data_access_discouraged = {
-		LINT_WARN, "usage of data-access is highly discouraged", LV2_DATA_ACCESS_URI, NULL};
+		.lnt = LINT_WARN,
+		.msg = "usage of data-access is highly discouraged",
+		.uri = LV2_DATA_ACCESS_URI,
+		.dsc = "This plugin cannot be sandboxed ans it cannot be run in a separate "
+			"process or on a different machine. Please adhere to good practices and "
+			"apply the recommended MVC (model-view-control) method."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -123,7 +136,12 @@ static const ret_t *
 _test_mixed(app_t *app)
 {
 	static const ret_t ret_mixed_discouraged = {
-		LINT_WARN, "mixing DSP and UI code in same binary is discouraged", LV2_UI_PREFIX, NULL};
+		.lnt = LINT_WARN,
+		.msg = "mixing DSP and UI code in same binary is discouraged",
+		.uri = LV2_UI_PREFIX,
+		.dsc = "Please adhere to good practices and put UI code into a separate "
+			"shared library."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -143,7 +161,11 @@ static const ret_t *
 _test_binary(app_t *app)
 {
 	static const ret_t ret_binary_deprecated = {
-		LINT_FAIL, "ui:binary is deprecated, use lv2:binary instead", LV2_UI__binary, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "ui:binary is deprecated, use lv2:binary instead",
+		.uri = LV2_UI__binary,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -163,7 +185,11 @@ static const ret_t *
 _test_resident(app_t *app)
 {
 	static const ret_t ret_resident_deprecated = {
-		LINT_FAIL, "ui:makeSONameResident is deprecated", LV2_UI_PREFIX"makeSONameResident", NULL};
+		.lnt = LINT_FAIL,
+		.msg = "ui:makeSONameResident is deprecated",
+		.uri = LV2_UI_PREFIX"makeSONameResident",
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -182,7 +208,12 @@ static const ret_t *
 _test_extension_data(app_t *app)
 {
 	static const ret_t ret_extensions_data_not_null = {
-		LINT_FAIL, "extension data for <%s> not NULL", LV2_CORE__ExtensionData, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "extension data for <%s> not NULL",
+		.uri = LV2_CORE__ExtensionData,
+		.dsc = "You likely do not properly check the URI in your plugin's "
+			"'extension_data' callback or don't have the latter at all."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -205,11 +236,25 @@ static const ret_t *
 _test_idle_interface(app_t *app)
 {
 	static const ret_t ret_idle_feature_missing = {
-		LINT_WARN, "lv2:feature ui:idleInterface missing", LV2_UI__idleInterface, NULL},
+		.lnt = LINT_WARN,
+		.msg = "lv2:feature ui:idleInterface missing",
+		.uri = LV2_UI__idleInterface,
+		.dsc = "This plugin implements the idle extension, but does not list this "
+			"this feature."
+	},
 	ret_idle_extension_missing = {
-		LINT_FAIL, "lv2:extensionData ui:idleInterface missing", LV2_UI__idleInterface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:extensionData ui:idleInterface missing",
+		.uri = LV2_UI__idleInterface,
+		.dsc = "This plugin implements the idle extension, but does not list this "
+			"extension data."
+	},
 	ret_idle_extension_not_returned = {
-		LINT_FAIL, "ui:idleInterface not returned by 'extention_data'", LV2_UI__idleInterface, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "ui:idleInterface not returned by 'extention_data'",
+		.uri = LV2_UI__idleInterface,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -240,9 +285,18 @@ static const ret_t *
 _test_show_interface(app_t *app)
 {
 	static const ret_t ret_show_extension_missing =	{
-		LINT_FAIL, "lv2:extensionData ui:showInterface missing", LV2_UI__showInterface, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:extensionData ui:showInterface missing",
+		.uri = LV2_UI__showInterface,
+		.dsc = "This plugin implements the show extension, but does not list this "
+			"extension data."
+	},
 	ret_show_extension_not_returned = {
-		LINT_FAIL, "ui:showInterface not returned by 'extention_data'", LV2_UI__showInterface, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "ui:showInterface not returned by 'extention_data'",
+		.uri = LV2_UI__showInterface,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -265,9 +319,18 @@ static const ret_t *
 _test_resize_interface(app_t *app)
 {
 	static const ret_t ret_resize_missing = {
-		LINT_FAIL, "lv2:extensionData ui:resize missing", LV2_UI__resize, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "lv2:extensionData ui:resize missing",
+		.uri = LV2_UI__resize,
+		.dsc = "This plugin implements the resize extension, but does not list this "
+			"extension data."
+	},
 	ret_resize_not_returned = {
-		LINT_FAIL, "ui:resize not returned by 'extention_data'", LV2_UI__resize, NULL};
+		.lnt = LINT_FAIL,
+		.msg = "ui:resize not returned by 'extention_data'",
+		.uri = LV2_UI__resize,
+		.dsc = NULL
+	};
 
 	const ret_t *ret = NULL;
 
@@ -290,15 +353,36 @@ static const ret_t *
 _test_toolkit(app_t *app)
 {
 	static const ret_t ret_toolkit_invalid = {
-		LINT_FAIL, "UI toolkit not given", LV2_UI__ui, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "UI toolkit not given",
+		.uri = LV2_UI__ui,
+		.dsc = NULL
+	},
 	ret_toolkit_show_interface = {
-		LINT_WARN, "usage of external UI is discouraged", LV2_UI__showInterface, NULL},
+		.lnt = LINT_WARN,
+		.msg = "usage of official external UI is discouraged",
+		.uri = LV2_UI__showInterface,
+		.dsc = "Please adhere to best practices and use platform native UIs only."
+	},
 	ret_toolkit_external = {
-		LINT_WARN, "usage of external UI is discouraged", LV2_EXTERNAL_UI__Widget, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "usage of official external UI is discouraged",
+		.uri = LV2_EXTERNAL_UI__Widget,
+		.dsc = "If you really have to use an external UI, please use the official "
+			"way to do so with the ui:idleInterface and ui:showInterface extensions."
+	},
 	ret_toolkit_unknown = {
-		LINT_FAIL, "UI toolkit <%s> unkown", LV2_UI__ui, NULL},
+		.lnt = LINT_FAIL,
+		.msg = "UI toolkit <%s> unkown",
+		.uri = LV2_UI__ui,
+		.dsc = NULL
+	},
 	ret_toolkit_non_native = {
-		LINT_WARN, "usage of non-native toolkit <%s> is dicouraged", LV2_UI__ui, NULL};
+		.lnt = LINT_WARN,
+		.msg = "usage of non-native toolkit <%s> is dicouraged",
+		.uri = LV2_UI__ui,
+		.dsc = "Please adhere to best practices and use platform native UIs only."
+	};
 
 	const ret_t *ret = NULL;
 
@@ -368,7 +452,12 @@ static const ret_t *
 _test_ui_url(app_t *app)
 {
 	static const ret_t ret_ui_url_not_existing = {
-		LINT_WARN, "UI Web URL does not exist", LV2_UI__UI, NULL};
+		.lnt = LINT_WARN,
+		.msg = "UI Web URL does not exist",
+		.uri = LV2_UI__UI,
+		.dsc = "A plugin URI ideally links to an existing Web page with further "
+			"documentation."
+	};
 
 	const ret_t *ret = NULL;
 
