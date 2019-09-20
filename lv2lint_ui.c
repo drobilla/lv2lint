@@ -240,7 +240,7 @@ _test_idle_interface(app_t *app)
 		.msg = "lv2:feature ui:idleInterface missing",
 		.uri = LV2_UI__idleInterface,
 		.dsc = "This plugin implements the idle extension, but does not list this "
-			"this feature."
+			"feature."
 	},
 	ret_idle_extension_missing = {
 		.lnt = LINT_FAIL,
