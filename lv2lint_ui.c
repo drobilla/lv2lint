@@ -366,7 +366,7 @@ _test_toolkit(app_t *app)
 	},
 	ret_toolkit_external = {
 		.lnt = LINT_FAIL,
-		.msg = "usage of official external UI is discouraged",
+		.msg = "usage of unofficial external UI is discouraged",
 		.uri = LV2_EXTERNAL_UI__Widget,
 		.dsc = "If you really have to use an external UI, please use the official "
 			"way to do so with the ui:idleInterface and ui:showInterface extensions."
