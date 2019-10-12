@@ -103,43 +103,43 @@ _test_properties(app_t *app)
 }
 
 static inline const ret_t *
-_test_num(LilvNode *node, bool is_integer, bool is_toggled,
-	float *val)
+_test_num(app_t *app, LilvNode *node, bool is_integer, bool is_toggled,
+	float *val, const char *uri)
 {
 	static const ret_t ret_num_not_found = {
 		.lnt = LINT_WARN,
-		.msg = "number not found",
+		.msg = "number not found for <%s>",
 		.uri = LV2_CORE__Port,
 		.dsc = NULL
 	},
 	ret_num_not_an_int = {
 		.lnt = LINT_NOTE,
-		.msg = "number not an integer",
-		.uri = LV2_CORE__default,
+		.msg = "number not an integer for <%s>",
+		.uri = LV2_CORE__Port,
 		.dsc = NULL
 	},
 	ret_num_not_a_float = {
 		.lnt = LINT_NOTE,
-		.msg = "number not a float",
-		.uri = LV2_CORE__default,
+		.msg = "number not a float for <%s>",
+		.uri = LV2_CORE__Port,
 		.dsc = NULL
 	},
 	ret_num_not_a_bool = {
 		.lnt = LINT_NOTE,
-		.msg = "number not a bool",
-		.uri = LV2_CORE__default,
+		.msg = "number not a bool <%s>",
+		.uri = LV2_CORE__Port,
 		.dsc = NULL
 	},
 	ret_num_not_a_whole_value = {
 		.lnt = LINT_WARN,
-		.msg = "number has no whole value",
-		.uri = LV2_CORE__default,
+		.msg = "number has no whole value <%s>",
+		.uri = LV2_CORE__Port,
 		.dsc = NULL
 	},
 	ret_num_not_a_boolean_value = {
 		.lnt = LINT_WARN,
-		.msg = "number has no boolean value",
-		.uri = LV2_CORE__default,
+		.msg = "number has no boolean value <%s>",
+		.uri = LV2_CORE__Port,
 		.dsc = NULL
 	};
 
@@ -170,15 +170,18 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 			{
 				if(rintf(lilv_node_as_float(node)) == lilv_node_as_float(node))
 				{
+					*app->urn = strdup(uri);
 					ret = &ret_num_not_an_int;
 				}
 				else
 				{
+					*app->urn = strdup(uri);
 					ret = &ret_num_not_a_whole_value;
 				}
 			}
 			else // bool
 			{
+				*app->urn = strdup(uri);
 				ret = &ret_num_not_an_int;
 			}
 		}
@@ -188,10 +191,12 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 			{
 				if( (lilv_node_as_int(node) == 0) || (lilv_node_as_int(node) == 1) )
 				{
+					*app->urn = strdup(uri);
 					ret = &ret_num_not_a_bool;
 				}
 				else
 				{
+					*app->urn = strdup(uri);
 					ret = &ret_num_not_a_boolean_value;
 				}
 			}
@@ -199,10 +204,12 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 			{
 				if( (lilv_node_as_float(node) == 0.f) || (lilv_node_as_float(node) == 1.f) )
 				{
+					*app->urn = strdup(uri);
 					ret = &ret_num_not_a_bool;
 				}
 				else
 				{
+					*app->urn = strdup(uri);
 					ret = &ret_num_not_a_boolean_value;
 				}
 			}
@@ -213,6 +220,7 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 		}
 		else if(!lilv_node_is_float(node))
 		{
+			*app->urn = strdup(uri);
 			ret = &ret_num_not_a_float;
 		}
 
@@ -220,6 +228,7 @@ _test_num(LilvNode *node, bool is_integer, bool is_toggled,
 	}
 	else // !node
 	{
+		*app->urn = strdup(uri);
 		ret = &ret_num_not_found;
 	}
 
@@ -241,7 +250,8 @@ _test_default(app_t *app)
 		&& lilv_port_is_a(app->plugin, app->port, app->uris.lv2_InputPort) )
 	{
 		LilvNode *default_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_default);
-		ret = _test_num(default_node, is_integer, is_toggled, &app->dflt.f32);
+		ret = _test_num(app, default_node, is_integer, is_toggled, &app->dflt.f32,
+			LV2_CORE__default);
 	}
 
 	return ret;
@@ -263,7 +273,8 @@ _test_minimum(app_t *app)
 		&& !is_toggled )
 	{
 		LilvNode *minimum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_minimum);
-		ret = _test_num(minimum_node, is_integer, is_toggled, &app->min.f32);
+		ret = _test_num(app, minimum_node, is_integer, is_toggled, &app->min.f32,
+			LV2_CORE__minimum);
 	}
 
 	return ret;
@@ -285,7 +296,8 @@ _test_maximum(app_t *app)
 		&& !is_toggled )
 	{
 		LilvNode *maximum_node = lilv_port_get(app->plugin, app->port, app->uris.lv2_maximum);
-		ret = _test_num(maximum_node, is_integer, is_toggled, &app->max.f32);
+		ret = _test_num(app, maximum_node, is_integer, is_toggled, &app->max.f32,
+			LV2_CORE__maximum);
 	}
 
 	return ret;

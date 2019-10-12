@@ -365,10 +365,11 @@ _test_toolkit(app_t *app)
 		.dsc = "Please adhere to best practices and use platform native UIs only."
 	},
 	ret_toolkit_external = {
-		.lnt = LINT_FAIL,
+		.lnt = LINT_WARN,
 		.msg = "usage of unofficial external UI is discouraged",
 		.uri = LV2_EXTERNAL_UI__Widget,
-		.dsc = "If you really have to use an external UI, please use the official "
+		.dsc = "Please adhere to best practices and use platform native UIs only. "
+			"If you really have to use an external UI, please use the official "
 			"way to do so with the ui:idleInterface and ui:showInterface extensions."
 	},
 	ret_toolkit_unknown = {
