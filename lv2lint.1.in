@@ -1,4 +1,4 @@
-.TH LV2LINT "1" "Jan 04, 2018"
+.TH LV2LINT "1" "Oct 12, 2019"
 
 .SH NAME
 lv2lint \- an LV2 lintian
@@ -58,14 +58,14 @@ Show verbose test item documentation
 Apart from default LV2 plugin install paths, use include directory to search for plugins
 
 .HP
-\fB\-S\fR warn|note|pass|all
+\fB\-S\fR (no)warn|note|pass|all
 .IP
-Apart from errors alone, also show warnings (warn), notes (note), passes (pass) or all (all) on console
+Apart from errors alone, also show warnings (warn), notes (note), passes (pass) or all (all) on console. The no- prefix inverts the meaning.
 
 .HP
-\fB\-E\fR warn|note|all
+\fB\-E\fR (no)warn|note|all
 .IP
-Apart from errors alone, also treat warnings (warn), notes (note) or all (all) as errors
+Apart from errors alone, also treat warnings (warn), notes (note) or all (all) as errors. The no- prefix inverts the meaning.
 
 .SH LICENSE
 Artistic License 2.0.

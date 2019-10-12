@@ -501,18 +501,18 @@ _usage(char **argv)
 		"   %s [OPTIONS] {PLUGIN_URI}*\n"
 		"\n"
 		"OPTIONS\n"
-		"   [-v]                     print version information\n"
-		"   [-h]                     print usage information\n"
-		"   [-d]                     show verbose test item documentation\n"
-		"   [-I] INCLUDE_DIR         use include directory to search for plugins\n"
+		"   [-v]                         print version information\n"
+		"   [-h]                         print usage information\n"
+		"   [-d]                         show verbose test item documentation\n"
+		"   [-I] INCLUDE_DIR             use include directory to search for plugins\n"
 #ifdef ENABLE_ONLINE_TESTS
-		"   [-o]                     run online test items\n"
-		"   [-m]                     create mail to plugin author\n"
-		"   [-g] GREETER             custom mail greeter\n"
+		"   [-o]                         run online test items\n"
+		"   [-m]                         create mail to plugin author\n"
+		"   [-g] GREETER                 custom mail greeter\n"
 #endif
 
-		"   [-S] warn|note|pass|all  show warnings, notes, passes or all\n"
-		"   [-E] warn|note|all       treat warnings, notes or all as errors\n\n"
+		"   [-S] (no)warn|note|pass|all  show warnings, notes, passes or all\n"
+		"   [-E] (no)warn|note|all       treat warnings, notes or all as errors\n\n"
 		, argv[0]);
 }
 
@@ -780,7 +780,7 @@ main(int argc, char **argv)
 {
 	static app_t app;
 	app.atty = isatty(1);
-	app.show = LINT_FAIL; // always report failed tests
+	app.show = LINT_FAIL | LINT_WARN; // always report failed and warned tests
 	app.mask = LINT_FAIL; // always fail at failed tests
 	const char *include_dir = NULL;
 	LilvNode *bundle_node = NULL;
@@ -858,8 +858,26 @@ main(int argc, char **argv)
 				}
 				else if(!strcmp(optarg, "all"))
 				{
-					app.show |= LINT_WARN | LINT_NOTE | LINT_PASS;
+					app.show |= (LINT_WARN | LINT_NOTE | LINT_PASS);
 				}
+
+				else if(!strcmp(optarg, "nowarn"))
+				{
+					app.show &= ~LINT_WARN;
+				}
+				else if(!strcmp(optarg, "nonote"))
+				{
+					app.show &= ~LINT_NOTE;
+				}
+				else if(!strcmp(optarg, "nopass"))
+				{
+					app.show &= ~LINT_PASS;
+				}
+				else if(!strcmp(optarg, "noall"))
+				{
+					app.show &= ~(LINT_WARN | LINT_NOTE | LINT_PASS);
+				}
+
 				break;
 			case 'E':
 				if(!strcmp(optarg, "warn"))
@@ -874,9 +892,26 @@ main(int argc, char **argv)
 				}
 				else if(!strcmp(optarg, "all"))
 				{
-					app.show |= LINT_WARN | LINT_NOTE;
-					app.mask |= LINT_WARN | LINT_NOTE;
+					app.show |= (LINT_WARN | LINT_NOTE);
+					app.mask |= (LINT_WARN | LINT_NOTE);
 				}
+
+				else if(!strcmp(optarg, "nowarn"))
+				{
+					app.show &= ~LINT_WARN;
+					app.mask &= ~LINT_WARN;
+				}
+				else if(!strcmp(optarg, "nonote"))
+				{
+					app.show &= ~LINT_NOTE;
+					app.mask &= ~LINT_NOTE;
+				}
+				else if(!strcmp(optarg, "noall"))
+				{
+					app.show &= ~(LINT_WARN | LINT_NOTE);
+					app.mask &= ~(LINT_WARN | LINT_NOTE);
+				}
+
 				break;
 			case '?':
 #ifdef ENABLE_ONLINE_TESTS

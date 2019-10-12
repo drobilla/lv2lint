@@ -7,6 +7,7 @@
 [![build status](https://gitlab.com/OpenMusicKontrollers/lv2lint/badges/master/build.svg)](https://gitlab.com/OpenMusicKontrollers/lv2lint/commits/master)
 
 ### Dependencies
+
 #### Mandatory
 
 * [LV2](http://lv2plug.in/) (LV2 Plugin Standard)
@@ -19,6 +20,7 @@
 
 lv2lint can optionally test your plugin URIs for existence. If you want that,
 you need to enable it at compile time (-Donline-tests=true) and link to libcurl.
+You will also need to enable it at run-time (-o).
 
 lv2lint can optionally test your plugin symbol visibility and link dependencies.
 If you want that, you need to enable it at compile time (-Delf-tests=true) and
@@ -35,7 +37,7 @@ link to libelf.
 
 ### Usage
 
-	lv2lint -d -Swarn -Snote http://lv2plug.in/plugins/eg-scope#Stereo
+	lv2lint -d http://lv2plug.in/plugins/eg-scope#Stereo
 
 ### License
 
