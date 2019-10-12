@@ -243,7 +243,7 @@ _test_idle_interface(app_t *app)
 			"feature."
 	},
 	ret_idle_extension_missing = {
-		.lnt = LINT_FAIL,
+		.lnt = LINT_WARN,
 		.msg = "lv2:extensionData ui:idleInterface missing",
 		.uri = LV2_UI__idleInterface,
 		.dsc = "This plugin implements the idle extension, but does not list this "
@@ -285,7 +285,7 @@ static const ret_t *
 _test_show_interface(app_t *app)
 {
 	static const ret_t ret_show_extension_missing =	{
-		.lnt = LINT_FAIL,
+		.lnt = LINT_WARN,
 		.msg = "lv2:extensionData ui:showInterface missing",
 		.uri = LV2_UI__showInterface,
 		.dsc = "This plugin implements the show extension, but does not list this "
