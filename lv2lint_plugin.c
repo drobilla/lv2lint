@@ -308,7 +308,7 @@ _test_author_name(app_t *app)
 	},
 	ret_author_not_a_string = {
 		.lnt = LINT_FAIL,
-		.msg = "foaf:name not an string",
+		.msg = "foaf:name not a string",
 		.uri = LILV_NS_FOAF"name",
 		.dsc = FOAF_DSC
 	},
@@ -356,7 +356,7 @@ _test_author_email(app_t *app)
 	},
 	ret_email_not_a_uri = {
 		.lnt = LINT_FAIL,
-		.msg = "foaf:email not an URI",
+		.msg = "foaf:email not a URI",
 		.uri = LILV_NS_FOAF"email",
 		.dsc = FOAF_DSC
 	},
@@ -404,7 +404,7 @@ _test_author_homepage(app_t *app)
 	},
 	ret_homepage_not_a_uri = {
 		.lnt = LINT_FAIL,
-		.msg = "foaf:homepage not an URI",
+		.msg = "foaf:homepage not a URI",
 		.uri = LILV_NS_FOAF"homepage",
 		.dsc = FOAF_DSC
 	},

@@ -37,7 +37,23 @@ link to libelf.
 
 ### Usage
 
-	lv2lint -d http://lv2plug.in/plugins/eg-scope#Stereo
+An __acceptable plugin__ *SHOULD* pass without triggering any fails, this is also the
+default configuration:
+
+	lv2lint http://lv2plug.in/plugins/eg-scope#Stereo
+
+A __good plugin__ *SHOULD* pass without triggering any warnings:
+
+	lv2lint -Ewarn http://lv2plug.in/plugins/eg-scope#Stereo
+
+A __perfect plugin__ *SHOULD* pass without triggering any warnings or notes:
+
+	lv2lint -Ewarn -Enote http://lv2plug.in/plugins/eg-scope#Stereo
+
+If you get any warnings or notes, you can enable debugging output to help you
+
+	lv2lint -d -Ewarn -Enote http://lv2plug.in/plugins/eg-scope#Stereo
+fix the problems:
 
 ### License
 
