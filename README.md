@@ -1,6 +1,6 @@
-# lv2lint
+## lv2lint
 
-## Check whether a given LV2 plugin is up to the specification
+### Check whether a given LV2 plugin is up to the specification
 
 An LV2 lint-like tool that checks whether a given plugin and its UI(s) match up
 with the provided metadata and adhere to well-known best practices.
@@ -12,7 +12,7 @@ in order to prevent unsatisfied users.
 *Note: This is an early release, if you happen to find false-positive warnings
 when using this tool, please report back, so it can be fixed.*
 
-### Build status
+#### Build status
 
 [![build status](https://gitlab.com/OpenMusicKontrollers/lv2lint/badges/master/build.svg)](https://gitlab.com/OpenMusicKontrollers/lv2lint/commits/master)
 
