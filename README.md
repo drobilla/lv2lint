@@ -2,9 +2,51 @@
 
 ## Check whether a given LV2 plugin is up to the specification
 
+An LV2 lint-like tool that checks whether a given plugin and its UI(s) match up
+with the provided metadata and adhere to well-known best practices.
+
+Run it as part of your continuous integration pipeline together with
+lv2/sord\_validate to reduce the likelihood of shipping plugins with major flaws
+in order to prevent unsatisfied users.
+
+*Note: This is an early release, if you happen to find false-positive warnings
+when using this tool, please report back, so it can be fixed.*
+
 ### Build status
 
 [![build status](https://gitlab.com/OpenMusicKontrollers/lv2lint/badges/master/build.svg)](https://gitlab.com/OpenMusicKontrollers/lv2lint/commits/master)
+
+### Binaries
+
+#### Stable release
+
+* [lv2lint-0.2.0.zip](https://dl.open-music-kontrollers.ch/lv2lint/stable/lv2lint-0.2.0.zip) ([sig](https://dl.open-music-kontrollers.ch/lv2lint/stable/lv2lint-0.2.0.zip.sig))
+
+#### Unstable (nightly) release
+
+* [lv2lint-latest-unstable.zip](https://dl.open-music-kontrollers.ch/lv2lint/unstable/lv2lint-latest-unstable.zip) ([sig](https://dl.open-music-kontrollers.ch/lv2lint/unstable/lv2lint-latest-unstable.zip.sig))
+
+### Sources
+
+#### Stable release
+
+* [lv2lint-0.2.0.tar.xz](https://git.open-music-kontrollers.ch/lv2/lv2lint/snapshot/lv2lint-0.2.0.tar.xz)
+
+#### Git repository
+
+* <https://git.open-music-kontrollers.ch/lv2/lv2lint>
+
+<!--
+### Packages
+
+* [ArchLinux](https://www.archlinux.org/packages/community/x86_64/lv2lint/)
+-->
+
+### Bugs and feature requests
+
+* [Gitlab](https://gitlab.com/OpenMusicKontrollers/lv2lint)
+* [Github](https://github.com/OpenMusicKontrollers/lv2lint)
+
 
 ### Dependencies
 
@@ -34,6 +76,11 @@ link to libelf.
 	cd build
 	ninja
 	sudo ninja install
+
+#### Compile options
+
+* online-tests (check URIs via libcurl, default=off)
+* elf-tests (check shared object link symbols and dependencies, default=off)
 
 ### Usage
 
