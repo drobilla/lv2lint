@@ -184,6 +184,12 @@ struct _app_t {
 		LilvNode *atom_Vector;
 		LilvNode *atom_Sequence;
 
+		LilvNode *xsd_int;
+		LilvNode *xsd_uint;
+		LilvNode *xsd_long;
+		LilvNode *xsd_float;
+		LilvNode *xsd_double;
+
 		LilvNode *state_loadDefaultState;
 		LilvNode *state_state;
 		LilvNode *state_interface;

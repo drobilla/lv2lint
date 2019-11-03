@@ -133,6 +133,12 @@ _map_uris(app_t *app)
 	app->uris.atom_Vector = lilv_new_uri(app->world, LV2_ATOM__Vector);
 	app->uris.atom_Sequence = lilv_new_uri(app->world, LV2_ATOM__Sequence);
 
+	app->uris.xsd_int = lilv_new_uri(app->world, LILV_NS_XSD"int");
+	app->uris.xsd_uint = lilv_new_uri(app->world, LILV_NS_XSD"nonNegativeInteger");
+	app->uris.xsd_long = lilv_new_uri(app->world, LILV_NS_XSD"long");
+	app->uris.xsd_float = lilv_new_uri(app->world, LILV_NS_XSD"float");
+	app->uris.xsd_double = lilv_new_uri(app->world, LILV_NS_XSD"double");
+
 	app->uris.state_loadDefaultState = lilv_new_uri(app->world, LV2_STATE__loadDefaultState);
 	app->uris.state_state = lilv_new_uri(app->world, LV2_STATE__state);
 	app->uris.state_interface = lilv_new_uri(app->world, LV2_STATE__interface);

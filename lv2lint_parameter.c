@@ -312,7 +312,12 @@ _test_range(app_t *app)
 					|| lilv_node_equals(range_node, app->uris.atom_Tuple)
 					|| lilv_node_equals(range_node, app->uris.atom_Object)
 					|| lilv_node_equals(range_node, app->uris.atom_Vector)
-					|| lilv_node_equals(range_node, app->uris.atom_Sequence) )
+					|| lilv_node_equals(range_node, app->uris.atom_Sequence)
+					|| lilv_node_equals(range_node, app->uris.xsd_int)
+					|| lilv_node_equals(range_node, app->uris.xsd_uint)
+					|| lilv_node_equals(range_node, app->uris.xsd_long)
+					|| lilv_node_equals(range_node, app->uris.xsd_float)
+					|| lilv_node_equals(range_node, app->uris.xsd_double) )
 				{
 					// OK
 				}
