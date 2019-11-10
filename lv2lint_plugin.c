@@ -258,6 +258,15 @@ _test_license(app_t *app)
 	const ret_t *ret = NULL;
 
 	LilvNode *license_node = lilv_world_get(app->world, lilv_plugin_get_uri(app->plugin), app->uris.doap_license, NULL);
+	if (!license_node)
+	{
+		LilvNode *project_node = lilv_plugin_get_project(app->plugin);
+		if (project_node)
+		{
+			license_node = lilv_world_get(app->world, project_node, app->uris.doap_license, NULL);
+		}
+	}
+
 	if(license_node)
 	{
 		if(lilv_node_is_uri(license_node))
