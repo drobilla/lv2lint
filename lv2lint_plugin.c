@@ -295,7 +295,7 @@ _test_license(app_t *app)
 }
 
 #define FOAF_DSC "You likely have not defined an lv2:project with " \
-	"a valid foaf:maintainer or your plugin is not a subclass of doap:project."
+	"a valid doap:maintainer or your plugin is not a subclass of doap:Project."
 
 static const ret_t *
 _test_author_name(app_t *app)
