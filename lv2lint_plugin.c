@@ -688,19 +688,19 @@ _test_class(app_t *app)
 {
 	static const ret_t ret_class_not_found = {
 		.lnt = LINT_FAIL,
-		.msg = "lv2:class not found",
+		.msg = "type not found",
 		.uri = LV2_CORE__Plugin,
 		.dsc = NULL
 	},
 	ret_class_is_base_class = {
 		.lnt = LINT_WARN,
-		.msg = "lv2:class is base class",
+		.msg = "type is just lv2:Plugin",
 		.uri = LV2_CORE__Plugin,
 		.dsc = "If you give the plugin a proper class, hosts can better sort them."
 	},
 	ret_class_not_valid = {
 		.lnt = LINT_FAIL,
-		.msg = "lv2:class <%s> not valid",
+		.msg = "type <%s> not valid",
 		.uri = LV2_CORE__Plugin,
 		.dsc = NULL
 	};
