@@ -509,6 +509,7 @@ _usage(char **argv)
 		"OPTIONS\n"
 		"   [-v]                         print version information\n"
 		"   [-h]                         print usage information\n"
+		"   [-q]                         quiet mode, show only a summary\n"
 		"   [-d]                         show verbose test item documentation\n"
 		"   [-I] INCLUDE_DIR             use include directory to search for plugins\n"
 #ifdef ENABLE_ONLINE_TESTS
@@ -810,17 +811,11 @@ main(int argc, char **argv)
 		"---\n\n";
 #endif
 
-	fprintf(stderr,
-		"%s "LV2LINT_VERSION"\n"
-		"Copyright (c) 2016-2019 Hanspeter Portner (dev@open-music-kontrollers.ch)\n"
-		"Released under Artistic License 2.0 by Open Music Kontrollers\n",
-		argv[0]);
-
 	int c;
 #ifdef ENABLE_ONLINE_TESTS
-	while( (c = getopt(argc, argv, "vhdomg:S:E:I:") ) != -1)
+	while( (c = getopt(argc, argv, "vhqdomg:S:E:I:") ) != -1)
 #else
-	while( (c = getopt(argc, argv, "vhdS:E:I:") ) != -1)
+	while( (c = getopt(argc, argv, "vhqdS:E:I:") ) != -1)
 #endif
 	{
 		switch(c)
@@ -831,6 +826,9 @@ main(int argc, char **argv)
 			case 'h':
 				_usage(argv);
 				return 0;
+			case 'q':
+				app.quiet = true;
+				break;
 			case 'd':
 				app.debug = true;
 				break;
@@ -934,6 +932,15 @@ main(int argc, char **argv)
 			default:
 				return -1;
 		}
+	}
+
+	if (!app.quiet)
+	{
+		fprintf(stderr,
+			"%s "LV2LINT_VERSION"\n"
+			"Copyright (c) 2016-2019 Hanspeter Portner (dev@open-music-kontrollers.ch)\n"
+			"Released under Artistic License 2.0 by Open Music Kontrollers\n",
+			argv[0]);
 	}
 
 	if(optind == argc) // no URI given

@@ -123,6 +123,7 @@ struct _app_t {
 	char **urn;
 	bool atty;
 	bool debug;
+	bool quiet;
 #ifdef ENABLE_ONLINE_TESTS
 	bool online;
 	char *mail;
